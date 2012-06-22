@@ -1,0 +1,207 @@
+<!doctype html>
+<html>
+<head>
+    <title>DDS demo / Akra Engine</title>
+</head>
+<body>
+<canvas id="canvas" width="1" height="1"></canvas>
+<canvas id="img" style="border: 1px solid #eee;" width="256" height="256"></canvas>
+<canvas id="img1" style="border: 1px solid #eee;" width="256" height="256"></canvas>
+</div>
+
+<script type="text/akra-js">
+
+    Include('/sources/');
+
+</script>
+
+<script type="text/javascript" src="../preprocessor/approc.min-1.2.0.js"></script>
+
+<script type="text/javascript">
+
+//var Eng= new a.Engine("canvas");
+/*var my_img1=new a.Img(1);
+my_img1.create(512,512,0x1908,0);
+my_img1.generatePerlinNoise(0.01, 5, 0.6);
+my_img1.randomChannelNoise(0, 200, 255);
+
+var canvas = document.getElementById("img1");
+var iWidth=my_img1.getWidth();
+var iHeight=my_img1.getHeight();
+canvas.width=iWidth;
+canvas.height=iHeight;
+var ctx = canvas.getContext("2d");	
+
+var imgd = ctx.getImageData(0, 0, iWidth, iHeight);
+var pix = imgd.data;
+var iOffset;	
+var pColor= new Uint8Array(4);
+for(var y=0;y<iHeight;y++)
+{
+	for(var x=0;x<iWidth;x++)
+	{
+		my_img1.getPixelRGBA(x,y,pColor);
+		iOffset=(y*iWidth+x)*4;
+		pix[iOffset+0]=pColor[0];
+		pix[iOffset+1]=pColor[1];
+		pix[iOffset+2]=pColor[2];
+		pix[iOffset+3]=255;//pColor[3];
+	}
+}
+ctx.putImageData(imgd, 0, 0);*/
+
+/*var my_img1=new a.Img(1);
+my_img1.load("/media/textures/dirt.dds",function()
+{
+	my_img1.convert(0x1908);
+	var canvas = document.getElementById("img1");
+	var iWidth=my_img1.getWidth();
+	var iHeight=my_img1.getHeight();
+	canvas.width=iWidth;
+	canvas.height=iHeight;
+	var ctx = canvas.getContext("2d");	
+
+	var imgd = ctx.getImageData(0, 0, iWidth, iHeight);
+	var pix = imgd.data;
+	var iOffset;	
+	var pColor= new Uint8Array(4);
+	for(var y=0;y<iHeight;y++)
+	{
+		for(var x=0;x<iWidth;x++)
+		{
+			my_img1.getPixelRGBA(x,y,pColor);
+			iOffset=(y*iWidth+x)*4;
+			pix[iOffset+0]=pColor[0];
+			pix[iOffset+1]=pColor[1];
+			pix[iOffset+2]=pColor[2];
+			pix[iOffset+3]=pColor[3];
+		}
+	}
+	ctx.putImageData(imgd, 0, 0);
+});
+*/
+var my_img=new a.Img(1);
+my_img.load("/media/textures/sky.dds",function()
+{
+	my_img.convert(0x1908);
+	var canvas = document.getElementById("img");
+	var iWidth=my_img.getWidth();
+	var iHeight=my_img.getHeight();
+	canvas.width=iWidth*4;
+	canvas.height=iHeight*3;
+	
+	var ctx = canvas.getContext("2d");
+	
+	//z+
+	var imgd = ctx.getImageData(iWidth, iHeight, iWidth, iHeight);
+	var pix = imgd.data;
+	var iOffset;	
+	var pColor= new Uint8Array(4);
+	for(var y=0;y<iHeight;y++)
+	{
+		for(var x=0;x<iWidth;x++)
+		{
+			my_img.getPixelRGBA(x,y,pColor,undefined,4);
+			iOffset=(y*iWidth+x)*4;
+			pix[iOffset+0]=pColor[0];
+			pix[iOffset+1]=pColor[1];
+			pix[iOffset+2]=pColor[2];
+			pix[iOffset+3]=pColor[3];
+		}
+	}
+	ctx.putImageData(imgd, iWidth, iHeight);
+	//z-
+	var imgd = ctx.getImageData(iWidth*3, iHeight, iWidth, iHeight);
+	var pix = imgd.data;
+	var iOffset;	
+	var pColor= new Uint8Array(4);
+	for(var y=0;y<iHeight;y++)
+	{
+		for(var x=0;x<iWidth;x++)
+		{
+			my_img.getPixelRGBA(x,y,pColor,undefined,5);
+			iOffset=(y*iWidth+x)*4;
+			pix[iOffset+0]=pColor[0];
+			pix[iOffset+1]=pColor[1];
+			pix[iOffset+2]=pColor[2];
+			pix[iOffset+3]=pColor[3];
+		}
+	}
+	ctx.putImageData(imgd, iWidth*3, iHeight);
+	//x-
+	var imgd = ctx.getImageData(0, iHeight, iWidth, iHeight);
+	var pix = imgd.data;
+	var iOffset;	
+	var pColor= new Uint8Array(4);
+	for(var y=0;y<iHeight;y++)
+	{
+		for(var x=0;x<iWidth;x++)
+		{
+			my_img.getPixelRGBA(x,y,pColor,undefined,1);
+			iOffset=(y*iWidth+x)*4;
+			pix[iOffset+0]=pColor[0];
+			pix[iOffset+1]=pColor[1];
+			pix[iOffset+2]=pColor[2];
+			pix[iOffset+3]=pColor[3];
+		}
+	}
+	ctx.putImageData(imgd, 0, iHeight);
+	//x+
+	var imgd = ctx.getImageData(iWidth*2, iHeight, iWidth, iHeight);
+	var pix = imgd.data;
+	var iOffset;	
+	var pColor= new Uint8Array(4);
+	for(var y=0;y<iHeight;y++)
+	{
+		for(var x=0;x<iWidth;x++)
+		{
+			my_img.getPixelRGBA(x,y,pColor,undefined,0);
+			iOffset=(y*iWidth+x)*4;
+			pix[iOffset+0]=pColor[0];
+			pix[iOffset+1]=pColor[1];
+			pix[iOffset+2]=pColor[2];
+			pix[iOffset+3]=pColor[3];
+		}
+	}
+	ctx.putImageData(imgd, iWidth*2, iHeight);
+	
+	//y+
+	var imgd = ctx.getImageData(iWidth, 0, iWidth, iHeight);
+	var pix = imgd.data;
+	var iOffset;	
+	var pColor= new Uint8Array(4);
+	for(var y=0;y<iHeight;y++)
+	{
+		for(var x=0;x<iWidth;x++)
+		{
+			my_img.getPixelRGBA(x,y,pColor,undefined,2);
+			iOffset=(y*iWidth+x)*4;
+			pix[iOffset+0]=pColor[0];
+			pix[iOffset+1]=pColor[1];
+			pix[iOffset+2]=pColor[2];
+			pix[iOffset+3]=pColor[3];
+		}
+	}
+	ctx.putImageData(imgd, iWidth, 0);
+	
+	var imgd = ctx.getImageData(iWidth, iHeight*2, iWidth, iHeight);
+	var pix = imgd.data;
+	var iOffset;	
+	var pColor= new Uint8Array(4);
+	for(var y=0;y<iHeight;y++)
+	{
+		for(var x=0;x<iWidth;x++)
+		{
+			my_img.getPixelRGBA(x,y,pColor,undefined,3);
+			iOffset=(y*iWidth+x)*4;
+			pix[iOffset+0]=pColor[0];
+			pix[iOffset+1]=pColor[1];
+			pix[iOffset+2]=pColor[2];
+			pix[iOffset+3]=pColor[3];
+		}
+	}
+	ctx.putImageData(imgd, iWidth, iHeight*2);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Terrain demo / Akra Engine</title>
+    </head>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+        #wrapper {
+            margin:0 auto;
+            position: fixed;
+            width:  100%;;
+        }
+    </style>
+    <body>
+        <div id='wrapper'>
+            <canvas id="canvas" style="border: none;" width="1280" height="720"></canvas>
+            <div id ="log"></div>
+        </div>
+        <script type="text/akra-js">
+              /*
+            a = {};
+            Include('/sources/files/');
+
+            a.fopen('/media/textures/map.dds', 'rb').onread = function(pData) {
+                var pBuf = (new Uint8Array(pData));
+                var n = 16;
+                for (var i = 0; i < n; ++ i) {
+                    console.log(pBuf[i]);
+                }
+                console.log('-----------------------------------------------');
+                for (var i = 0; i < n; ++ i) {
+                    console.log(pBuf[pBuf.length - n + i]);
+                }
+            }
+               */
+        </script>
+        <script type="text/javascript" src="../preprocessor/esprima.js"></script>
+        <script type="text/javascript" src="../preprocessor/approc.js"></script>
+        <script type="text/javascript" >
+            var code = "Include('/sources/');Define(FUNC, function (x, y, z) { var a = x + y + z; var b = x - y - z; var c = z - x + y;})"//"Define(X, function () {x;y;z;})";//
+            console.log(Preprocessor.extractMacro(code));
+        </script>
+    </body>
+</html>
+

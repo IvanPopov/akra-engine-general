@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<script type="text/akra-js">
+    Include('/sources/');
+</script>
+<script type="text/javascript" src="../preprocessor/approc.min-1.2.0.js"></script>
+<script type="text/javascript">
+    var pEngine = {};
+
+    var pVertices = [
+        -0.5, 0.5, 0.5,
+         0.5, 0.5, 0.5,
+        -0.5, -0.5, 0.5,
+         0.5, -0.5, 0.5,
+        -0.5, 0.5, -0.5,
+         0.5, 0.5, -0.5,
+        -0.5, -0.5, -0.5,
+         0.5, -0.5, -0.5
+    ];
+
+    var pNormals = [
+        1.0, 0.0, 0.0,
+       -1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, -1.0, 0.0,
+        0.0, 0.0, 1.0,
+        0.0, 0.0, -1.0
+    ];
+
+    var pVideo = new a.VideoBuffer(pEngine);
+    pVideo.create(1 << 2, new Float32Array(28));
+    pVideo.lock();
+    /*
+    var pGPUBuffer = new a.GPUBuffer();
+    var pVertexData = pGPUBuffer.getEmptyData(8);//GPUData
+    pVertexData.setData(new Float32Array(pVertices));
+
+    var pNormalData = pGPUBuffer.getEmptyData(6);
+    pNormalData.setData(new Float32Array(pNormals));
+
+
+    var N = 36;
+
+    //pEngine.displayManager().vertexBufferPool().createResource('indecies_' + a.sid());
+    function createIndexData(pEngine, n, sSemantics) {
+        var pBuffer = new a.VertexBuffer(pEngine);
+        pBuffer.create(n * a.getTypeSize(a.DTYPE.FLOAT), FLAG(a.VertexBuffer.ManyDrawBit) | FLAG(a.VertexBuffer.RamBackupBit));
+        return pBuffer.getEmptyVertexData(N, [new a.VertexDeclaration(1, a.DTYPE.FLOAT, sSemantics)]);
+    }
+
+    var pVertexIndecies     = createIndexData(pEngine, N, 'POSITION');
+    var pNormalIndecies     = createIndexData(pEngine, N, 'NORMAL');
+
+
+    var pBufferMap = new a.BufferMap(pEngine);
+    pBufferMap.setData(pGPUBuffer);
+    pBufferMap.setIndecies(pVertexIndecies, pNormalIndecies);
+
+
+    //------------------------------------
+
+    var pBufferMap = new a.BufferMap(pEngine);
+    pBufferMap.setData(pVertices);
+    pBufferMap.setData(pNormals);
+    pBufferMap.setIndecies(pVertices, pNormals);
+    */
+
+
+</script>
+
+</body>
+</html>

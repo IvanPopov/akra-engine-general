@@ -1,0 +1,295 @@
+<!doctype html>
+<html>
+<head>
+    <title>Terrain demo / Akra Engine</title>
+    <link type="text/css" href="jquery/css/dot-luv/jquery-ui-1.8.18.custom.css" rel="stylesheet"/>
+    <script type="text/javascript" src="jquery/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="jquery/js/jquery-ui-1.8.18.custom.min.js"></script>
+    <style type="text/css">
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        #wrapper {
+            margin: 0 auto;
+            width: 800px;
+        }
+
+        .loader {
+            position: relative;
+            top: -300px;
+            left: 150px;
+            width: 500px;
+        }
+
+        #progressbar-text {
+            text-align: center;
+            width: 500px;
+            position: relative;
+            top: -30px;
+            font-family: sans-serif;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div id='wrapper'>
+    <canvas id="canvas" style="border: 1px solid #eee;" width="800" height="600"></canvas>
+    <div class="loader">
+        <div id="progressbar"></div>
+        <div id="progressbar-text"></div>
+    </div>
+    <div id="log"></div>
+</div>
+<script type="text/akra-js">
+    Include('/sources/');
+</script>
+
+<script type="text/javascript" src="../preprocessor/approc.min-1.2.0.js"></script>
+<script type="text/javascript">
+
+function MyGame () {
+    //Вызываем конструктор класса родителя
+    MyGame.superclass.constructor.apply(this, arguments);
+
+    //Ландшафта
+    this.pTerrainSystem = null;
+	
+	//Используемые рисунки
+	this.pHeightImage = null;
+	this.pBlendImage = null;
+	
+    //Используемые текстуры 
+    this.pBlendMap = null;
+    this.pGrass = null;
+    this.pRock = null;
+    //this.pRockBump = null;
+    this.pDirt = null;
+
+    //Все текстуры будут лежать здесь
+    this.pSurfaceMaterial = null;
+
+    //Класс, отвечающий за отображение ландшавта
+    this.pRenderMethod = null;
+
+
+    this.pDefaultText = null;
+}
+
+//Наследуем новое приложение от движка. В нем определены
+a.extend(MyGame, a.Engine);
+
+//Инициализация данных приложения
+MyGame.prototype.oneTimeSceneInit = function () {
+    //Инициализация данных приложения по умолчанию
+    this.notifyOneTimeSceneInit();
+    this.pResourceManager.monitorInitResources(function (nLoaded, nTotal, pTarget) {
+        console.log('loaded:', nLoaded / nTotal, '%', pTarget.findResourceName());
+        var fVal = nLoaded / nTotal * 100;
+        $("#progressbar").progressbar("option", "value", fVal);
+        $("#progressbar-text").html('[' + fVal + '%] loaded ' + pTarget.findResourceName() + '...<br />');
+    });
+
+    this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0.0, 500.0));
+    this.showStats(true);
+
+    //this.pHeightMap.loadResource("/media/textures/map.dds");
+
+    // Загружаме метод рендеринга
+    this.pRenderMethod = this.pDisplayManager.renderMethodPool().createResource("terrain method");
+
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //this.pRenderMethod.loadEffect(this.RenderMethod.defaultMethod,"media\\shaders\\simple_terrain.fx");
+    this.pRenderMethod.loadEffect(0, "/media/shaders/simple_terrain.fx");
+
+    // Загрузка текстур поверхности ландшавта
+    this.pGrass = this.pDisplayManager.texturePool().createResource("grass");
+    this.pRock = this.pDisplayManager.texturePool().createResource("rock");
+    //this.pRockBump = this.pDisplayManager.texturePool().createResource("rock bump");
+    this.pDirt = this.pDisplayManager.texturePool().createResource("dirt");
+
+    this.pGrass.loadResource("/media/textures/grass.dds");
+    this.pRock.loadResource("/media/textures/rock.dds");
+    //this.pRockBump.loadResource("/media/textures/rock2_bump.dds");
+    this.pDirt.loadResource("/media/textures/dirt.dds");
+
+    return true;
+}
+
+
+//Перенсение ресурсов в энергозависимую память
+MyGame.prototype.restoreDeviceObjects = function () {
+    //Перенсение ресурсов в энергозависимую память по умолчанию
+    //this.notifyRestoreDeviceObjectsDefault();
+    this.notifyRestoreDeviceObjects();
+    return true;
+}
+
+//Инициализация объектов на сцене
+MyGame.prototype.initDeviceObjects = function () {
+    //Инициализация объектов на сцене по умолчанию
+    this.notifyInitDeviceObjects();
+
+    this.pTerrainSystem = new a.Terrain(this);
+
+    // Генерация рандомной карты высот
+    this.pHeightImage = this.pDisplayManager.imagePool().createResource("height map");
+    //this._pHeightMap.createTexture(128, 128,1, 0,a.FORMAT.RGBA8);
+    this.pHeightImage.create(128, 128, 0x1908,0);
+	
+    console.log("Создана карта высот");
+    this.pHeightImage.generatePerlinNoise(0.01, 5, 0.6);
+    console.log("Шум перлина на крате высот сгенерирован");
+
+    //Cоздание ландшавта по карте высот
+    this.pTerrainSystem.create(this.getRootNode(), this.pHeightImage, this.getWorldExtents(), 3);
+    console.log("Terrain по карте высот создана");
+
+
+    //Создание карты смешения для покрытия текстурами ландшавта
+    this.pBlendImage = this.pDisplayManager.imagePool().createResource("image map");
+
+    //this.pBlendImage.create(256, 256,a.FORMAT.RGBA8,0);
+    this.pBlendImage.create(256, 256, 0x1908,0);
+    console.log("Cоздан рисунок для смешивания");
+
+    //Определение характеристик смешивания
+    var pElevation = new Array(3);
+    for (var i = 0; i < 3; i++) {
+        pElevation[i] = new this.pTerrainSystem.elevationData();
+    }
+
+    // grass (all elevations and slopes)
+    pElevation[0].fMinElevation = 0;
+    pElevation[0].fMaxElevation = 500;
+    pElevation[0].fMinNormalZ = -1.0;
+    pElevation[0].fMaxNormalZ = 1.0;
+    pElevation[0].fStrength = 1.0;
+
+    // rock (all elevations, steep slopes)
+    pElevation[1].fMinElevation = 10;
+    pElevation[1].fMaxElevation = 500;
+    pElevation[1].fMinNormalZ = 0.0;
+    pElevation[1].fMaxNormalZ = 0.85;
+    pElevation[1].fStrength = 10.0;
+
+    // dirt (high elevation, flat slope)
+    pElevation[2].fMinElevation = 300;
+    pElevation[2].fMaxElevation = 500;
+    pElevation[2].fMinNormalZ = 0.75;
+    pElevation[2].fMaxNormalZ = 1.0;
+    pElevation[2].fStrength = 20.0;
+
+    this.pTerrainSystem.generateBlendImage(this.pBlendImage, pElevation, 3);
+    console.log("Сгенерирована текстура для смешивания");
+    this.pBlendImage.randomChannelNoise(3, 200, 255);
+
+	this.pBlendMap = this.pDisplayManager.texturePool().createResource("blend map");
+	this.pBlendMap.uploadImage(this.pBlendImage);	
+	this.pBlendImage.release();
+	pBlendImage=null;
+	
+    // Создание материала поверхности
+    // и загрука текстур в него
+    this.pSurfaceMaterial = this.pDisplayManager.surfaceMaterialPool().createResource("ground material");
+    this.pSurfaceMaterial.setTexture(0, this.pBlendMap);
+    this.pSurfaceMaterial.setTexture(1, this.pGrass);
+    this.pSurfaceMaterial.setTexture(2, this.pRock);
+    this.pSurfaceMaterial.setTexture(3, this.pDirt);
+    //this.pSurfaceMaterial.setTexture(4, this.pRockBump);
+
+    // добавление в метод рендеринга материала поверхности, и привязка его к ландшафту
+    this.pRenderMethod.setMaterial(0, this.pSurfaceMaterial);
+    this.pTerrainSystem.setRenderMethod(this.pRenderMethod);
+
+
+    //Обновление камер(не знаю зачем оно тут нужно)
+    this.getDefaultCamera().update();
+    this.updateCamera(10.0, 0.02, this.pTerrainSystem, 30.0, true);
+
+
+    this.pDefaultText = this.pDisplayManager.draw2DText(this.pCanvas.width - 300, this.pCanvas.height - 20,
+                                                        new a.Font2D(14, 'AAAAAA', 'Helvetica', false),
+                                                        "controls: [W, S, A, D], [R, F] and MOUSE");
+
+    return true;
+}
+
+
+//Выгрузка объектов сцены
+MyGame.prototype.deleteDeviceObjects = function () {
+    //Уничтожение объектов на сцена
+    this.pTerrainSystem.destroy();
+
+    //destroyResource
+    //Уничтожение ресурсов на сцене
+    this.pHeightMap = null;
+    this.pBlendMap = null;
+    this.pRenderMethod = null;
+    this.pSurfaceMaterial = null;
+
+    this.pGrass = null;
+    this.pRock = null;
+    this.pDirt = null;
+
+    //Выгрузка по умолчанию
+    this.notifyDeleteDeviceObjects();
+    return true;
+}
+
+//Действия при обновлении сцены
+MyGame.prototype.updateScene = function () {
+    //обновляем положение камеры, передаем в нее ландшафт что бы не перелетать за него
+    this.updateCamera(10.0, 0.1, this.pTerrainSystem, 30.0, false);
+
+    //Говорим ландшафту что он может отрагировать на действия пользователя
+    this.pTerrainSystem.readUserInput();
+
+    //добавим вращение камеры при помощи мыши.
+    if (this.pKeymap.isMousePress() && this.pKeymap.isMouseMoved()) {
+        var pCamera = this.getActiveCamera(),
+                fdX = this.pKeymap.mouseShitfX(),
+                fdY = this.pKeymap.mouseShitfY(),
+                pScreen = a.info.screen;
+
+        fdX /= pScreen.width / 10.0;
+        fdY /= pScreen.height / 10.0;
+
+        pCamera.addRelRotation(-fdX, -fdY, 0);
+    }
+    //Действия по обновлению сцены по дефолту
+    return this.notifyUpdateScene();
+}
+
+$(function () {
+
+    if (!a.info.support.webgl) {
+        alert('Error:: Your browser does not support WebGL.');
+        return;
+    }
+
+    $("#progressbar").progressbar({
+                                      complete: function (event, ui) {
+                                          $("#progressbar").hide();
+                                          $("#progressbar-text").hide();
+                                      }
+                                  });
+
+    //Обявляем приложение
+    var App = new MyGame("canvas");
+
+    //Создаем приложение
+    if (App.create()) {
+        //Запускаем приложение
+        App.run();
+    }
+
+
+});
+</script>
+</body>
+</html>
+

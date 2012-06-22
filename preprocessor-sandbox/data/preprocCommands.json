@@ -1,0 +1,67 @@
+{
+	 success: true,
+	 commands: [
+	 
+
+	 {
+		  "command":     "Include('sources/');", 
+		  "description": 'Вставляет текст из указанного файла'
+	 },
+	 {
+		  "command":     "Ifdef(DEBUG && FUCK_YEAH);", 
+		  "description": 'Осуществляет условный препроцессинг при определённости символической константы'
+	 },
+	 {
+		  "command":     "Endif();", 
+		  "description": 'Конец ветки условного препроцессинга'
+	 },
+	 {
+		  "command":     "Undef(X);", 
+		  "description": 'Отменяет предыдущее определение'
+	 },
+	 
+	 {
+		  "command":     'Define(N, 10);', 
+		  "description": 'Простейшие мароксы'
+	 },
+
+	 {
+		  "command":     'Define(X.Y, this.elements[0]);', 
+		  "description": 'Макросы для замены целых объектов c this'
+	 },
+
+	 {
+		  "command":     'Define(el.first, data.elements[0]);', 
+		  "description": 'Макросы для замены целых '
+	 },
+
+	 {
+		  "command":     'Define(X, __[0]);', 
+		  "description": 'Макросы для замены конечного обращения'
+	 },
+
+	 {
+		  "command":     'Define(FUNC, function(x){return x*x;});', 
+		  "description": 'Подстановка выражений'
+	 },
+
+	 {
+		  "command":     'Define(summ(x, y), function() {x + y + N;});', 
+		  "description": 'Параметрически макросы'
+	 },
+
+	 {
+		  "command":     'Define(vec2.set(v1, v2), function(){\n\tv1.X = v2.X;\n\tv1.Y = v2.Y;\n});', 
+		  "description": 'Объектные вызовы'
+	 },
+	 {
+		  "command":     "Enum([ON=10, OFF, UNKNOWN=100], 'TIMER_STATES');", 
+		  "description": 'Enum'
+	 },
+	 
+	 {
+		  "command":     'Define(func($$x), function(){console.log(x);});', 
+		  "description": 'Макрос преобразования идентефикатора к литералу'
+	 }		  
+	 ]
+}
