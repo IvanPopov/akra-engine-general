@@ -4,3 +4,9 @@
 .bak
 .back
 .prev
+.sublime-project
+.sublime-workspace
+.cache
+
+#do not sync user's ide settings
+ide.ini

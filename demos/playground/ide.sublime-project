@@ -1,0 +1,17 @@
+{
+	"folders":
+    [
+        {
+            "path": "./"
+        },
+        {
+            "path": "./plugins"
+        },
+        {
+            "path": "./tpl"
+        },
+        {
+            "path": "./ui"
+        }
+    ]
+}
