@@ -8,6 +8,8 @@ Define(A_IDE_REGISTER_PLUGIN(plugin), function () {
 function MainFrame () {
 
 	this.pMainWin = null;
+
+	this.pTemplateParser = new a.ui.TemplateParser(this);
 }
 
 PROPERTY(MainFrame, 'menu',
@@ -18,7 +20,7 @@ PROPERTY(MainFrame, 'menu',
 MainFrame.prototype.initializeTemplates = function() {
 	//register templates
 	for (var i in a.IDE.tpl) {
-		if (!this.template(new a.UITpl(a.IDE.tpl[i]))) {
+		if (!this.template( a.IDE.tpl[i])) {
 			return false;
 		}
 	}
@@ -44,11 +46,10 @@ MainFrame.prototype.initializeUIEnvironment = function() {
 	if (!this.initializeTemplates()) {
 		return false;
 	}
-	return;
 
-	if (!a.info.support.webgl) {
+	if (!a.info.support.webgl || 1) {
 		
-		pErrDlg = new a.UIComponent(this, 'messagebox::error');
+		pErrDlg = new a.ui.Dialog(this, 'messagebox::error');
 		pErrDlg.show({
 			'title': tr('webgl not supported'),
 			'info': tr('visit http://http://get.webgl.org/ for more info')
@@ -57,12 +58,12 @@ MainFrame.prototype.initializeUIEnvironment = function() {
 		return false;
 	}
 
-	pMainWin = new a.UIComponent(this, 'main');
+	pMainWin = new a.ui.Component(this, 'main');
 	pMainWin.show();
 
 	// if (!this.create('scene-3d')) {
 
-	// 	pErrDlg = new a.UIComponent(this, 'messagebox::error');
+	// 	pErrDlg = new a.ui.Component(this, 'messagebox::error');
 	// 	pErrDlg.show({
 	// 		'title': tr('system error'),
 	// 		'info': tr('cannot create engine...')
@@ -78,8 +79,12 @@ MainFrame.prototype.initializeUIEnvironment = function() {
 	return true;
 };
 
-MainFrame.prototype.template = function(pTemplate) {
-	trace(pTemplate);
+MainFrame.prototype.findTemplate = function(sName) {
+	return this.pTemplateParser.getTemplate(sName);
+};
+
+MainFrame.prototype.template = function(sTemplate) {
+	this.pTemplateParser.load(sTemplate);
 	return true;
 };
 
@@ -87,7 +92,8 @@ MainFrame.prototype.plugin = function(pPlugin) {
 	// body...
 };
 
-A_IDE_REGISTER_TEMPLATE('main-scene.tpl');
 
-(new MainFrame()).initializeUIEnvironment();
 
+function main () {
+	(new MainFrame()).initializeUIEnvironment();
+}

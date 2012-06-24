@@ -7,4 +7,3 @@ A_DEFINE_NAMESPACE(IDE);
 Include('Templates.js');
 Include('PluginBase.js');
 Include('MainFrame.js');
-alert(A_CORE_HOME);
