@@ -1,23 +1,17 @@
-function Component (pParent, sName) {
+function Component (pParent, pTemplate) {
 	this._pParent = pParent;
-	this._sName = sName;
-	this._pTemplate = pParent.findTemplate(sName);
-
-	if (!this._pTemplate) {
-		error('component <' + sName + '> must have its own template.');
-	}
-
-	if (!this.init(this._pTemplate)) {
-		error('cannot init component: <' + sName + '>');
+	this._pTemplate = pTemplate;
+	trace(pTemplate);
+	for (var i in pTemplate) {
+		trace(i, pTemplate[i]);
 	}
 }
 
-Component.prototype.init = function() {
-	return false;
+Component.prototype.template = function(pData) {
+	return this._pTemplate(pData);
 };
 
-Component.prototype.show = function(pData) {
-	return this._pTemplate.compile(pData);
+Component.prototype.show = function() {
 };
 
 A_NAMESPACE(Component, ui);

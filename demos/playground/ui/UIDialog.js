@@ -4,28 +4,23 @@ goog.require('goog.ui.Dialog');
 
 function Dialog() {
 	A_CLASS;
+
+	this._pData = new goog.ui.Dialog();
 }
 
 EXTENDS(Dialog, a.ui.Component);
 
-Dialog.prototype.init = function(pTpl) {
-    this._pData = new goog.ui.Dialog();
-    return true;
-};
-
-Dialog.prototype.show = function () {
-	parent.show();
-
+Dialog.prototype.show = function (pData) {
 	var pDialog = this._pData;
-	var pData = this.params();
 
-	pDialog.setTitle(pData['title']);
-    pDialog.setContent(pData['content']);
+	//pDialog.setTitle();
+    //pDialog.setContent();
     
-    if (pData['buttonset']) {
-    	pDialog.setButtonSet(goog.ui.Dialog.ButtonSet[pData['buttonset']]);
-    }
+    // if (pData['buttonset']) {
+    // 	pDialog.setButtonSet(goog.ui.Dialog.ButtonSet[pData['buttonset']]);
+    // }
 	
+	pDialog.setContent(this.template(pData))
 	pDialog.setVisible(true);
 }
 

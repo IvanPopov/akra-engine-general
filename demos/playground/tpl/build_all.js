@@ -18,7 +18,9 @@ for (var i in files) {
 	var input = files[i];
 	var output = files[i].split('.').slice(0, -1).concat('js').join('.');
 
-	var command = 'java -jar ../3thd-party/soyutils/SoyToJsSrcCompiler.jar --outputPathFormat ' + 
+	var command = 'java -jar ../3thd-party/soyutils/SoyToJsSrcCompiler.jar \
+	--shouldProvideRequireSoyNamespaces \
+	--outputPathFormat ' + 
 		output_folder + output + ' ' + input;
 
 	commands.push(command);

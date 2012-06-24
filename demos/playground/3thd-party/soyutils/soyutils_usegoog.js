@@ -50,7 +50,6 @@ goog.require('goog.soy');
 goog.require('goog.string');
 goog.require('goog.string.StringBuffer');
 
-
 // -----------------------------------------------------------------------------
 // StringBuilder (compatible with the 'stringbuilder' code style).
 

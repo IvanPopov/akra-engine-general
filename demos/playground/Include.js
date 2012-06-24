@@ -1,5 +1,6 @@
 Include('ide.ini');
 Include(A_IDE['core']['path']);
+
 Define(A_CORE_HOME, A_IDE['core']['path']);
 
 A_DEFINE_NAMESPACE(IDE);
