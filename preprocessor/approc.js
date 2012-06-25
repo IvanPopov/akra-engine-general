@@ -15,6 +15,7 @@ if (typeof esprima === 'undefined') {
 (function (exports) {
 
     var IsDebug = false;
+    var ExtractMacroMode = false;
     var UniqPrefix = '_' + (new Date()).getTime();
     var readFile;
     if (fs) {
@@ -23,7 +24,10 @@ if (typeof esprima === 'undefined') {
             if (!path) return '';
 
             try {
-                data = fs.readFileSync(__dirname + '/../' + path, 'utf-8');
+                if (path[path.length - 1] === '/') {
+                    path += exports['defaultInclude'];
+                }
+                data = fs.readFileSync(path, 'utf-8');
             }catch (e) {
                 console.log('cannot open file <', path, '>');
             }
@@ -346,6 +350,7 @@ if (typeof esprima === 'undefined') {
         EnumObject:    '__ENUM__',
         Undef:         'Undef',
         Include:       'Include',
+        Insert:        'Insert',
         If:            'If',
         EndIf:         'Endif',
         ElseIf:        'Elseif',
@@ -992,7 +997,8 @@ if (typeof esprima === 'undefined') {
                 //c(enumKeys);
             }
 
-            function useIncludeMacro (node) {
+            function useIncludeMacro (node, insert) {
+                insert = arguments.length < 2? false: insert;
                 if (IsEmpty) {
                     return;
                 }
@@ -1015,15 +1021,23 @@ if (typeof esprima === 'undefined') {
                 id = simplifyPath(curPath() + fileName);
 
                 var subst = Define.include[id];
-
+                var prevFile;
                 if (subst) {
                     if (!subst.used) {
                         if (!subst.skip) {
                            // cl('<include: ' + id + '> included. ');
-                            subst.used = true;
+                            
+                            prevFile = CurFile;
                             CurFile = id;
-                            r(subst);
-                            CurFile = '';
+                            if (!insert) {
+                                subst.used = true;
+                                r(subst);
+                            }
+                            else {
+                                c(subst.insert);
+                            }
+                            cl('file: ' + id + ' processed.');
+                            CurFile = prevFile;
                         }
                         else {
                             cl('<include: ' + id + '> skipped. ');
@@ -1132,6 +1146,8 @@ if (typeof esprima === 'undefined') {
                     switch (callee.name) {
                         case Keywords.Include:
                             return useIncludeMacro(node);
+                        case Keywords.Insert:
+                            return useIncludeMacro(node, true);
                         case Keywords.Undef:
                             return useUndefMacro(node);
                         case Keywords.EnumKeys:
@@ -1874,6 +1890,9 @@ if (typeof esprima === 'undefined') {
                         throw e;
                     }
                 }
+                if (ExtractMacroMode) {
+                    call = call + '+' + argv[0].arguments.length;
+                }
                 Define.func[call] = {
                     arg:          argv[0].arguments,
                     rel:          argv[1],
@@ -1898,7 +1917,9 @@ if (typeof esprima === 'undefined') {
         }
 
 
-        function useIncludeMacro (node) {
+        function useIncludeMacro (node, insert) {
+            insert = arguments.length < 2? false: insert;
+
             var argv = node.arguments, file, inject, fid, fileName;
 
             if (!argv.length) {
@@ -1917,6 +1938,7 @@ if (typeof esprima === 'undefined') {
             }
 
             fid = simplifyPath(curPath() + fileName);
+
             if (!Define.include[fid]) {
                 try {
                     inject = readFile(fid);
@@ -1933,7 +1955,7 @@ if (typeof esprima === 'undefined') {
                     return;
                 }
                 try {
-                    var res = esprima.parse(inject);
+                    var res = !insert? esprima.parse(inject): inject;
                 }
                 catch (e) {
                     cl('ERROR:: syntax error in: ' + fid);
@@ -1941,8 +1963,16 @@ if (typeof esprima === 'undefined') {
                 }
                 var prevFile = CurFile;
                 CurFile = fid;
-                Define = exports.analyze(res, Define, SubstArg);
-                Define.include[fid] = res.body;
+                
+                if (!insert) {
+                    Define = exports.analyze(res, Define, SubstArg);
+                    Define.include[fid] = res.body;
+                }
+                else {
+                    Define.include[fid] = {insert: res};
+                }
+
+                
                 CurFile = prevFile;
             }
             else {
@@ -2152,6 +2182,9 @@ if (typeof esprima === 'undefined') {
                 else if (callee.name == Keywords.Include) {
                     useIncludeMacro(node);
                 }
+                else if (callee.name == Keywords.Insert) {
+                    useIncludeMacro(node, true);
+                }
 
             }
             else {
@@ -2333,7 +2366,7 @@ if (typeof esprima === 'undefined') {
 
         function parse(code, custom) {
             IsDebug = exports['debug'];
-            PathStack = [];
+            //PathStack = [];
 
             try {
                 var res = esprima.parse(code);
@@ -2378,7 +2411,10 @@ if (typeof esprima === 'undefined') {
         }
 
         function file(file) {
-            return exports.code(readFile(file));
+            pushPath(simplifyPath(extractFilePath(file)));
+            var sCode = exports.code(readFile(file));
+            popPath();
+            return sCode;
         }
 
         function watch() {
@@ -2405,83 +2441,11 @@ if (typeof esprima === 'undefined') {
             head.appendChild(script);
             //eval();
         };
-        /*
-         function compress (x, isDecode) {
-         isDecode = isDecode || false;
-
-         var dictTypes = {};
-         var n = 0;
-         for (var i in Syntax) {
-         dictTypes[i] = n++;
-         }
-
-         var dictKeys = {
-         'type':         64,
-         'expression':   65,
-         'name':         66,
-         'value':        67,
-         'id':           68,
-         'params':       69,
-         'usageHistory': 70,
-         'body':         71,
-         'computed':     72,
-         'object':       73,
-         'property':     74
-         }
-
-         function decode (node) {
-         if (node.type && dictTypes[node.type]) {
-         node.type = dictTypes[node.type];
-         }
-         }
-
-         function encode (node, type) {
-
-         for (var i in node) {
-         if (dictKeys[i]) {
-         var t = node[i];
-         node[dictKeys[i]] = t;
-         delete node[i];
-         }
-         }
-
-
-         var t = dictKeys[type];
-         if (node[t] && dictTypes[node[t]]) {
-         node[t] = dictTypes[node[t]];
-         }
-
-         for (var i in node) {
-         if (typeof node[i] == 'object' && node[i]) {
-         encode(node[i], type);
-         }
-         }
-         }
-
-         function reverse (dict) {
-         var t = {};
-         for (var i in dict) {
-         t[dict[i]] = i;
-         }
-         return t;
-         }
-
-         if (isDecode) {
-         dictKeys = reverse(dictKeys);
-         dictTypes = reverse(dictTypes);
-         encode(x, 64);
-         }
-         else {
-         encode(x, 'type');
-         }
-
-
-         return x;
-         }
-         */
-        function extractMacro (code, constCb, macroCb, enumCb) {
-            constCb = constCb || function (name, value) {
-                return ('Define(' + name + ',' + value+ ')').replace(/(\r\n|\n|\r)/gm, '');
+       
+        function extractMacro (code, constCb, macroCb, enumCb, skipParsing) {
+            
+            constCb = constCb || function (name, value, alone) {
+                return ('Define(' + name + ',' + value + (alone? ', true' : '') +  ')').replace(/(\r\n|\n|\r)/gm, '');
             };
 
             macroCb = macroCb || function (name, args, body) {
@@ -2534,21 +2498,27 @@ if (typeof esprima === 'undefined') {
                 return res;
             }
 
+            ExtractMacroMode = true;
             //console.log(code);
             var def, res;
             try {
-                res = esprima.parse(code);
+                if (!skipParsing)
+                    res = esprima.parse(code);
             }
             catch (e) {
                 cl('esprima parse error: ')
                 throw e;
             }
 
-            def = exports.analyze(res, null, false);
-            //console.log(def);
+            //parse(code);
+
+            if (!skipParsing)
+                def = exports.analyze(res, null, false);
+            ExtractMacroMode = false;
 
             var pEnums = {};
             var all = ''
+        
             for (var i in Define.property) {
                 switch (i) {
                     case sk(Keywords.FILE):
@@ -2568,8 +2538,10 @@ if (typeof esprima === 'undefined') {
                 }
 
                 v = exports.reflect(p, true, 0, 0, false);
-                all += constCb(k, v) + '\n';
+                all += constCb(k, v, p.alone) + '\n';
             }
+
+
 
             for (var i in Define.enums) {
                 all += enumCb(i, Define.enums[i]) + '\n';
@@ -2578,26 +2550,25 @@ if (typeof esprima === 'undefined') {
             for (var i in Define.func) {
                 var f = Define.func[i];
                 var func = '', args = '';
-                func = i.substr(0, i.lastIndexOf('+'));
 
+                func = i.substr(0, i.lastIndexOf('+'));
+               // cl(func);
                 for (var j = 0; j < f.arg.length; ++j) {
                     args += exports.reflect(f.arg[j], false) + (j != f.arg.length - 1 ? ',' : '');
                 }
 
-                all += macroCb(i, args, exports.reflect(f.rel.body, true, 0, 0, false)) + '\n';
+                all += macroCb(func, args, exports.reflect(f.rel.body, true, 0, 0, false)) + '\n';
             }
-            //console.log(JSON.stringify((def.property), true, '\t'));
-            return all;//JSON.stringify(compress(def.property));
-            //console.log(data);
-            //console.log('size:', data.length);
 
-            //var data = eval('(' + data + ')');
-            //console.log(compress(data, true));
+            return all;
         };
 
 
         function extractFileMacro(file) {
-            return this.extractMacro(readFile(file));
+            pushPath(extractFilePath(file));
+            var sCode = this.extractMacro(readFile(file));
+            popPath();
+            return sCode;
         }
 
         exports['analyze'] = analyze;

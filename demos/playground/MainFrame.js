@@ -28,19 +28,18 @@ MainFrame.prototype.initializeUIEnvironment = function() {
 	var pErrDlg;
 	var pMainWin;
 
-	if (!a.info.support.webgl || 1) {
+	if (!a.info.support.webgl) {
 		
-		pErrDlg = new a.ui.Dialog(this, a.ui.messagebox.error);
-		pErrDlg.show({
+		pErrDlg = new goog.ui.Dialog();
+		pErrDlg.setContent(a.ui.messagebox.error({
 			'content': tr('webgl not supported'),
 			'info': tr('visit http://http://get.webgl.org/ for more info')
-		});
+		}));
+		pErrDlg.setVisible(true);
 		
 		return false;
 	}
 
-	pMainWin = new a.ui.Component(this, a.ui.main);
-	pMainWin.show();
 
 	if (!this.initializePlugins()) {
 		return false;
