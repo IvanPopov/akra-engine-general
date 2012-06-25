@@ -251,6 +251,10 @@ if (typeof esprima === 'undefined') {
         return key + '$';// + CodeNum.val;
     }
 
+    function enumsk (key) {
+        return '$$enum_' + key + '$';
+    }
+
     function cl (a, b, c, d, e, f) {
         switch (arguments.length) {
             case 1:
@@ -339,6 +343,7 @@ if (typeof esprima === 'undefined') {
         Define:        'Define',
         Enum:          'Enum',
         EnumKeys:      '__KEYS__',
+        EnumObject:    '__ENUM__',
         Undef:         'Undef',
         Include:       'Include',
         If:            'If',
@@ -403,6 +408,7 @@ if (typeof esprima === 'undefined') {
 
             var CurFile = '';
             var Code = '';
+            var SystemObjects = {};
             //CodeNum = CodeNum || {val: 0};
             //state mench
             var st = State; //state
@@ -916,18 +922,11 @@ if (typeof esprima === 'undefined') {
                 sc();
             }
 
-            function useEnumKeysMacro (node) {
+            function useEnumObjectMacro (node) {
                 var enumName = node.arguments[0].name;
-                var enumKeys = '[';
+                var enumKeys = '{';
                 var tmp;
                 
-                // for (var i in Define.property) {
-                //     if (Define.property[i].enumName == enumName) {
-                //         tmp = Define.property[i].value;
-                //         enumKeys += '' + (typeof tmp === 'string'? "'" + tmp + "'": tmp) + ', ';
-                //     }
-                // }
-                // 
                 
                 if (!Define) {
                     return;
@@ -935,7 +934,48 @@ if (typeof esprima === 'undefined') {
 
                 var isEmpty = true;
 
-                for (var i in Define.enums[enumName]) {
+                var enumSoName = enumsk(enumName) + '_obj';
+                c(enumSoName);
+                if (SystemObjects[enumSoName]) {
+                    return;
+                }
+
+                for (var i = 0; i < Define.enums[enumName].length; ++ i) {
+                    isEmpty = false;
+                    tmp = Define.enums[enumName][i].value;
+                    enumKeys += '' + Define.enums[enumName][i].enumKey + ': ' 
+                        + (typeof tmp === 'string'? "'" + tmp + "'": tmp);
+                    enumKeys += ', ';
+                    
+                }
+                if (isEmpty) {
+                    return;
+                }
+
+                enumKeys = enumKeys.substr(0, enumKeys.length - 2);
+                enumKeys += '}';
+                //c(enumKeys);
+                SystemObjects[enumSoName] = enumKeys;
+            }
+
+            function useEnumKeysMacro (node) {
+                var enumName = node.arguments[0].name;
+                var enumKeys = '[';
+                var tmp;
+                
+                if (!Define) {
+                    return;
+                }
+
+                var isEmpty = true;
+                
+                var enumSoName = enumsk(enumName) + '_keys';
+                c(enumSoName);
+                if (SystemObjects[enumSoName]) {
+                    return;
+                }
+
+                for (var i = 0; i < Define.enums[enumName].length; ++ i) {
                     isEmpty = false;
                     tmp = Define.enums[enumName][i].value;
                     enumKeys += '' + (typeof tmp === 'string'? "'" + tmp + "'": tmp) + ', ';
@@ -947,7 +987,9 @@ if (typeof esprima === 'undefined') {
 
                 enumKeys = enumKeys.substr(0, enumKeys.length - 2);
                 enumKeys += ']';
-                c(enumKeys);
+
+                SystemObjects[enumSoName] = enumKeys;
+                //c(enumKeys);
             }
 
             function useIncludeMacro (node) {
@@ -959,8 +1001,9 @@ if (typeof esprima === 'undefined') {
                     return;
                 }
 
-                file = (argv[0].value);
-
+                file = esprima.parse(
+                    reflect(argv[0], false, Define, false, true, CodeNum)
+                    ).body[0].expression.value;
                 pushPath(extractFilePath(file));
 
                 fileName = extractFileName(file);
@@ -1093,6 +1136,8 @@ if (typeof esprima === 'undefined') {
                             return useUndefMacro(node);
                         case Keywords.EnumKeys:
                             return useEnumKeysMacro(node);
+                        case Keywords.EnumObject:
+                            return useEnumObjectMacro(node);
                         case Keywords.Define:
                         case Keywords.Enum:
                             return;
@@ -1706,7 +1751,12 @@ if (typeof esprima === 'undefined') {
 
             r(Tree);
 
-            return Code;
+            var codeSysObject = '';
+            for (var i in SystemObjects) {
+                codeSysObject += 'window.' + i + ' = ' + SystemObjects[i] + ';\n';
+            }
+
+            return codeSysObject + Code;
         }
 
         function refl (Tree, CodeNum) {
@@ -1740,7 +1790,7 @@ if (typeof esprima === 'undefined') {
     (function () {
         var Define, tmp;
         var SubstArg, IsIgnore;
-
+        var CurFile = null;
         var ignoreStack = [];
 
         function pushIgnore (state) {
@@ -1764,7 +1814,7 @@ if (typeof esprima === 'undefined') {
             return node;
         }
 
-        function useDefineMacro (node, enumName) {
+        function useDefineMacro (node, enumName, enumKey) {
             InDefine ++;
             var argv = node.arguments;
 
@@ -1840,6 +1890,7 @@ if (typeof esprima === 'undefined') {
             Define.property[key].usageHistory = {};
             Define.property[key].alone = argv.length > 2;
             Define.property[key].enumName = enumName;
+            Define.property[key].enumKey = enumKey;
             if (enumName) {
                 Define.enums[enumName].push(Define.property[key]);
             }
@@ -1854,8 +1905,10 @@ if (typeof esprima === 'undefined') {
                 return;
             }
 
+            file = esprima.parse(
+                exports.reflect(argv[0], true, Define, false, true)
+                ).body[0].expression.value;
 
-            file = (argv[0].value);
             pushPath(extractFilePath(file));
 
             fileName = extractFileName(file);
@@ -1886,10 +1939,11 @@ if (typeof esprima === 'undefined') {
                     cl('ERROR:: syntax error in: ' + fid);
                     throw e;
                 }
-
-
+                var prevFile = CurFile;
+                CurFile = fid;
                 Define = exports.analyze(res, Define, SubstArg);
                 Define.include[fid] = res.body;
+                CurFile = prevFile;
             }
             else {
                 //cw('<include: ' + fid + '> has already been used. ');
@@ -1927,13 +1981,20 @@ if (typeof esprima === 'undefined') {
             }
 
             var prefix = null, tmp;
-            var enumName = null;
+            var enumName = String(argv[1].name),
+                enumKey;
             if (argv.length > 2) {
                 prefix = exports.reflect(argv[2], false);
-                enumName = String(argv[1].name);
-                Define.enums[enumName] = [];
-                //console.log('added', enumName);
             }
+            if (Define.enums[enumName]) {
+                throw new Error('Enum with name <' + enumName + '> \
+                    already exists.\nfile: ' + CurFile + '\n' + 
+                    'previsly defined in: ' + Define.enums[enumName]['@location']);
+            }
+            Define.enums[enumName] = [];
+            Define.enums[enumName]['@location'] = CurFile;
+            Define.enums[enumName]['@class'] = prefix;
+        
 
             list = list.elements;
             for (var i = 0, en; i < list.length; ++i) {
@@ -1964,7 +2025,7 @@ if (typeof esprima === 'undefined') {
                 else {
                     tmp = list[i];
                 }
-
+                enumKey = tmp;
                 if (prefix) {
                     try {
                         tmp = esprima.parse(prefix + '.' +
@@ -1993,7 +2054,7 @@ if (typeof esprima === 'undefined') {
                 }
                 n++;
                 debug('//' + ('Enum: ' + exports.reflect(tmp, false) + ' : ' + t));
-                useDefineMacro(en, enumName);
+                useDefineMacro(en, enumName, exports.reflect(enumKey, false));
             }
 
             //TODO: Undef for Enum
@@ -2418,7 +2479,7 @@ if (typeof esprima === 'undefined') {
          return x;
          }
          */
-        function extractMacro (code, constCb, macroCb) {
+        function extractMacro (code, constCb, macroCb, enumCb) {
             constCb = constCb || function (name, value) {
                 return ('Define(' + name + ',' + value+ ')').replace(/(\r\n|\n|\r)/gm, '');
             };
@@ -2426,6 +2487,52 @@ if (typeof esprima === 'undefined') {
             macroCb = macroCb || function (name, args, body) {
                 return ('Define(' + name + '(' +args + '),function()' + body + ')').replace(/(\r\n|\n|\r)/gm, '');
             };
+
+            enumCb = enumCb || function (name, enumData) {
+                //cl(name, enumData);
+                var res = 'Enum([\n';
+                var prevValue = undefined;
+                var bShortName = true;
+                for (var i = 0; i < enumData.length; ++ i) {
+                    res += '\t';
+                    bShortName = true;
+                    if (prevValue && enumData[i].value === prevValue + 1) {
+                        res += enumData[i].enumKey;
+                    }
+                    else if ((typeof prevValue === 'string') && (typeof enumData[i].value === 'string')) {
+                        var prevMatch = prevValue.match(/^.*?([0-9]+)$/);
+                        var curMatch;
+                        if (prevMatch) {
+                            curMatch = enumData[i].value.match(/^.*?([0-9]+)$/);
+                            if (curMatch && (Number(curMatch[1]) - 1) === Number(prevMatch[1])) {
+                                res += enumData[i].enumKey;
+                            }
+                            else {
+                                bShortName = false;
+                            }
+                        }
+                        else {
+                            bShortName = false;
+                        }
+                    }
+                    else {
+                        bShortName = false;
+                    }
+
+                    if (bShortName === false) {
+                        res += enumData[i].enumKey + ' = ' + exports.reflect(enumData[i], false);
+                    }
+                    if (i !== enumData.length - 1) {
+                        res += ',';
+                    }
+                    res += '\n';
+                    prevValue = enumData[i].value;
+                }
+                res += '], ' + name + (enumData['@class']? ', ' + enumData['@class']:
+                    '') + ');';
+
+                return res;
+            }
 
             //console.log(code);
             var def, res;
@@ -2440,10 +2547,32 @@ if (typeof esprima === 'undefined') {
             def = exports.analyze(res, null, false);
             //console.log(def);
 
+            var pEnums = {};
             var all = ''
             for (var i in Define.property) {
+                switch (i) {
+                    case sk(Keywords.FILE):
+                    case sk(Keywords.FUNC):
+                    case sk(Keywords.LINE):
+                    continue;
+                }
+
                 var p = Define.property[i];
-                all += constCb(i.substr(0, i.length - 1), exports.reflect(p, true, 0, 0, false)) + '\n';
+                var k = i.substr(0, i.length - 1);
+                var v = null;
+                var pfx = null;
+                var j;
+
+                if (p.enumName) {
+                    continue;
+                }
+
+                v = exports.reflect(p, true, 0, 0, false);
+                all += constCb(k, v) + '\n';
+            }
+
+            for (var i in Define.enums) {
+                all += enumCb(i, Define.enums[i]) + '\n';
             }
 
             for (var i in Define.func) {
