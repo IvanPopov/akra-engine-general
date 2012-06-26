@@ -1,10 +1,15 @@
-# Additional
+
 
 # Project property files
+
+compiled/
+
 .bak
 .back
 .prev
-.sublime-workspace
 .sublime-project
+.sublime-workspace
+.cache
 
-compiled/
+#do not sync user's ide settings
+ide.ini
