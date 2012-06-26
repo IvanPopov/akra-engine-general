@@ -4,3 +4,7 @@
 .bak
 .back
 .prev
+.sublime-workspace
+.sublime-project
+
+compiled/
