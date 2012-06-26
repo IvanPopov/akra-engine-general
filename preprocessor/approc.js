@@ -1036,7 +1036,7 @@ if (typeof esprima === 'undefined') {
                             else {
                                 c(subst.insert);
                             }
-                            cl('file: ' + id + ' processed.');
+                            //cl('file: ' + id + ' processed.');
                             CurFile = prevFile;
                         }
                         else {
