@@ -12,7 +12,6 @@ PROPERTY(MainFrame, 'menu',
 		return this.pMainWin.component('main-menu');
 	});
 
-
 MainFrame.prototype.initializePlugins = function() {
 	//register plugins
 	for (var i in a.IDE.plug) {
@@ -40,7 +39,8 @@ MainFrame.prototype.initializeUIEnvironment = function() {
 		return false;
 	}
 
-
+	
+	
 	if (!this.initializePlugins()) {
 		return false;
 	}

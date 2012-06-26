@@ -4,12 +4,28 @@
 		"selected_items":
 		[
 			[
+				"s",
+				"sOutputFileMacro"
+			],
+			[
+				"A_C",
+				"A_CORE_HOME"
+			],
+			[
+				"sO",
+				"sOutputFile"
+			],
+			[
+				"ext",
+				"extractFilePath"
+			],
+			[
 				"re",
-				"return"
+				"require"
 			],
 			[
 				"pro",
-				"property"
+				"process"
 			],
 			[
 				"call",
@@ -137,10 +153,6 @@
 			],
 			[
 				"sN",
-				"sName"
-			],
-			[
-				"s",
 				"sName"
 			],
 			[
@@ -300,121 +312,68 @@
 			}
 		},
 		{
-			"file": "ide.ini",
-			"settings":
-			{
-				"buffer_size": 226,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "/C/WebServers/home/akra/www/akra-engine-general/preprocessor/esprima.js",
-			"settings":
-			{
-				"buffer_size": 71154,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/C/WebServers/home/akra/www/akra-engine-general/preprocessor/approc.js",
-			"settings":
-			{
-				"buffer_size": 84270,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"contents": "var fs = require('fs');\nfunction include(sPath) {\n	console.log()\n}",
-			"file": "/C/WebServers/home/akra/www/akra-engine-core/build/pack.js",
-			"file_size": 46,
-			"file_write_time": 129850936007852996,
-			"settings":
-			{
-				"buffer_size": 66,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "3thd-party/akra/akra-engine-core-compiled.js",
-			"settings":
-			{
-				"buffer_size": 742759,
-				"line_ending": "Windows"
-			}
-		},
-		{
+			"contents": "Define(A_IDE_REGISTER_PLUGIN(plugin), function () {\n	a.IDE.plug.plugin = plugin;\n});\n\nfunction MainFrame () {\n\n	this.pMainWin = null;\n}\n\nPROPERTY(MainFrame, 'menu',\n	function () {\n		return this.pMainWin.component('main-menu');\n	});\n\n\nMainFrame.prototype.initializePlugins = function() {\n	//register plugins\n	for (var i in a.IDE.plug) {\n		if (!this.plugin(new a.IDE.plug[i](this))) {\n			return false;\n		}\n	}\n\n	return true;\n};\n\nMainFrame.prototype.initializeUIEnvironment = function() {\n	var pErrDlg;\n	var pMainWin;\n\n	if (!a.info.support.webgl) {\n		\n		pErrDlg = new goog.ui.Dialog();\n		pErrDlg.setContent(a.ui.messagebox.error({\n			'content': tr('webgl not supported'),\n			'info': tr('visit http://http://get.webgl.org/ for more info')\n		}));\n		pErrDlg.setVisible(true);\n		\n		return false;\n	}\n\n	\n	\n	if (!this.initializePlugins()) {\n		return false;\n	}\n\n	return true;\n};\n\nMainFrame.prototype.findTemplate = function(sName) {\n	return this.pTemplateParser.getTemplate(sName);\n};\n\nMainFrame.prototype.template = function(sTemplate) {\n	this.pTemplateParser.load(sTemplate);\n	return true;\n};\n\nMainFrame.prototype.plugin = function(pPlugin) {\n	// body...\n};\n\nfunction main () {\n	(new MainFrame()).initializeUIEnvironment();\n}\n",
 			"file": "MainFrame.js",
+			"file_size": 1279,
+			"file_write_time": 129851169754464956,
 			"settings":
 			{
-				"buffer_size": 1252,
+				"buffer_size": 1216,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/C/WebServers/home/akra/www/akra-engine-general/preprocessor-sandbox/app/resources/js/approc.js",
+			"file": "Templates.js",
 			"settings":
 			{
-				"buffer_size": 84270,
+				"buffer_size": 741,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/Z/home/akra/www/akra-engine-core/src/Common.js",
+			"file": "tpl/main.tpl",
 			"settings":
 			{
-				"buffer_size": 12850,
+				"buffer_size": 555,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/Z/home/akra/www/akra-engine-core/src/resources/buffers/VertexData.js",
+			"file": "tpl/build_all.js",
 			"settings":
 			{
-				"buffer_size": 26734,
+				"buffer_size": 1168,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/Z/home/akra/www/akra-engine-core/src/model/Material.js",
+			"contents": "// This file was automatically generated from messagebox.tpl.\n// Please don't edit this file by hand.\n\ngoog.provide('a.ui.messagebox');\n\ngoog.require('soy');\ngoog.require('soy.StringBuilder');\n\n\na.ui.messagebox.error = function(opt_data, opt_sb) {\n  var output = opt_sb || new soy.StringBuilder();\n  output.append('<h1>', soy.$$escapeHtml(opt_data.content), '!</h1>');\n  return opt_sb ? '' : output.toString();\n};\n",
+			"file": "tpl/compiled/messagebox.js",
+			"file_size": 414,
+			"file_write_time": 129851192380829110,
 			"settings":
 			{
-				"buffer_size": 7789,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "ui/UIComponent.js",
-			"settings":
-			{
-				"buffer_size": 333,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "ui/UIDialog.js",
-			"settings":
-			{
-				"buffer_size": 551,
-				"line_ending": "Windows"
+				"buffer_size": 414,
+				"line_ending": "Unix"
 			}
 		}
 	],
 	"build_system": "Packages/JSHint/JSHint.sublime-build",
 	"command_palette":
 	{
-		"height": 186.0,
+		"height": 161.0,
 		"selected_items":
 		[
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
 			[
 				"SYntax: ja",
 				"Set Syntax: JavaScript"
 			],
 			[
 				"ins",
-				"Package Control: Install Package"
-			],
-			[
-				"insta",
 				"Package Control: Install Package"
 			],
 			[
@@ -610,7 +569,7 @@
 				"Package Control: Install Package"
 			]
 		],
-		"width": 514.0
+		"width": 522.0
 	},
 	"console":
 	{
@@ -627,13 +586,39 @@
 	},
 	"file_history":
 	[
+		"/C/WebServers/home/akra/www/akra-engine-general/demos/playground/tpl/messagebox.tpl",
+		"/C/webservers/home/akra/www/akra-engine-core/src/Common.js",
+		"/C/WebServers/home/akra/www/akra-engine-general/demos/playground/ui/UIDialog.js",
+		"/C/WebServers/home/akra/www/akra-engine-general/demos/playground/ui/UIComponent.js",
+		"/Z/home/akra/www/akra-engine-core/src/Common.js",
+		"/Z/home/akra/www/akra-engine-core/src/resources/buffers/VertexData.js",
+		"/Z/home/akra/www/akra-engine-core/src/model/Material.js",
+		"/C/WebServers/home/akra/www/akra-engine-general/preprocessor-sandbox/app/resources/js/approc.js",
+		"/C/WebServers/home/akra/www/akra-engine-core/build/pack.js",
+		"/C/webservers/home/akra/www/akra-engine-core/build/compiled/akra-engine-macro.js",
+		"/C/WebServers/home/akra/www/akra-engine-general/preprocessor/approc.js",
+		"/C/webservers/home/akra/www/akra-engine-core/build/compiled/akra-engine-compiled.js",
+		"/C/WebServers/home/akra/www/akra-engine-general/demos/playground/3thd-party/akra/akra-engine-macro.js",
 		"/C/WebServers/home/akra/www/akra-engine-general/demos/playground/3thd-party/akra/Include.js",
+		"/C/WebServers/home/akra/www/akra-engine-general/demos/playground/3thd-party/akra/akra-engine-compiled.js",
+		"/C/webservers/home/akra/www/akra-engine-core/build/compiled/Include.js",
+		"/C/webservers/home/akra/www/akra-engine-general/demos/playground/3thd-party/akra/Include.js",
+		"/C/WebServers/home/akra/www/akra-engine-core/build/compiled/akra-engine-macro.js",
+		"/C/WebServers/home/akra/www/akra-engine-core/build/compiled/Include.js",
+		"/C/WebServers/home/akra/www/akra-engine-core/src/Common.js",
+		"/C/webservers/home/akra/www/akra-engine-core/build/akra.js",
+		"/C/webservers/home/akra/www/akra-engine-core/build/akra.src.js",
+		"/C/webservers/home/akra/www/akra-engine-core/build/akra.mc.js",
+		"/C/WebServers/home/akra/www/akra-engine-core/build/akra.js",
+		"/C/WebServers/home/akra/www/akra-engine-general/preprocessor/compiled/approc-1.1.3.min.js",
+		"/C/WebServers/home/akra/www/akra-engine-general/preprocessor/esprima.js",
+		"/C/WebServers/home/akra/www/akra-engine-general/demos/playground/ide.ini",
+		"/C/WebServers/home/akra/www/akra-engine-general/demos/playground/3thd-party/akra/akra-engine-core-compiled.js",
 		"/C/WebServers/home/akra/www/akra-engine-core/build/approc.js",
 		"/C/webservers/home/akra/www/akra-engine-general/demos/playground/Templates.js",
 		"/C/WebServers/home/akra/www/akra-engine-general/demos/playground/3thd-party/akra/akra-engine-core.js",
 		"/C/webservers/home/akra/www/akra-engine-core-compiled.js",
 		"/C/webservers/home/akra/www/tmp.js",
-		"/Z/home/akra/www/akra-engine-core/src/resources/buffers/VertexData.js",
 		"/Z/home/akra/www/akra-engine-general/demos/playground/3thd-party/closure/goog/base.js",
 		"/C/WebServers/home/akra/www/akra-engine-core/src/shaders/shader/Shader3.0.js",
 		"/Z/home/akra/www/akra-engine-core/src/resources/buffers/VBufferBase.js",
@@ -728,33 +713,7 @@
 		"/E/WebServers/home/preproces.fast/www/sources/effects/raycasting.vert",
 		"/E/WebServers/home/preproces.fast/www/sources/effects/raycasting.frag",
 		"/E/Dropbox/Новый текстовый документ.txt",
-		"/H/Documents/url.txt",
-		"/E/Dropbox/Алгоритм.txt",
-		"/E/WebServers/home/preproces.fast/www/sources/effects/decode_texture.glsl",
-		"/E/WebServers/home/akra.lan/www/collada/collada.js",
-		"/C/Users/Иван/Desktop/bropack_x64/out/PTMIS.hlsl",
-		"/E/QtWebKit-2.2.0/Source/WebCore/platform/graphics/GraphicsContext3D.cpp",
-		"/E/QtWebKit-2.2.0/Source/WebCore/platform/graphics/opengl/GraphicsContext3DOpenGL.cpp",
-		"/E/QtWebKit-2.2.0/Source/WebCore/platform/graphics/GraphicsContext3D.h",
-		"/C/Users/Иван/Downloads/Source_WebCore_platform_graphics_GraphicsContext3D.h",
-		"/C/Users/Иван/shader_translation/cube.vert",
-		"/E/angle/samples/gles2_book/Common/esShader.c",
-		"/C/Users/Иван/shader_translation/cube.frag",
-		"/E/Program Files (x86)/Lightsmark 2008/log.txt",
-		"/E/QtWebKit-2.2.0/Source/WebCore/platform/graphics/qt/GraphicsContext3DQt.cpp",
-		"/E/angle/samples/translator/translator/Debug/decode_texture.vert",
-		"/E/angle/samples/translator/translator/Debug/1.vert",
-		"/E/angle/samples/Debug/debug.txt",
-		"/E/QtWebKit-2.2.0/Source/WebCore/html/canvas/WebGLRenderingContext.cpp",
-		"/E/QtWebKit-2.2.0/Source/WebCore/platform/graphics/qt/Extensions3DQt.h",
-		"/E/QtWebKit-2.2.0/Source/WebCore/platform/graphics/qt/Extensions3DQt.cpp",
-		"/E/Program Files (x86)/Microsoft Visual Studio 9.0/VC/include/GL/glext.h",
-		"/E/QtWebKit-2.2.0/Source/WebCore/platform/graphics/ANGLEWebKitBridge.h",
-		"/E/QtWebKit-2.2.0/Source/ThirdParty/ANGLE/include/GLSLANG/ShaderLang.h",
-		"/E/QtWebKit-2.2.0/Source/WebCore/platform/graphics/ANGLEWebKitBridge.cpp",
-		"/E/QtWebKit-2.2.0/Source/WebCore/bindings/js/JSWebGLRenderingContextCustom.cpp",
-		"/E/QtWebKit-2.2.0/Source/WebCore/platform/graphics/gtk/GraphicsContext3DInternal.h",
-		"/E/QtWebKit-2.2.0/Source/JavaScriptCore/wtf/Platform.h"
+		"/H/Documents/url.txt"
 	],
 	"find":
 	{
@@ -772,6 +731,17 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"A_CORE_HOME",
+			"\"/akra-engine-core/src/\"",
+			"A_CORE_HOME",
+			"console.log",
+			"useIncludeMacro",
+			"popPath",
+			"cons",
+			".open",
+			"watch",
+			"document",
+			"esprima",
 			"parent",
 			"Define.func",
 			"{\n",
@@ -888,18 +858,7 @@
 			"activeTexture",
 			"glActiveTexture",
 			"activeTexture",
-			"glGetString",
-			"Extensions3DOpenGL",
-			"m_availableExtensions",
-			"get",
-			"m_internal",
-			"m_context",
-			"getExtensions",
-			"GL_OES_texture_float",
-			"WEBKIT_LOSE",
-			"TextureMapperPlatformLayer",
-			"platformLayer",
-			"platform"
+			"glGetString"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -923,7 +882,7 @@
 	"groups":
 	[
 		{
-			"selected": 5,
+			"selected": 4,
 			"sheets":
 			[
 				{
@@ -945,7 +904,8 @@
 						"settings":
 						{
 							"function_name_status_row": 0,
-							"syntax": "Packages/HTML/HTML.tmLanguage"
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -955,23 +915,53 @@
 				},
 				{
 					"buffer": 1,
-					"file": "ide.ini",
+					"file": "MainFrame.js",
 					"settings":
 					{
-						"buffer_size": 226,
+						"buffer_size": 1216,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								79,
-								79
+								793,
+								793
 							]
 						],
 						"settings":
 						{
-							"function_name_status_row": 1,
+							"encoding_helper_encoding_sublime": "UTF-8",
+							"encoding_helper_loading": true,
+							"function_name_status_row": 42,
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 135.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "Templates.js",
+					"settings":
+					{
+						"buffer_size": 741,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								707,
+								707
+							]
+						],
+						"settings":
+						{
+							"function_name_status_row": 22,
 							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
 						},
 						"translation.x": 0.0,
@@ -981,55 +971,26 @@
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "/C/WebServers/home/akra/www/akra-engine-general/preprocessor/esprima.js",
-					"settings":
-					{
-						"buffer_size": 71154,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								71154
-							]
-						],
-						"settings":
-						{
-							"function_name_status_row": 0,
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
 					"buffer": 3,
-					"file": "/C/WebServers/home/akra/www/akra-engine-general/preprocessor/approc.js",
+					"file": "tpl/main.tpl",
 					"settings":
 					{
-						"buffer_size": 84270,
+						"buffer_size": 555,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								84270
+								555,
+								555
 							]
 						],
 						"settings":
 						{
-							"function_name_status_row": 0,
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 4,
+							"function_name_status_row": 20,
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 2,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
@@ -1040,200 +1001,28 @@
 				},
 				{
 					"buffer": 4,
-					"file": "/C/WebServers/home/akra/www/akra-engine-core/build/pack.js",
+					"file": "tpl/build_all.js",
 					"settings":
 					{
-						"buffer_size": 66,
+						"buffer_size": 1168,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								63,
-								63
+								304,
+								304
 							]
 						],
 						"settings":
 						{
-							"function_name_status_row": 2,
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "3thd-party/akra/akra-engine-core-compiled.js",
-					"settings":
-					{
-						"buffer_size": 742759,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"function_name_status_row": 0,
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "MainFrame.js",
-					"settings":
-					{
-						"buffer_size": 1252,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"encoding_helper_encoding_sublime": "UTF-8",
-							"encoding_helper_loading": true,
-							"function_name_status_row": 0,
+							"function_name_status_row": 16,
 							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "/C/WebServers/home/akra/www/akra-engine-general/preprocessor-sandbox/app/resources/js/approc.js",
-					"settings":
-					{
-						"buffer_size": 84270,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								83334,
-								83334
-							]
-						],
-						"settings":
-						{
-							"function_name_status_row": 2549,
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 37089.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "/Z/home/akra/www/akra-engine-core/src/Common.js",
-					"settings":
-					{
-						"buffer_size": 12850,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								10610,
-								10616
-							]
-						],
-						"settings":
-						{
-							"function_name_status_row": 428,
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 6051.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "/Z/home/akra/www/akra-engine-core/src/resources/buffers/VertexData.js",
-					"settings":
-					{
-						"buffer_size": 26734,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								907,
-								909
-							]
-						],
-						"settings":
-						{
-							"function_name_status_row": 42,
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 10,
-					"file": "/Z/home/akra/www/akra-engine-core/src/model/Material.js",
-					"settings":
-					{
-						"buffer_size": 7789,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								533,
-								533
-							]
-						],
-						"settings":
-						{
-							"function_name_status_row": 27,
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 225.0,
+						"translation.y": 45.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -1241,55 +1030,28 @@
 			]
 		},
 		{
-			"selected": 1,
+			"selected": 0,
 			"sheets":
 			[
 				{
-					"buffer": 11,
-					"file": "ui/UIComponent.js",
+					"buffer": 5,
+					"file": "tpl/compiled/messagebox.js",
 					"settings":
 					{
-						"buffer_size": 333,
+						"buffer_size": 414,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								157,
+								157
 							]
 						],
 						"settings":
 						{
-							"function_name_status_row": 0,
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 12,
-					"file": "ui/UIDialog.js",
-					"settings":
-					{
-						"buffer_size": 551,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								100,
-								0
-							]
-						],
-						"settings":
-						{
-							"function_name_status_row": 0,
+							"function_name_status_row": 5,
 							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
 						},
 						"translation.x": 0.0,
@@ -1307,7 +1069,7 @@
 	},
 	"input":
 	{
-		"height": 0.0
+		"height": 30.0
 	},
 	"layout":
 	{
@@ -1329,7 +1091,7 @@
 		"cols":
 		[
 			0.0,
-			0.705363443896,
+			0.492523248502,
 			1.0
 		],
 		"rows":
@@ -1339,6 +1101,10 @@
 		]
 	},
 	"menu_visible": false,
+	"output.exec":
+	{
+		"height": 98.0
+	},
 	"replace":
 	{
 		"height": 62.0
