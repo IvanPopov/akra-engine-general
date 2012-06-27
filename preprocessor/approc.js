@@ -1027,6 +1027,10 @@ if (typeof esprima === 'undefined') {
                         if (!subst.skip) {
                            // cl('<include: ' + id + '> included. ');
                             
+                            // if (exports['log']) {
+                            //     cl('file: ' + fileName + ' in processing...');
+                            // }
+
                             prevFile = CurFile;
                             CurFile = id;
                             if (!insert) {
@@ -1036,7 +1040,9 @@ if (typeof esprima === 'undefined') {
                             else {
                                 c(subst.insert);
                             }
-                            //cl('file: ' + id + ' processed.');
+                            if (exports['log']) {
+                                cl('file: ' + fileName + ' processed.');
+                            }
                             CurFile = prevFile;
                         }
                         else {
@@ -1315,6 +1321,7 @@ if (typeof esprima === 'undefined') {
 
                             r(node);
                             delete Define.property[key];
+                            delete Define.func[call];
                             return;
                         }
                     }
@@ -2577,14 +2584,14 @@ if (typeof esprima === 'undefined') {
         exports['watch'] = watch;
         exports['extractMacro'] = extractMacro;
         exports['extractFileMacro'] = extractFileMacro;
-		exports['defaultInclude'] = 'Include.js';
-		exports['debug'] = false;
-		exports['scriptType'] = 'text/akra-js';
-		exports['keywords'] = {};
+        exports['defaultInclude'] = 'Include.js';
+        exports['debug'] = false;
+        exports['scriptType'] = 'text/akra-js';
+        exports['keywords'] = {};
+        exports['log'] = false;
 
         exports.watch();
     })();
 
 })((typeof exports === 'undefined' ? (Preprocessor = {}) : exports));
-
 

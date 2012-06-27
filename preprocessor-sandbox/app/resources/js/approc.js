@@ -24,7 +24,10 @@ if (typeof esprima === 'undefined') {
             if (!path) return '';
 
             try {
-                data = fs.readFileSync(__dirname + '/../' + path, 'utf-8');
+                if (path[path.length - 1] === '/') {
+                    path += exports['defaultInclude'];
+                }
+                data = fs.readFileSync(path, 'utf-8');
             }catch (e) {
                 console.log('cannot open file <', path, '>');
             }
@@ -1033,6 +1036,7 @@ if (typeof esprima === 'undefined') {
                             else {
                                 c(subst.insert);
                             }
+                            //cl('file: ' + id + ' processed.');
                             CurFile = prevFile;
                         }
                         else {
@@ -1301,7 +1305,6 @@ if (typeof esprima === 'undefined') {
                             (substAlter && !substAlter.usageHistory[cn(substAlter)])) {
                             //console.log('__', '-->', call.substr(callIndex + 1), call);
                             Define.func[call] = subst? subst: substAlter;
-                            console.log(call);
                             key = sk(Keywords.UnknownObject);
 
                             Define.property[key] = {
@@ -1312,6 +1315,7 @@ if (typeof esprima === 'undefined') {
 
                             r(node);
                             delete Define.property[key];
+                            delete Define.func[call];
                             return;
                         }
                     }
@@ -1935,6 +1939,7 @@ if (typeof esprima === 'undefined') {
             }
 
             fid = simplifyPath(curPath() + fileName);
+
             if (!Define.include[fid]) {
                 try {
                     inject = readFile(fid);
@@ -2362,7 +2367,7 @@ if (typeof esprima === 'undefined') {
 
         function parse(code, custom) {
             IsDebug = exports['debug'];
-            PathStack = [];
+            //PathStack = [];
 
             try {
                 var res = esprima.parse(code);
@@ -2407,7 +2412,10 @@ if (typeof esprima === 'undefined') {
         }
 
         function file(file) {
-            return exports.code(readFile(file));
+            pushPath(simplifyPath(extractFilePath(file)));
+            var sCode = exports.code(readFile(file));
+            popPath();
+            return sCode;
         }
 
         function watch() {
@@ -2435,7 +2443,7 @@ if (typeof esprima === 'undefined') {
             //eval();
         };
        
-        function extractMacro (code, constCb, macroCb, enumCb) {
+        function extractMacro (code, constCb, macroCb, enumCb, skipParsing) {
             
             constCb = constCb || function (name, value, alone) {
                 return ('Define(' + name + ',' + value + (alone? ', true' : '') +  ')').replace(/(\r\n|\n|\r)/gm, '');
@@ -2495,7 +2503,8 @@ if (typeof esprima === 'undefined') {
             //console.log(code);
             var def, res;
             try {
-                res = esprima.parse(code);
+                if (!skipParsing)
+                    res = esprima.parse(code);
             }
             catch (e) {
                 cl('esprima parse error: ')
@@ -2504,12 +2513,9 @@ if (typeof esprima === 'undefined') {
 
             //parse(code);
 
-
-            def = exports.analyze(res, null, false);
+            if (!skipParsing)
+                def = exports.analyze(res, null, false);
             ExtractMacroMode = false;
-
-
-            cl(Object.keys(Define.func));
 
             var pEnums = {};
             var all = ''
@@ -2560,7 +2566,10 @@ if (typeof esprima === 'undefined') {
 
 
         function extractFileMacro(file) {
-            return this.extractMacro(readFile(file));
+            pushPath(extractFilePath(file));
+            var sCode = this.extractMacro(readFile(file));
+            popPath();
+            return sCode;
         }
 
         exports['analyze'] = analyze;
@@ -2569,14 +2578,13 @@ if (typeof esprima === 'undefined') {
         exports['watch'] = watch;
         exports['extractMacro'] = extractMacro;
         exports['extractFileMacro'] = extractFileMacro;
-		exports['defaultInclude'] = 'Include.js';
-		exports['debug'] = false;
-		exports['scriptType'] = 'text/akra-js';
-		exports['keywords'] = {};
+        exports['defaultInclude'] = 'Include.js';
+        exports['debug'] = false;
+        exports['scriptType'] = 'text/akra-js';
+        exports['keywords'] = {};
 
         exports.watch();
     })();
 
 })((typeof exports === 'undefined' ? (Preprocessor = {}) : exports));
-
 
