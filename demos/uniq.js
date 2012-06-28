@@ -1,52 +1,25 @@
-function TestHash(sData) {
-	'use strict';
-	
-	A_CLASS;
-	//this.setOption(a.StringHash.ALGORITHM_MD5, true);
-	this.setup(sData);
-} 
 
-EXTENDS(TestHash, a.StringHash);
-
-TestHash.prototype.setup = function(sData) {
-	'use strict';
-	
-	return parent.setup(sData);
-};
-
-
-function TestUnique (pHash) {
+function TestUnique (sHash) {
     'use strict';
-
-	A_CLASS;
 	
-	this.pArray = new Array(100);
-	for (var i = 0; i < 5; i++) {
-		this.nSize = (100 + ((Math.random() * 100) >>> 1));
-		this.pArray[i] = (new Array(this.nSize));
-	};
+	A_CLASS;
+
+	this.pData = new Array(500);
 }
 
 function TestUnique2 (pHash) {
     'use strict';
 
-    this.pArray = new Array(100);
-	for (var i = 0; i < 5; i++) {
-		this.nSize = (100 + ((Math.random() * 100) >>> 1));
-		this.pArray[i] = (new Array(this.nSize));
-	};
+    this.pData = new Array(500);
 }
 
-// TestUnique.createUnique = function (sData) {
-//     'use strict';
-
-// 	var pObject = new TestUnique(sData);
-// 	pObject.hack = 'I\'s IMBA :)';
-
-// 	return pObject;
-// }
-
 EXTENDS(TestUnique, a.Unique);
+
+TestUnique.prototype.computeHash = function (pArgv) {
+    'use strict';
+    
+    return pArgv[0];
+};
 
 function MyGame() {
 	A_CLASS;
@@ -80,8 +53,8 @@ MyGame.prototype.oneTimeSceneInit = function () {
 
 	// trace(a.now() - iBegin, 'ms');
 
-	var n = 100000;
-	var pHash = [new TestHash('0'), new TestHash('1'), new TestHash('2'), new TestHash('3'), new TestHash('4')];
+	var n = 1000;
+	var pHash = ['0', '1', '2', '3', '4', '5'];
 	
 	iBegin = a.now();
 	

@@ -6,6 +6,7 @@ var url = require('url');
 var code, custom;
 var build = 0;
 var rebuild;
+var build_num = 0;
 
 function now() {
   return (new Date).getTime();
@@ -32,7 +33,7 @@ http.createServer(function (request, response) {
     if (rebuild) {
       code = preprocessor.next();
       build = now();
-      console.log('rebuild: ', build);
+      console.log('rebuild: ', build, '(', (build_num ++), ')');
     }
 
     response.end(code);
