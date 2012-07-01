@@ -1,3 +1,7 @@
+#ifndef A_VB_COMPONENT3
+#define A_VB_COMPONENT4
+#endif
+
 #ifdef A_VB_COMPONENT4
 #define A_VB_ELEMENT_SIZE 4.
 #endif
@@ -84,3 +88,41 @@ vec3 A_extractVec3(const sampler2D sampler, const A_TextureHeader header, const 
     return vec3(0);
 }
 
+vec4 A_extractVec4(const sampler2D sampler, const A_TextureHeader header, const float offset) 
+{        
+    float pixelNumber = floor(offset / A_VB_ELEMENT_SIZE);         
+    float y = floor(pixelNumber / header.width) + .5;
+    float x = mod(pixelNumber, header.width) + .5;
+
+    int shift = int(mod(offset, A_VB_ELEMENT_SIZE));
+
+#ifdef A_VB_COMPONENT4
+
+    if(shift == 0)                  return A_tex2D(sampler, header, x, y);
+    else if(shift == 1)   
+    {
+        if(int(x) == int(header.width - 1.))  
+            return vec4(A_tex2D(sampler, header, x, y).gba, A_tex2D(sampler, header, 0., (y + 1.)).r); 
+        else                        
+            return vec4(A_tex2D(sampler, header, x, y).gba, A_tex2D(sampler, header, (x + 1.), y).r);
+    }          
+    else if(shift == 2)
+    {
+        if(int(x) == int(header.width - 1.))  
+            return vec4(A_tex2D(sampler, header, x, y).ba, A_tex2D(sampler, header, 0., (y + 1.)).rg); 
+        else                       
+            return vec4(A_tex2D(sampler, header, x, y).ba, A_tex2D(sampler, header, (x + 1.), y).rg);
+    }
+    else if(shift == 3)
+    {
+        if(int(x) == int(header.width - 1.))  
+            return vec4(A_tex2D(sampler, header, x, y).a, A_tex2D(sampler, header, 0., (y + 1.)).rgb); 
+        else                        
+            return vec4(A_tex2D(sampler, header, x, y).a, A_tex2D(sampler, header, (x + 1.), y).rgb); 
+    }
+
+#endif
+#ifdef A_VB_COMPONENT3
+#endif
+    return vec4(0);
+}
