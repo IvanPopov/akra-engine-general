@@ -175,9 +175,9 @@ function torus (pEngine, eOptions, sName, rings, sides) {
 
     pSubMesh.index(iPosNorm, 'INDEX_POSITION');
     pSubMesh.index(iPosNorm, 'INDEX_NORMAL');
-    pSubMesh.applyMaterial('blue');
+    pSubMesh.applyFlexMaterial('blue');
 
-    pMaterial = pSubMesh.getMaterial('blue');
+    pMaterial = pSubMesh.getFlexMaterial('blue');
     pMaterial.diffuse = new a.Color4f(0.3, 0.3, 1.0, 1.0);
     return pMesh;
 }
@@ -231,7 +231,7 @@ function cube (pEngine, eOptions, sName) {
     pSubMesh.allocateIndex([VE_FLOAT('INDEX_NORMAL')], pNormalIndicesData);
     pSubMesh.index(iPos, 'INDEX_POSITION');
     pSubMesh.index(iNorm, 'INDEX_NORMAL');
-    pSubMesh.applyMaterial('default');
+    pSubMesh.applyFlexMaterial('default');
 
     return pMesh;
 } 
@@ -267,11 +267,14 @@ MeshDemo.prototype.initDeviceObjects = function () {
     var pProgram = this.displayManager().shaderProgramPool().createResource('draw_mesh');
     pProgram.create(pShaderSource.vertex, pShaderSource.fragment, true);
 
-    this.pCubeMesh = pCubeMesh;
-    this.pTorusMesh = pTorusMesh;
+    this.pCube = new a.SceneModel(this, pCubeMesh);
+    this.pTorus = new a.SceneModel(this, pTorusMesh);
+    this.pCube.attachToParent(this.getRootNode());
+    this.pTorus.attachToParent(this.getRootNode());
+    this.pCube.create();
+    this.pTorus.create();
+
     this.pDrawMeshProg = pProgram;
-    this.pNormalMat = Mat4.identity(new Matrix4);
-    //this.getActiveCamera().setPosition(new Vector3());
 	return true;
 };
 
@@ -281,14 +284,20 @@ MeshDemo.prototype.directRender = function() {
     var pProgram = this.pDrawMeshProg;
     var pCamera = this.getActiveCamera();
 
-    pProgram.activate();
-    pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
-    pProgram.applyMatrix4('model_view_mat', pCamera.viewMatrix());
-    pProgram.applyMatrix4('normal_mat', this.pNormalMat);
-    pProgram.applyVector3('eye_pos', pCamera.worldPosition());
-    
-    this.pCubeMesh.draw();
-    this.pTorusMesh.draw();
+    function draw(pModel) {
+        pModel.addRelRotation(0.01, 0., 0.);
+        pProgram.activate();
+        pProgram.applyMatrix4('model_mat', pModel.worldMatrix());
+        pProgram.applyMatrix3('normal_mat', pModel.normalMatrix());
+        pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
+        pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
+        pProgram.applyVector3('eye_pos', pCamera.worldPosition());
+        pModel._pMesh.draw();
+    }
+
+    this.pCube.addRelRotation(0., 0.01, 0.);
+    draw(this.pCube);
+    draw(this.pTorus);
 };
 
 MeshDemo.prototype.deleteDeviceObjects = function () {

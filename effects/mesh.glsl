@@ -4,9 +4,10 @@ attribute float INDEX_POSITION;
 attribute float INDEX_NORMAL;
 attribute float INDEX_MAT;
 
-uniform mat4 model_view_mat;
+uniform mat4 model_mat;
+uniform mat4 view_mat;
 uniform mat4 proj_mat;
-uniform mat4 normal_mat;
+uniform mat3 normal_mat;
 uniform sampler2D A_buffer_0;
 
 varying vec3 vert;
@@ -32,9 +33,9 @@ void main(void) {
 	mat_emissive = A_extractVec4(A_buffer_0, vb_header, INDEX_MAT + 12.);
 	mat_shininess = A_extractFloat(A_buffer_0, vb_header, INDEX_MAT + 16.);
 
-	vec4 pos = model_view_mat * vec4(position.xyz, 1.);
+	vec4 pos = view_mat * model_mat * vec4(position.xyz, 1.);
 
-	norm = normalize((normal_mat * vec4(normal, 1.0)).xyz);
+	norm = normalize((normal_mat * normal));
 	vert = pos.xyz;
 
 	gl_Position = proj_mat * pos;
