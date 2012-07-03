@@ -51,18 +51,20 @@ MyGame.prototype.oneTimeSceneInit = function () {
 		pData2[i] = i * 10;
 	};
 
-	var pVertexData = pBuffer.allocateData([
+	var pDecl = new a.VertexDeclaration([
 		VE_FLOAT3('POSITION'),
-		VE_FLOAT('POSITION.X', -12),
-		// VE_FLOAT('POSITION.Y'), 
-		// VE_FLOAT('POSITION.Z')
-		], pData);
+		VE_FLOAT('POSITION.X', 0),
+		VE_FLOAT('POSITION.Z', 8)
+		]);
 	
-	trace ('------------------------------') ;
+	var pVertexData = pBuffer.allocateData(pDecl, pData);
+	
+
+	 trace ('------------------------------') ;
 
 	pVertexData.extend([
 		VE_FLOAT3('NORMAL'),
-		VE_FLOAT('NORMAL.X', -12),
+		VE_FLOAT('NORMAL.X', 0),
 		VE_FLOAT('NORMAL.Y')
 		// VE_FLOAT('NORMAL.Z')
 		], pData2);
@@ -70,7 +72,7 @@ MyGame.prototype.oneTimeSceneInit = function () {
 	trace(pVertexData.getTypedData('POSITION'));
 	trace(pVertexData.getTypedData('NORMAL'));
 	trace(pVertexData.getTypedData('NORMAL.Y'));
-	trace(pVertexData.getVertexDeclaration().offsetOf('NORMAL.Y'));
+	trace(pVertexData.getVertexDeclaration().element('NORMAL.Y').iOffset);
 	
 	return true;
 }; 

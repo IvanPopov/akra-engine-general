@@ -4,12 +4,14 @@
 
 compiled/
 
-.bak
-.back
-.prev
-.sublime-project
-.sublime-workspace
-.cache
+
+*.bak
+*.back
+*.prev
+*.sublime-project
+*.sublime-workspace
+*.sublime-build
+*.cache
 
 #do not sync user's ide settings
 ide.ini
