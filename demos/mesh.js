@@ -92,15 +92,15 @@ function loadGLSLSource(sPath, sFilename) {
 // }
 
 function torus (pEngine, eOptions, sName, rings, sides) {
-    rings = rings || 30;
-    sides = sides || 30;
+    rings = rings || 50;
+    sides = sides || 50;
 
     var vertices  = [];
     var normals   = [];
     var tex       = [];
     var ind       = [];
-    var r1        = 0.1;
-    var r2        = 0.5;
+    var r1        = 0.3;
+    var r2        = 1.5;
     var ringDelta = 2.0 * 3.1415926 / rings;
     var sideDelta = 2.0 * 3.1415926 / sides;
     var invRings  = 1.0 / rings;
@@ -121,7 +121,7 @@ function torus (pEngine, eOptions, sName, rings, sides) {
             var sinPhi = Math.sin ( phi );
             var dist   = r2 + r1 * cosPhi;
 
-            vertices.push ( cosTheta * dist + 1.5);
+            vertices.push ( cosTheta * dist);
             vertices.push ( -sinTheta * dist);
             vertices.push ( r1 * sinPhi );
             
@@ -174,11 +174,14 @@ function torus (pEngine, eOptions, sName, rings, sides) {
     //pSubMesh.allocateIndex([VE_FLOAT('INDEX_NORMAL')], new Float32Array(ind));
 
     pSubMesh.index(iPosNorm, 'INDEX_POSITION');
-    pSubMesh.index(iPosNorm, 'INDEX_NORMAL');
+    //pSubMesh.index(iPosNorm, 'INDEX_NORMAL');
     pSubMesh.applyFlexMaterial('blue');
 
     pMaterial = pSubMesh.getFlexMaterial('blue');
     pMaterial.diffuse = new a.Color4f(0.3, 0.3, 1.0, 1.0);
+    pMaterial.specular = new a.Color4f(1, 1, 1, 1.);
+    pMaterial.shininess = 30;
+
     return pMesh;
 }
 
@@ -221,6 +224,11 @@ function cube (pEngine, eOptions, sName) {
         5, 5, 5, 5, 5, 5
     ]);
 
+    var pSerialData = new Float32Array(pNormalIndicesData.length);
+    for (var i = 0; i < pSerialData.length; i++) {
+        pSerialData[i] = i % 3;
+    };
+
     var iNorm, iPos;
 
     pMesh = new a.Mesh(pEngine, eOptions || 0, sName || 'cube');
@@ -229,9 +237,18 @@ function cube (pEngine, eOptions, sName) {
     iPos = pSubMesh.allocateData([VE_VEC3('POSITION')], pVerticesData);
     pSubMesh.allocateIndex([VE_FLOAT('INDEX_POSITION')], pVertexIndicesData);
     pSubMesh.allocateIndex([VE_FLOAT('INDEX_NORMAL')], pNormalIndicesData);
+    pSubMesh.allocateAttribute([VE_FLOAT('SERIAL')], pSerialData);
+    pSubMesh.allocateAttribute([VE_FLOAT('SERIAL2')], pSerialData);
     pSubMesh.index(iPos, 'INDEX_POSITION');
     pSubMesh.index(iNorm, 'INDEX_NORMAL');
     pSubMesh.applyFlexMaterial('default');
+    var pMat = pSubMesh.getFlexMaterial('default');
+    pMat.diffuse = new a.Color4f(0.3, 0., 0., 1.);
+    pMat.ambient = new a.Color4f(1., 0., 0., 1.);
+    pMat.specular = new a.Color4f(1., 0.7, 0. ,1);
+    pMat.shininess = 10.;
+
+    //trace(pSubMesh._pMap.toString());
 
     return pMesh;
 } 
@@ -259,20 +276,37 @@ MeshDemo.prototype.restoreDeviceObjects = function () {
 
 MeshDemo.prototype.initDeviceObjects = function () {
 	this.notifyInitDeviceObjects();
-	
-	var pCubeMesh = cube(this);
-    var pTorusMesh = torus(this);
-    var pShaderSource = loadGLSLSource('../effects/', 'mesh.glsl');
+	var me = this;
+    COLLADA(this, '/akra-engine-general/media/models/astroBoy_walk_Maya.dae',
+        function () {
+            //trace(arguments[0]);
+            var 
+            pCollada = new Array(arguments[0].length);
+            for(var i = 0; i<pCollada.length; i++){
+                pCollada[i] = new a.SceneModel(me, arguments[0][i]);
+                pCollada[i].attachToParent(me.getRootNode());
+                pCollada[i].create();
+                pCollada[i].setPosition([0 * i, 0. * i, 15. * i]);
+            }
+            me.pCollada = pCollada;
+            //me.pCollada.setScale(0.001);
+        });
 
+	// var pCubeMesh = cube(this);
+ //    var pTorusMesh = torus(this);
+ //    window.pTorus = pTorusMesh;
+ //    window.pCube = pCubeMesh;
+
+ //    this.pCube = new a.SceneModel(this, pCubeMesh);
+ //    this.pTorus = new a.SceneModel(this, pTorusMesh);
+ //    this.pCube.attachToParent(this.getRootNode());
+ //    this.pTorus.attachToParent(this.getRootNode());
+ //    this.pCube.create();
+ //    this.pTorus.create();
+ //    
+    var pShaderSource = loadGLSLSource('../effects/', 'mesh.glsl');
     var pProgram = this.displayManager().shaderProgramPool().createResource('draw_mesh');
     pProgram.create(pShaderSource.vertex, pShaderSource.fragment, true);
-
-    this.pCube = new a.SceneModel(this, pCubeMesh);
-    this.pTorus = new a.SceneModel(this, pTorusMesh);
-    this.pCube.attachToParent(this.getRootNode());
-    this.pTorus.attachToParent(this.getRootNode());
-    this.pCube.create();
-    this.pTorus.create();
 
     this.pDrawMeshProg = pProgram;
 	return true;
@@ -284,6 +318,9 @@ MeshDemo.prototype.directRender = function() {
     var pProgram = this.pDrawMeshProg;
     var pCamera = this.getActiveCamera();
 
+    this.pDevice.enableVertexAttribArray(1);
+    this.pDevice.enableVertexAttribArray(2);
+
     function draw(pModel) {
         pModel.addRelRotation(0.01, 0., 0.);
         pProgram.activate();
@@ -292,12 +329,18 @@ MeshDemo.prototype.directRender = function() {
         pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
         pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
         pProgram.applyVector3('eye_pos', pCamera.worldPosition());
+        // trace(pModel.getPosition().X,pModel.getPosition().Y,pModel.getPosition().Z);
         pModel._pMesh.draw();
     }
-
-    this.pCube.addRelRotation(0., 0.01, 0.);
-    draw(this.pCube);
-    draw(this.pTorus);
+    // this.pTorus.addRelRotation(0., 0., 0.01);
+    // this.pCube.addRelRotation(0., 0.01, 0.);
+    //draw(this.pCube);
+    //draw(this.pTorus);
+    if (this.pCollada) {
+        for(var i =0; i< this.pCollada.length; i++){
+            draw(this.pCollada[i]);
+        }
+    }
 };
 
 MeshDemo.prototype.deleteDeviceObjects = function () {

@@ -3,6 +3,7 @@
 attribute float INDEX_POSITION;
 attribute float INDEX_NORMAL;
 attribute float INDEX_MAT;
+//attribute float SERIAL;
 
 uniform mat4 model_mat;
 uniform mat4 view_mat;
@@ -18,7 +19,7 @@ varying vec4 mat_diffuse;
 varying vec4 mat_specular;
 varying vec4 mat_emissive;
 varying float mat_shininess;
-
+//varying float serial;
 
 void main(void) {
 	A_TextureHeader vb_header;
@@ -37,6 +38,7 @@ void main(void) {
 
 	norm = normalize((normal_mat * normal));
 	vert = pos.xyz;
+    //serial = SERIAL;
 
 	gl_Position = proj_mat * pos;
 }
@@ -51,7 +53,7 @@ uniform vec3 eye_pos;
 
 varying vec3 vert;
 varying vec3 norm;
-varying float mat;
+//varying float serial;
 
 varying vec4 mat_ambient;
 varying vec4 mat_diffuse;
@@ -74,7 +76,7 @@ void main(void) {
     light_point.ambient = vec4(1., 1., 1., 1.);
     light_point.diffuse  =vec4(1., 1., 1., 1.);
     light_point.specular = vec4(1., 1., 1., 1.);
-    light_point.attenuation = vec3(.8, 0., .1);
+    light_point.attenuation = vec3(.0, 0.05, .0);
 
      // direction on source of light (LightDir)
     vec3 light_dir = light_point.position.xyz - vert;
@@ -101,7 +103,7 @@ void main(void) {
     
     // add diffuse lighting
     color += mat_diffuse * light_point.diffuse * max(dot(norm, light_dir), .0) * attenuation;
-
+    //color *= serial;
 
     // add reflect lighting
     //float light_distancedotVpow = max(pow(dot(light_distance, view_dir), mat_shininess), 0.0);
