@@ -17,23 +17,12 @@ void main(void){
             vec2((mod(serial, size.x) +.5 ) / size.x, (floor(serial / size.x) + .5) / size.y)
             );
 
-        if (shift > 0 && INDEX == 1966.) {
-            //if (shift == 2)
-            //return;
-        }   
 
         if (shift == 1) {               
             color = vec4(color.r, value.gba);      
         }                               
-        else if (shift == 2) {  /*
-            if (INDEX == 1966. && color.b == 0.) {//vec4(0,0,0,1)
-
-                if (texture2D(sourceTexture,                                        
-                    vec2((mod(serial-20., size.x) +.5 ) / size.x, (floor((serial-20.) / size.x) + .5) / size.y)
-                    ) == vec4(0.,0.,0.,1.))
-                return;
-            }      */ 
-            color = vec4(color.rg, value.ba);       ///???? 
+        else if (shift == 2) {  
+            color = vec4(color.rg, value.ba);   
         }                               
         else if (shift == 3) {          
             color = vec4(color.rgb, value.a);          

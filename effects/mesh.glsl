@@ -28,11 +28,11 @@ void main(void) {
 	vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_POSITION);
 	vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL);
 	
-	mat_ambient = vec4(.5 + INDEX_FLEXMAT * 0.0000001,.5,.5,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 0.);
-	mat_diffuse = vec4(.5,.5,.5,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 4.);
-	mat_specular = vec4(.0,.0,.0,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 8.);
-	mat_emissive = vec4(.0,.0,.0,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 12.);
-	mat_shininess = 70.;//A_extractFloat(A_buffer_0, vb_header, INDEX_FLEXMAT + 16.);
+	mat_ambient = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 0.);
+	mat_diffuse = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 4.);
+	mat_specular = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 8.);
+	mat_emissive = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 12.);
+	mat_shininess = A_extractFloat(A_buffer_0, vb_header, INDEX_FLEXMAT + 16.);
 
 	vec4 pos = view_mat * model_mat * vec4(position.xyz, 1.);
 
@@ -76,7 +76,7 @@ void main(void) {
     light_point.ambient = vec4(1., 1., 1., 1.);
     light_point.diffuse  =vec4(1., 1., 1., 1.);
     light_point.specular = vec4(1., 1., 1., 1.);
-    light_point.attenuation = vec3(.0, 0.05, .0);
+    light_point.attenuation = vec3(.1, 0.05, .0);
 
      // direction on source of light (LightDir)
     vec3 light_dir = light_point.position.xyz - vert;
