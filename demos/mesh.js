@@ -30,7 +30,6 @@ MeshDemo.prototype.initDeviceObjects = function () {
 
     COLLADA(this, '/akra-engine-general/media/models/astroBoy_walk_Maya.dae',
         function () {
-            //trace(arguments[0]);
             var 
             pCollada = new Array(arguments[0].length);
             for(var i = 0; i<pCollada.length; i++){
@@ -58,15 +57,9 @@ MeshDemo.prototype.initDeviceObjects = function () {
     this.pPlane.addRelPosition(0, -2.0, 0);
     this.pPlane.setScale(100.0);
 
-    function loadProgram(sPath, sProg) {
-        pShaderSource = loadGLSLSource(sPath, sProg);
-        pProgram = me.displayManager().shaderProgramPool().createResource(sProg);
-        pProgram.create(pShaderSource.vertex, pShaderSource.fragment, true);
-        return pProgram;
-    }
-
-    this.pDrawMeshProg = loadProgram('../effects/', 'mesh.glsl');
-    this.pDrawPlaneProg = loadProgram('../effects/', 'plane.glsl');
+    this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
+    this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
+    this.pDrawMeshI2IProg = a.loadProgram(this, '../effects/mesh_ai.glsl');
 
     var pCamera = this.getActiveCamera();
     pCamera.addRelPosition(-8.0, 5.0, 11.0);
@@ -81,7 +74,6 @@ MeshDemo.prototype.directRender = function() {
     var pCamera = this._pDefaultCamera;
 
     function draw(pProgram, pModel, hasMat) {
-
         hasMat = ifndef(hasMat, true);
         pProgram.applyMatrix4('model_mat', pModel.worldMatrix());
         pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
@@ -96,8 +88,8 @@ MeshDemo.prototype.directRender = function() {
     }    
 
     this.pDrawMeshProg.activate();
-    //this.pDevice.enableVertexAttribArray(0);
-    //this.pDevice.enableVertexAttribArray(1);
+    this.pDevice.enableVertexAttribArray(0);
+    this.pDevice.enableVertexAttribArray(1);
     this.pDevice.enableVertexAttribArray(2);
 
     this.pTorus.addRelRotation(0.01, 0., -0.01);        
@@ -106,6 +98,7 @@ MeshDemo.prototype.directRender = function() {
     draw(this.pDrawMeshProg, this.pCube);
     draw(this.pDrawMeshProg, this.pTorus);
 
+    this.pDrawMeshI2IProg.activate();
     if (this.pCollada) {
         for(var i =0; i< this.pCollada.length; i++){
             this.pCollada[i].addRelRotation(0.01, 0., 0.);
@@ -116,8 +109,6 @@ MeshDemo.prototype.directRender = function() {
 
     //draw plane
     this.pDrawPlaneProg.activate();
-    //this.pDevice.enableVertexAttribArray(0);
-    //this.pDevice.enableVertexAttribArray(1);
     this.pDevice.disableVertexAttribArray(2);
 
     draw(this.pDrawPlaneProg, this.pPlane, false);

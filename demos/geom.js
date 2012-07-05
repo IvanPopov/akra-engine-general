@@ -60,6 +60,7 @@ function torus (pEngine, eOptions, sName, rings, sides) {
     var pMesh, pSubMesh;
     var pMaterial;
     var iPos, iNorm;
+
     pMesh = new a.Mesh(pEngine, eOptions || 0, sName || 'torus');
     pSubMesh = pMesh.createSubset('torus::main');
 
@@ -69,19 +70,20 @@ function torus (pEngine, eOptions, sName, rings, sides) {
         vertnorm.push(normals[i], normals[i + 1], normals[i + 2]);
     }
 
-    //iNorm = pSubMesh.allocateData([VE_VEC3('NORMAL')], new Float32Array(normals));
-    //iPos = pSubMesh.allocateData([VE_VEC3('POSITION')], new Float32Array(vertices));
-    iPosNorm = pSubMesh.data.allocateData([VE_VEC3('POSITION'), VE_VEC3('NORMAL')], 
-        new Float32Array(vertnorm));
+    iNorm = pSubMesh.data.allocateData([VE_VEC3('NORMAL')], new Float32Array(normals));
+    iPos = pSubMesh.data.allocateData([VE_VEC3('POSITION')], new Float32Array(vertices));
+    // iPosNorm = pSubMesh.data.allocateData([VE_VEC3('POSITION'), VE_VEC3('NORMAL')], 
+    //     new Float32Array(vertnorm));
 
-    pSubMesh.data.allocateIndex([VE_FLOAT('INDEX_POSITION'), VE_FLOAT('INDEX_NORMAL', 0)], 
-        new Float32Array(ind));
+    // pSubMesh.data.allocateIndex([VE_FLOAT('INDEX_POSITION'), VE_FLOAT('INDEX_NORMAL', 0)], 
+    //     new Float32Array(ind));
 
-    //pSubMesh.allocateIndex([VE_FLOAT('INDEX_POSITION')], new Float32Array(ind));
-    //pSubMesh.allocateIndex([VE_FLOAT('INDEX_NORMAL')], new Float32Array(ind));
+    pSubMesh.data.allocateIndex([VE_FLOAT('INDEX_POSITION')], new Float32Array(ind));
+    pSubMesh.data.allocateIndex([VE_FLOAT('INDEX_NORMAL')], new Float32Array(ind));
 
-    pSubMesh.data.index(iPosNorm, 'INDEX_POSITION');
-    //pSubMesh.index(iPosNorm, 'INDEX_NORMAL');
+    //pSubMesh.data.index(iPosNorm, 'INDEX_POSITION');
+    pSubMesh.data.index(iPos, 'INDEX_POSITION');
+    pSubMesh.data.index(iNorm, 'INDEX_NORMAL');
     pSubMesh.applyFlexMaterial('blue');
 
     pMaterial = pSubMesh.getFlexMaterial('blue');
@@ -148,10 +150,10 @@ function cube (pEngine, eOptions, sName) {
     pSubMesh.data.index(iNorm, 'INDEX_NORMAL');
     pSubMesh.applyFlexMaterial('default');
     var pMat = pSubMesh.getFlexMaterial('default');
-    pMat.diffuse = new a.Color4f(0.3, 0., 0., 1.);
-    pMat.ambient = new a.Color4f(1., 0., 0., 1.);
+    pMat.diffuse = new a.Color4f(0.5, 0., 0., 1.);
+    pMat.ambient = new a.Color4f(0.7, 0., 0., 1.);
     pMat.specular = new a.Color4f(1., 0.7, 0. ,1);
-    pMat.shininess = 10.;
+    pMat.shininess = 30.;
 
     //trace(pSubMesh._pMap.toString());
 
