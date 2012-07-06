@@ -1,97 +1,161 @@
-function loadGLSLSource(sPath, sFilename) {
-    var sShader = a.ajax({url: sPath + sFilename, async: false}).data;
-    var fnReplacer = function (sSource, sMatch) {
-        return a.ajax({url: sPath + sMatch, async: false}).data;
+Include('geom.js')
+
+function ParticlesDemo() {
+    A_CLASS;
+};
+
+EXTENDS(ParticlesDemo, a.Engine);
+
+ParticlesDemo.prototype.oneTimeSceneInit = function () {
+    'use strict';
+    
+    this.notifyOneTimeSceneInit();
+    this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0.0, 500.0));
+    this.showStats(true);
+    return true;
+}; 
+
+ParticlesDemo.prototype.restoreDeviceObjects = function () {
+    this.notifyRestoreDeviceObjects();
+    return true;
+};
+
+
+ParticlesDemo.prototype.initDeviceObjects = function () {
+    this.notifyInitDeviceObjects();
+
+    var me = this;
+    var pShaderSource;
+    var pProgram;
+
+
+    function addMeshToScene(pEngine, pMesh) {
+        var pSceneObject = new a.SceneModel(pEngine, pMesh);
+        pSceneObject.attachToParent(pEngine.getRootNode());
+        pSceneObject.create();
+        pSceneObject.addRelPosition(-3, 2.0, 0);
+        return pSceneObject;
     }
 
-    sShader = sShader.replace(/\#include\s+\"([\w\.]+)\"/ig, fnReplacer);
-    sShader = sShader.split('//<-- split -- >');
-    return {vertex: sShader[0], fragment: sShader[1]};
+    //this.pCube = addMeshToScene(this, cube(this));
+    this.pTorus = addMeshToScene(this, torus(this));
+    this.pPlane = addMeshToScene(this, plane(this));
+
+    this.pPlane.addRelPosition(0, -2.0, 0);
+    this.pPlane.setScale(100.0);
+
+    this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
+    this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
+    this.pUpdateVelocityProg = a.loadProgram(this,'../effects/particle_update_velocity.glsl');
+    this.pUpdatePositionProg = a.loadProgram(this,'../effects/particle_update_position.glsl');
+    //this.pDrawMeshI2IProg = a.loadProgram(this, '../effects/mesh_ai.glsl');
+
+    var pSimpleTorus = simpleTorus(100,100);
+
+    this.pParticleManager = new a.ParticleManager(this);
+
+    //trace(this.pParticleManager);
+    var pEmitter = this.pEmitter = this.pParticleManager.createEmitter(a.EMITTER.OBJECT,2);
+    pEmitter.setParticleData([VE_VEC3('PARTICLE_POSITION')],new Float32Array([10,10,10,-10,-10,-10]));
+    pEmitter.setParticleData([VE_VEC3('PARTICLE_VELOCITY')],new Float32Array([10,50,0,5,10,0]));
+
+    var iPosition = pEmitter.setObjectData([VE_VEC3('POSITION')],pSimpleTorus.vertices);
+    var iNormal = pEmitter.setObjectData([VE_VEC3('NORMAL')],pSimpleTorus.normals);
+    pEmitter.setObjectIndex([VE_FLOAT('INDEX_POSITION')],pSimpleTorus.INDEX_POSITION);
+    pEmitter.setObjectIndex([VE_FLOAT('INDEX_NORMAL')],pSimpleTorus.INDEX_NORMAL);
+    pEmitter.objectIndex(iPosition,'INDEX_POSITION');
+    pEmitter.objectIndex(iNormal,'INDEX_NORMAL');
+
+    pEmitter.setLiveTime(Number.POSITIVE_INFINITY);
+
+    pEmitter.updateRoutine = updateRoutine;
+
+    pEmitter.attachToParent(this.getRootNode());
+    pEmitter.create();
+
+    pEmitter.activate();
+    trace(this.pEmitter);
+
+    var pCamera = this.getActiveCamera();
+    pCamera.addRelPosition(-8.0, 5.0, 11.0);
+    pCamera.addRelRotation(-3.14/5, -3.14/15, 0);
+
+    return true;
+};
+
+ParticlesDemo.prototype.directRender = function() {
+    'use strict';
+
+    var pCamera = this._pDefaultCamera;
+
+    function draw(pProgram, pModel, hasMat) {
+        hasMat = ifndef(hasMat, true);
+        pProgram.applyMatrix4('model_mat', pModel.worldMatrix());
+        pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
+        pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
+        
+        if (hasMat) {
+            pProgram.applyMatrix3('normal_mat', pModel.normalMatrix());
+            pProgram.applyVector3('eye_pos', pCamera.worldPosition());
+        }
+
+        pModel._pMesh.draw();
+    }    
+
+    this.pDrawMeshProg.activate();
+    this.pDevice.enableVertexAttribArray(0);
+    this.pDevice.enableVertexAttribArray(1);
+    this.pDevice.enableVertexAttribArray(2);
+
+    this.pTorus.addRelRotation(0.01, 0., -0.01);        
+    //this.pCube.addRelRotation(-0.01, 0.01, 0.);
+    
+    //draw(this.pDrawMeshProg, this.pCube);
+    draw(this.pDrawMeshProg, this.pTorus);
+
+
+
+    //draw plane
+    this.pDrawPlaneProg.activate();
+    this.pDevice.disableVertexAttribArray(2);
+
+    draw(this.pDrawPlaneProg, this.pPlane, false);
+};
+
+ParticlesDemo.prototype.deleteDeviceObjects = function () {
+    this.notifyDeleteDeviceObjects();
+    return true;
+};
+
+ParticlesDemo.prototype.updateScene = function () {
+    this.updateCamera(1.0, 0.1, null, 30.0, false);
+
+    if (this.pKeymap.isMousePress() && this.pKeymap.isMouseMoved()) {
+        var pCamera = this.getActiveCamera(),
+            fdX = this.pKeymap.mouseShitfX(),
+            fdY = this.pKeymap.mouseShitfY(),
+            pScreen = a.info.screen;
+
+        fdX /= pScreen.width / 10.0;
+        fdY /= pScreen.height / 10.0;
+
+        pCamera.addRelRotation(-fdX, -fdY, 0);
+    }
+
+    return this.notifyUpdateScene();
+};
+
+if (!a.info.support.webgl) {
+    alert('Error:: Your browser does not support WebGL.');
+}
+else {
+    var App = new ParticlesDemo();
+    if (!App.create('canvas') || !App.run()) {
+        alert('something wrong....');
+    }
 }
 
-// function cube (pEngine, eOptions, sName) {
-// 	sName = sName || 'cube';
-
-//     var pMesh,
-//         pSubMesh;
-//     var iPos, iNorm;
-
-//     var pVerticesData = new Float32Array([
-//         -0.5, 0.5, 0.5,
-//         0.5, 0.5, 0.5,
-//         -0.5, -0.5, 0.5,
-//         0.5, -0.5, 0.5,
-//         -0.5, 0.5, -0.5,
-//         0.5, 0.5, -0.5,
-//         -0.5, -0.5, -0.5,
-//         0.5, -0.5, -0.5
-//     ]);
-
-//     var pNormalsData = new Float32Array([
-//         1.0, 0.0, 0.0,
-//         -1.0, 0.0, 0.0,
-//         0.0, 1.0, 0.0,
-//         0.0, -1.0, 0.0,
-//         0.0, 0.0, 1.0,
-//         0.0, 0.0, -1.0
-//     ]);
-
-//     var pVertexIndicesData = new Float32Array([
-//         0, 2, 3, 0, 3, 1,
-//         0, 1, 5, 0, 5, 4,
-//         6, 7, 3, 6, 3, 2,
-//         0, 4, 6, 0, 6, 2,
-//         3, 7, 5, 3, 5, 1,
-//         5, 7, 6, 5, 6, 4
-//     ]);
-//     var pNormalIndicesData = new Float32Array([
-//         4, 4, 4, 4, 4, 4,
-//         2, 2, 2, 2, 2, 2,
-//         3, 3, 3, 3, 3, 3,
-//         1, 1, 1, 1, 1, 1,
-//         0, 0, 0, 0, 0, 0,
-//         5, 5, 5, 5, 5, 5
-//     ]);
-
-//     var iNorm, iPos;
-//     pMesh = new a.Mesh(pEngine, eOptions, sName);
- 
-    
-//     pSubMesh = pMesh.allocateSubset('cube::main');
-
-//     //iNorm = pSubMesh.allocateData([VE_VEC3('NORMAL')], pNormalsData);
-//     //iPos = pSubMesh.allocateData([VE_VEC3('POSITION')], pVerticesData);
-    
-//     iPos = pMesh.allocateData([VE_VEC3('POSITION')], pVerticesData);
-//     iNorm = pMesh.allocateData([VE_VEC3('NORMAL')], pNormalsData);
-    
-//     pMesh.addMaterial('default');
-    
-//     pSubMesh.allocateIndex([VE_FLOAT('INDEX1')], pVertexIndicesData);
-//     pSubMesh.allocateIndex([VE_FLOAT('INDEX2')], pNormalIndicesData);
-       
-//     pSubMesh.index(iPos, 'INDEX1');
-//     pSubMesh.index(iNorm, 'INDEX2');
-
-//     //trace('index set: 1', pSubMesh._pMap.toString());
-
-//     pSubMesh.addIndexSet();
-
-//     pSubMesh.allocateIndex([VE_FLOAT('INDEX3')], pVertexIndicesData);
-//     pSubMesh.allocateIndex([VE_FLOAT('INDEX4')], pNormalIndicesData);
-
-//     pSubMesh.index(iPos, 'INDEX3');
-//     pSubMesh.index(iNorm, 'INDEX4');
-
-//     //trace('index set: 2', pSubMesh._pMap.toString());
-
-//     pSubMesh.selectIndexSet(0);
-//     pMesh.setMaterial('default');
-//     //trace('index set: 1', pSubMesh._pMap.toString());
-//     return pMesh;
-// }
-
-function torus (pEngine, eOptions, sName, rings, sides) {
+function simpleTorus (rings, sides) {
     rings = rings || 50;
     sides = sides || 50;
 
@@ -153,225 +217,11 @@ function torus (pEngine, eOptions, sName, rings, sides) {
     var pMesh, pSubMesh;
     var pMaterial;
     var iPos, iNorm;
-    pMesh = new a.Mesh(pEngine, eOptions || 0, sName || 'torus');
-    pSubMesh = pMesh.allocateSubset('torus::main');
 
-    var vertnorm = [];
-    for (var i = 0; i < vertices.length; i += 3) {
-        vertnorm.push(vertices[i], vertices[i + 1], vertices[i + 2]);
-        vertnorm.push(normals[i], normals[i + 1], normals[i + 2]);
-    }
-
-    //iNorm = pSubMesh.allocateData([VE_VEC3('NORMAL')], new Float32Array(normals));
-    //iPos = pSubMesh.allocateData([VE_VEC3('POSITION')], new Float32Array(vertices));
-    iPosNorm = pSubMesh.allocateData([VE_VEC3('POSITION'), VE_VEC3('NORMAL')], 
-        new Float32Array(vertnorm));
-
-    pSubMesh.allocateIndex([VE_FLOAT('INDEX_POSITION'), VE_FLOAT('INDEX_NORMAL', 0)], 
-        new Float32Array(ind));
-
-    //pSubMesh.allocateIndex([VE_FLOAT('INDEX_POSITION')], new Float32Array(ind));
-    //pSubMesh.allocateIndex([VE_FLOAT('INDEX_NORMAL')], new Float32Array(ind));
-
-    pSubMesh.index(iPosNorm, 'INDEX_POSITION');
-    //pSubMesh.index(iPosNorm, 'INDEX_NORMAL');
-    pSubMesh.applyFlexMaterial('blue');
-
-    pMaterial = pSubMesh.getFlexMaterial('blue');
-    pMaterial.diffuse = new a.Color4f(0.3, 0.3, 1.0, 1.0);
-    pMaterial.specular = new a.Color4f(1, 1, 1, 1.);
-    pMaterial.shininess = 30;
-
-    return pMesh;
-}
-
-function cube (pEngine, eOptions, sName) {
-    var pMesh, pSubMesh;
-    var iPos, iNorm;
-
-    var pVerticesData = new Float32Array([
-        -0.5, 0.5, 0.5,
-        0.5, 0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        0.5, -0.5, 0.5,
-        -0.5, 0.5, -0.5,
-        0.5, 0.5, -0.5,
-        -0.5, -0.5, -0.5,
-        0.5, -0.5, -0.5
-    ]);
-    var pNormalsData = new Float32Array([
-        1.0, 0.0, 0.0,
-        -1.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, -1.0, 0.0,
-        0.0, 0.0, 1.0,
-        0.0, 0.0, -1.0
-    ]);
-    var pVertexIndicesData = new Float32Array([
-        0, 2, 3, 0, 3, 1,
-        0, 1, 5, 0, 5, 4,
-        6, 7, 3, 6, 3, 2,
-        0, 4, 6, 0, 6, 2,
-        3, 7, 5, 3, 5, 1,
-        5, 7, 6, 5, 6, 4
-    ]);
-    var pNormalIndicesData = new Float32Array([
-        4, 4, 4, 4, 4, 4,
-        2, 2, 2, 2, 2, 2,
-        3, 3, 3, 3, 3, 3,
-        1, 1, 1, 1, 1, 1,
-        0, 0, 0, 0, 0, 0,
-        5, 5, 5, 5, 5, 5
-    ]);
-
-    var pSerialData = new Float32Array(pNormalIndicesData.length);
-    for (var i = 0; i < pSerialData.length; i++) {
-        pSerialData[i] = i % 3;
-    };
-
-    var iNorm, iPos;
-
-    pMesh = new a.Mesh(pEngine, eOptions || 0, sName || 'cube');
-    pSubMesh = pMesh.allocateSubset('cube::main');
-    iNorm = pSubMesh.allocateData([VE_VEC3('NORMAL')], pNormalsData);
-    iPos = pSubMesh.allocateData([VE_VEC3('POSITION')], pVerticesData);
-    pSubMesh.allocateIndex([VE_FLOAT('INDEX_POSITION')], pVertexIndicesData);
-    pSubMesh.allocateIndex([VE_FLOAT('INDEX_NORMAL')], pNormalIndicesData);
-    pSubMesh.allocateAttribute([VE_FLOAT('SERIAL')], pSerialData);
-    pSubMesh.allocateAttribute([VE_FLOAT('SERIAL2')], pSerialData);
-    pSubMesh.index(iPos, 'INDEX_POSITION');
-    pSubMesh.index(iNorm, 'INDEX_NORMAL');
-    pSubMesh.applyFlexMaterial('default');
-    var pMat = pSubMesh.getFlexMaterial('default');
-    pMat.diffuse = new a.Color4f(0.3, 0., 0., 1.);
-    pMat.ambient = new a.Color4f(1., 0., 0., 1.);
-    pMat.specular = new a.Color4f(1., 0.7, 0. ,1);
-    pMat.shininess = 10.;
-
-    //trace(pSubMesh._pMap.toString());
-
-    return pMesh;
-} 
-
-function MeshDemo() {
-	A_CLASS;
+    return {'vertices' :  new Float32Array(vertices),'normals' :  new Float32Array(normals),
+    'INDEX_POSITION' : new Float32Array(ind),'INDEX_NORMAL' : new Float32Array(ind)};
 };
 
-EXTENDS(MeshDemo, a.Engine);
-
-MeshDemo.prototype.oneTimeSceneInit = function () {
-	'use strict';
-	
-	this.notifyOneTimeSceneInit();
-	this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0.0, 500.0));
-    this.showStats(true);
-	return true;
-}; 
-
-MeshDemo.prototype.restoreDeviceObjects = function () {
-	this.notifyRestoreDeviceObjects();
-	return true;
-};
-
-
-MeshDemo.prototype.initDeviceObjects = function () {
-	this.notifyInitDeviceObjects();
-	var me = this;
-    COLLADA(this, '/akra-engine-general/media/models/astroBoy_walk_Maya.dae',
-        function () {
-            //trace(arguments[0]);
-            var 
-            pCollada = new Array(arguments[0].length);
-            for(var i = 0; i<pCollada.length; i++){
-                pCollada[i] = new a.SceneModel(me, arguments[0][i]);
-                pCollada[i].attachToParent(me.getRootNode());
-                pCollada[i].create();
-                pCollada[i].setPosition([0 * i, 0. * i, 15. * i]);
-            }
-            me.pCollada = pCollada;
-            //me.pCollada.setScale(0.001);
-        });
-
-	// var pCubeMesh = cube(this);
- //    var pTorusMesh = torus(this);
- //    window.pTorus = pTorusMesh;
- //    window.pCube = pCubeMesh;
-
- //    this.pCube = new a.SceneModel(this, pCubeMesh);
- //    this.pTorus = new a.SceneModel(this, pTorusMesh);
- //    this.pCube.attachToParent(this.getRootNode());
- //    this.pTorus.attachToParent(this.getRootNode());
- //    this.pCube.create();
- //    this.pTorus.create();
- //    
-    var pShaderSource = loadGLSLSource('../effects/', 'mesh.glsl');
-    var pProgram = this.displayManager().shaderProgramPool().createResource('draw_mesh');
-    pProgram.create(pShaderSource.vertex, pShaderSource.fragment, true);
-
-    this.pDrawMeshProg = pProgram;
-	return true;
-};
-
-MeshDemo.prototype.directRender = function() {
-    'use strict';
-
-    var pProgram = this.pDrawMeshProg;
-    var pCamera = this.getActiveCamera();
-
-    this.pDevice.enableVertexAttribArray(1);
-    this.pDevice.enableVertexAttribArray(2);
-
-    function draw(pModel) {
-        pModel.addRelRotation(0.01, 0., 0.);
-        pProgram.activate();
-        pProgram.applyMatrix4('model_mat', pModel.worldMatrix());
-        pProgram.applyMatrix3('normal_mat', pModel.normalMatrix());
-        pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
-        pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
-        pProgram.applyVector3('eye_pos', pCamera.worldPosition());
-        // trace(pModel.getPosition().X,pModel.getPosition().Y,pModel.getPosition().Z);
-        pModel._pMesh.draw();
-    }
-    // this.pTorus.addRelRotation(0., 0., 0.01);
-    // this.pCube.addRelRotation(0., 0.01, 0.);
-    //draw(this.pCube);
-    //draw(this.pTorus);
-    if (this.pCollada) {
-        for(var i =0; i< this.pCollada.length; i++){
-            draw(this.pCollada[i]);
-        }
-    }
-};
-
-MeshDemo.prototype.deleteDeviceObjects = function () {
-	this.notifyDeleteDeviceObjects();
-	return true;
-};
-
-MeshDemo.prototype.updateScene = function () {
-	this.updateCamera(1.0, 0.1, null, 30.0, false);
-
-    if (this.pKeymap.isMousePress() && this.pKeymap.isMouseMoved()) {
-        var pCamera = this.getActiveCamera(),
-            fdX = this.pKeymap.mouseShitfX(),
-            fdY = this.pKeymap.mouseShitfY(),
-            pScreen = a.info.screen;
-
-        fdX /= pScreen.width / 10.0;
-        fdY /= pScreen.height / 10.0;
-
-        pCamera.addRelRotation(-fdX, -fdY, 0);
-    }
-
-    return this.notifyUpdateScene();
-};
-
-if (!a.info.support.webgl) {
-	alert('Error:: Your browser does not support WebGL.');
-}
-else {
-	var App = new MeshDemo();
-	if (!App.create('canvas') || !App.run()) {
-		alert('something wrong....');
-	}
+function updateRoutine(dt,t,nStep,sPass){
+    trace(dt,t,nStep,sPass);
 }

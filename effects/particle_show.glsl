@@ -2,7 +2,12 @@
 
 attribute float INDEX_POSITION;
 attribute float INDEX_NORMAL;
-attribute float INDEX_MAT;
+attribute float INDEX_FLEXMAT;
+attribute float INDEX_PARTICLE_POSITION;
+uniform float INDEX_POSITION_OFFSET;
+uniform float INDEX_NORMAL_OFFSET;
+uniform float INDEX_FLEXMAT_OFFSET;
+uniform float INDEX_PARTICLE_POSITION_OFFSET;
 //attribute float SERIAL;
 
 uniform mat4 model_mat;
@@ -22,25 +27,26 @@ varying float mat_shininess;
 //varying float serial;
 
 void main(void) {
-	A_TextureHeader vb_header;
-	A_extractTextureHeader(A_buffer_0, vb_header);
+    A_TextureHeader vb_header;
+    A_extractTextureHeader(A_buffer_0, vb_header);
 
-	vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_POSITION);
-	vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL);
-		
-	mat_ambient = A_extractVec4(A_buffer_0, vb_header, INDEX_MAT + 0.);
-	mat_diffuse = A_extractVec4(A_buffer_0, vb_header, INDEX_MAT + 4.);
-	mat_specular = A_extractVec4(A_buffer_0, vb_header, INDEX_MAT + 8.);
-	mat_emissive = A_extractVec4(A_buffer_0, vb_header, INDEX_MAT + 12.);
-	mat_shininess = A_extractFloat(A_buffer_0, vb_header, INDEX_MAT + 16.);
+    vec3 positionOffset = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE_POSITION + INDEX_PARTICLE_POSITION_OFFSET);
+    vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_POSITION + INDEX_POSITION_OFFSET) + positionOffset;
+    vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL + INDEX_NORMAL_OFFSET);
+    
+    mat_ambient = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 0.);
+    mat_diffuse = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 4.);
+    mat_specular = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 8.);
+    mat_emissive = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 12.);
+    mat_shininess = A_extractFloat(A_buffer_0, vb_header, INDEX_FLEXMAT + 16.);
 
-	vec4 pos = view_mat * model_mat * vec4(position.xyz, 1.);
+    vec4 pos = view_mat * model_mat * vec4(position.xyz, 1.);
 
-	norm = normalize((normal_mat * normal));
-	vert = pos.xyz;
+    norm = normalize((normal_mat * normal));
+    vert = pos.xyz;
     //serial = SERIAL;
 
-	gl_Position = proj_mat * pos;
+    gl_Position = proj_mat * pos;
 }
 
 //<-- split -- >
@@ -62,21 +68,21 @@ varying vec4 mat_emissive;
 varying float mat_shininess;
 
 struct LIGHTPOINT {
-	vec4 position;
- 	vec4 ambient;
-	vec4 diffuse;
-	vec4 specular;
-	vec4 emissive;
-	vec3 attenuation;
+    vec4 position;
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+    vec4 emissive;
+    vec3 attenuation;
 };
 
 void main(void) {
-	LIGHTPOINT light_point;
-	light_point.position = vec4(1., 1., 1., 1.);
+    LIGHTPOINT light_point;
+    light_point.position = vec4(1., 1., 1., 1.);
     light_point.ambient = vec4(1., 1., 1., 1.);
     light_point.diffuse  =vec4(1., 1., 1., 1.);
     light_point.specular = vec4(1., 1., 1., 1.);
-    light_point.attenuation = vec3(.0, 0.05, .0);
+    light_point.attenuation = vec3(.5, 0.00, .005);
 
      // direction on source of light (LightDir)
     vec3 light_dir = light_point.position.xyz - vert;
@@ -91,9 +97,9 @@ void main(void) {
 
     // attenuation
     float attenuation = 1.0 / (light_point.attenuation.x + 
-    	light_point.attenuation.y * 
-    	light_dir_length + light_point.attenuation.z * 
-    	light_dir_length * light_dir_length);
+        light_point.attenuation.y * 
+        light_dir_length + light_point.attenuation.z * 
+        light_dir_length * light_dir_length);
 
     // add material emisson
     vec4 color = mat_emissive;
