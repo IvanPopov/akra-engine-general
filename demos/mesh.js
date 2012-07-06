@@ -84,7 +84,7 @@ MeshDemo.prototype.directRender = function() {
             pProgram.applyVector3('eye_pos', pCamera.worldPosition());
         }
 
-        pModel._pMesh.draw();
+        pModel.findMesh().draw();
     }    
 
     this.pDrawMeshProg.activate();
@@ -102,7 +102,10 @@ MeshDemo.prototype.directRender = function() {
     if (this.pCollada) {
         for(var i =0; i< this.pCollada.length; i++){
             this.pCollada[i].addRelRotation(0.01, 0., 0.);
-            draw(this.pDrawMeshProg, this.pCollada[i]);
+            this.pDrawMeshI2IProg.applyFloat('INDEX_INDEX_POSITION_OFFSET', 0);
+            this.pDrawMeshI2IProg.applyFloat('INDEX_INDEX_NORMAL_OFFSET', 1);
+            this.pDrawMeshI2IProg.applyFloat('INDEX_INDEX_FLEXMAT_OFFSET', 2);
+            draw(this.pDrawMeshI2IProg, this.pCollada[i]);
         }
     }
 
