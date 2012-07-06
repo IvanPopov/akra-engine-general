@@ -1,11 +1,11 @@
 #include "decode_texture.glsl"
 
-attribute float INDEX_POSITION;
-attribute float INDEX_NORMAL;
-attribute float INDEX_FLEXMAT;
-uniform float INDEX_POSITION_OFFSET;
-uniform float INDEX_NORMAL_OFFSET;
-uniform float INDEX_FLEXMAT_OFFSET;
+attribute float INDEX_INDEX_POSITION;
+attribute float INDEX_INDEX_NORMAL;
+attribute float INDEX_INDEX_FLEXMAT;
+//uniform float INDEX_INDEX_POSITION_OFFSET;
+//uniform float INDEX_INDEX_NORMAL_OFFSET;
+//uniform float INDEX_INDEX_FLEXMAT_OFFSET;
 //attribute float SERIAL;
 
 uniform mat4 model_mat;
@@ -28,16 +28,20 @@ void main(void) {
 	A_TextureHeader vb_header;
 	A_extractTextureHeader(A_buffer_0, vb_header);
 
-	vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_POSITION + INDEX_POSITION_OFFSET);
-	vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL + INDEX_NORMAL_OFFSET);
+	float index_position = A_extractFloat(A_buffer_0, vb_header, INDEX_INDEX_POSITION);
+	float index_normal = A_extractFloat(A_buffer_0, vb_header, INDEX_INDEX_NORMAL);
+    float index_flexmat = A_extractFloat(A_buffer_0, vb_header, INDEX_INDEX_FLEXMAT);
 	
-	mat_ambient = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 0.);
-	mat_diffuse = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 4.);
-	mat_specular = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 8.);
-	mat_emissive = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 12.);
-	mat_shininess = A_extractFloat(A_buffer_0, vb_header, INDEX_FLEXMAT + 16.);
+    vec3 position = A_extractVec3(A_buffer_0, vb_header, index_position);
+    vec3 normal = A_extractVec3(A_buffer_0, vb_header, index_normal);
 
-	vec4 pos = view_mat * model_mat * vec4(position.xyz, 1.);
+	mat_ambient = A_extractVec4(A_buffer_0, vb_header, index_flexmat + 0.);
+	mat_diffuse = A_extractVec4(A_buffer_0, vb_header, index_flexmat + 4.);
+	mat_specular = A_extractVec4(A_buffer_0, vb_header, index_flexmat + 8.);
+	mat_emissive = A_extractVec4(A_buffer_0, vb_header, index_flexmat + 12.);
+	mat_shininess = A_extractFloat(A_buffer_0, vb_header, index_flexmat + 16.);
+
+	vec4 pos = view_mat * model_mat * vec4(position, 1.);
 
 	norm = normalize((normal_mat * normal));
 	vert = pos.xyz;

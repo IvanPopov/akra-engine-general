@@ -2055,7 +2055,7 @@ if (typeof esprima === 'undefined') {
                     }
                     else {
                         lastString = null;
-                        n = Number(exports.reflect(list[i].right, false, Define));
+                        n = Number(eval(exports.reflect(list[i].right, false, Define)));
                     }
 
                 }

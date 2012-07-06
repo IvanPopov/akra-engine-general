@@ -87,8 +87,8 @@ function A_Analyzer () {
     this.pContextTracer = new A_3DContextTracer(this.pTimeline);
 
 
-    if (window['AKRA']) {
-        this.grab(window['AKRA']);
+    if (window['akra']) {
+        this.grab(window['akra']);
     }
 }
 
@@ -129,6 +129,7 @@ A_Analyzer.prototype.grabEngine = function (pEngine) {
     };
 
     fnCreate = pEngine.prototype.create;
+
     pEngine.prototype.create = function () {
         if (fnCreate.apply(this, arguments)) {
             //replace context;
