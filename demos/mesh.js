@@ -22,36 +22,26 @@ MeshDemo.prototype.restoreDeviceObjects = function () {
 
 
 MeshDemo.prototype.initDeviceObjects = function () {
+    'use strict';
+    
 	this.notifyInitDeviceObjects();
 
 	var me = this;
-    var pShaderSource;
     var pProgram;
-
-    COLLADA(this, '/akra-engine-general/media/models/astroBoy_walk_Maya.dae',
-        function () {
-            var 
-            pCollada = new Array(arguments[0].length);
-            for(var i = 0; i<pCollada.length; i++){
-                pCollada[i] = new a.SceneModel(me, arguments[0][i]);
-                pCollada[i].attachToParent(me.getRootNode());
-                pCollada[i].create();
-                pCollada[i].setPosition([0 * i, 0. * i, 15. * i]);
-                pCollada[i].setScale(0.25);
-            }
-            me.pCollada = pCollada;
-        });
+    
+    trace('root node', this.getRootNode());
 
     function addMeshToScene(pEngine, pMesh) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
         pSceneObject.attachToParent(pEngine.getRootNode());
         pSceneObject.create();
         pSceneObject.addRelPosition(-3, 2.0, 0);
+        pSceneObject.bNoRender = true;
         return pSceneObject;
     }
 
-    this.pCube = addMeshToScene(this, cube(this));
-    this.pTorus = addMeshToScene(this, torus(this));
+    // this.pCube = addMeshToScene(this, cube(this));
+    // this.pTorus = addMeshToScene(this, torus(this));
     this.pPlane = addMeshToScene(this, plane(this));
 
     this.pPlane.addRelPosition(0, -2.0, 0);
@@ -65,7 +55,52 @@ MeshDemo.prototype.initDeviceObjects = function () {
     pCamera.addRelPosition(-8.0, 5.0, 11.0);
     pCamera.addRelRotation(-3.14/5, -3.14/15, 0);
 
+    if (a.info.support.api.file === false) {
+        error('file api unsupported...');
+    }
+
+    var pDropZone = document.getElementById('drop_zone');
+    
+    pDropZone.addEventListener('dragover', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy'; 
+    }, false);
+
+    pDropZone.addEventListener('drop', function (e) {me.onFileDrop(e)}, false);
+
 	return true;
+};
+
+MeshDemo.prototype.onFileDrop = function (e) {
+    'use strict';
+    
+    e.stopPropagation();
+    e.preventDefault();
+
+    var pFiles = e.dataTransfer.files;
+    var me = this;
+    for (var i = 0, f; f = pFiles[i]; i++) {
+        if (f.name.substr(f.name.lastIndexOf('.') + 1) !== 'dae') {
+            continue;
+        }
+
+        var reader = new FileReader();
+
+        // Closure to capture the file information.
+        reader.onload = (function(theFile) {
+            return function(e) {     
+                COLLADA(me, e.target.result,
+                    function (pRootNode) {
+                        trace(arguments, ' << COLLADA()');
+                        
+                        pRootNode.attachToParent(me.getRootNode());
+                    }, true);
+            };
+        })(f);
+
+        reader.readAsText(f);
+    }
 };
 
 MeshDemo.prototype.directRender = function() {
@@ -87,27 +122,29 @@ MeshDemo.prototype.directRender = function() {
         pModel.findMesh().draw();
     }    
 
-    this.pDrawMeshProg.activate();
-    this.pDevice.enableVertexAttribArray(0);
-    this.pDevice.enableVertexAttribArray(1);
-    this.pDevice.enableVertexAttribArray(2);
+    // this.pDrawMeshProg.activate();
+    // this.pDevice.enableVertexAttribArray(0);
+    // this.pDevice.enableVertexAttribArray(1);
+    // this.pDevice.enableVertexAttribArray(2);
 
-    this.pTorus.addRelRotation(0.01, 0., -0.01);        
-    this.pCube.addRelRotation(-0.01, 0.01, 0.);
+    // this.pTorus.addRelRotation(0.01, 0., -0.01);        
+    // this.pCube.addRelRotation(-0.01, 0.01, 0.);
     
-    draw(this.pDrawMeshProg, this.pCube);
-    draw(this.pDrawMeshProg, this.pTorus);
+    // draw(this.pDrawMeshProg, this.pCube);
+    // draw(this.pDrawMeshProg, this.pTorus);
 
-    this.pDrawMeshI2IProg.activate();
-    if (this.pCollada) {
-        for(var i =0; i< this.pCollada.length; i++){
-            this.pCollada[i].addRelRotation(0.01, 0., 0.);
-            this.pDrawMeshI2IProg.applyFloat('INDEX_INDEX_POSITION_OFFSET', 0);
-            this.pDrawMeshI2IProg.applyFloat('INDEX_INDEX_NORMAL_OFFSET', 1);
-            this.pDrawMeshI2IProg.applyFloat('INDEX_INDEX_FLEXMAT_OFFSET', 2);
-            draw(this.pDrawMeshI2IProg, this.pCollada[i]);
-        }
-    }
+
+    // if (this.pCollada) {
+
+    //     this.pDrawMeshI2IProg.activate();
+    //     for(var i =0; i< this.pCollada.length; i++){
+    //         this.pCollada[i].addRelRotation(0.01, 0., 0.);
+    //         this.pDrawMeshI2IProg.applyFloat('INDEX_INDEX_POSITION_OFFSET', 0);
+    //         this.pDrawMeshI2IProg.applyFloat('INDEX_INDEX_NORMAL_OFFSET', 1);
+    //         this.pDrawMeshI2IProg.applyFloat('INDEX_INDEX_FLEXMAT_OFFSET', 2);
+    //         draw(this.pDrawMeshI2IProg, this.pCollada[i]);
+    //     }
+    // }
 
 
     //draw plane

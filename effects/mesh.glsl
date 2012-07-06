@@ -1,4 +1,7 @@
 #include "decode_texture.glsl"
+//#define INDEX_POSITION INDEX0
+//#define INDEX_NORMAL INDEX1
+//#define INDEX_FLEXMAT INDEX2
 
 attribute float INDEX_POSITION;
 attribute float INDEX_NORMAL;
