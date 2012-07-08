@@ -13,7 +13,7 @@ MeshDemo.prototype.oneTimeSceneInit = function () {
 	this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0.0, 500.0));
     this.showStats(true);
 	return true;
-}; 
+};
 
 MeshDemo.prototype.restoreDeviceObjects = function () {
 	this.notifyRestoreDeviceObjects();
@@ -35,17 +35,17 @@ MeshDemo.prototype.initDeviceObjects = function () {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
         pSceneObject.attachToParent(pEngine.getRootNode());
         pSceneObject.create();
-        pSceneObject.addRelPosition(-3, 2.0, 0);
+        //pSceneObject.addRelPosition(-3, 2.0, 0);
         pSceneObject.bNoRender = true;
         return pSceneObject;
     }
 
     // this.pCube = addMeshToScene(this, cube(this));
     // this.pTorus = addMeshToScene(this, torus(this));
-    this.pPlane = addMeshToScene(this, plane(this));
+    this.pPlane = addMeshToScene(this, sceneSurface(this));
 
-    this.pPlane.addRelPosition(0, -2.0, 0);
-    this.pPlane.setScale(100.0);
+    //this.pPlane.addRelPosition(0, -2.0, 0);
+    this.pPlane.setScale(200.0);
 
     this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
@@ -59,7 +59,7 @@ MeshDemo.prototype.initDeviceObjects = function () {
         error('file api unsupported...');
     }
 
-    var pDropZone = document.getElementById('drop_zone');
+    var pDropZone = this.displayManager().getTextLayer();
     
     pDropZone.addEventListener('dragover', function (e) {
         e.stopPropagation();
@@ -93,7 +93,6 @@ MeshDemo.prototype.onFileDrop = function (e) {
                 COLLADA(me, e.target.result,
                     function (pRootNode) {
                         trace(arguments, ' << COLLADA()');
-                        
                         pRootNode.attachToParent(me.getRootNode());
                     }, true);
             };
@@ -150,7 +149,6 @@ MeshDemo.prototype.directRender = function() {
     //draw plane
     this.pDrawPlaneProg.activate();
     this.pDevice.disableVertexAttribArray(2);
-
     draw(this.pDrawPlaneProg, this.pPlane, false);
 };
 

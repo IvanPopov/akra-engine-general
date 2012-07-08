@@ -86,7 +86,7 @@ void main(void) {
     light_point.ambient = vec4(1., 1., 1., 1.);
     light_point.diffuse  =vec4(1., 1., 1., 1.);
     light_point.specular = vec4(1., 1., 1., 1.);
-    light_point.attenuation = vec3(.5, 0.00, .005);
+    light_point.attenuation = vec3(0.5, 0.0, 0.03);
 
      // direction on source of light (LightDir)
     vec3 light_dir = light_point.position.xyz - vert;

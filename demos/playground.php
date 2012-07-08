@@ -37,19 +37,7 @@
         height: 100%;
         position: fixed;
     }
-    #drop_zone {
-        background-color: #CCC;
-        border: 2px dashed #bbb;
-        -moz-border-radius: 5px;
-        -webkit-border-radius: 5px;
-        border-radius: 5px;
-        padding: 15px;
-        text-align: center;
-        font: 20pt bold 'corner';
-        color: #bbb;
-    }
 </style>
-<div id="drop_zone">Drop model here</div>
 <div id='wrapper'>
     <canvas id="canvas"></canvas>
     <script type="text/javascript">
