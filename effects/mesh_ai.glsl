@@ -1,11 +1,14 @@
 #include "decode_texture.glsl"
+#define INDEX_INDEX_POSITION INDEX_INDEX0
+#define INDEX_INDEX_NORMAL INDEX_INDEX1
+#define INDEX_INDEX_FLEXMAT INDEX_INDEX10
 
 attribute float INDEX_INDEX_POSITION;
 attribute float INDEX_INDEX_NORMAL;
 attribute float INDEX_INDEX_FLEXMAT;
-//uniform float INDEX_INDEX_POSITION_OFFSET;
-//uniform float INDEX_INDEX_NORMAL_OFFSET;
-//uniform float INDEX_INDEX_FLEXMAT_OFFSET;
+uniform float INDEX_INDEX_POSITION_OFFSET;
+uniform float INDEX_INDEX_NORMAL_OFFSET;
+uniform float INDEX_INDEX_FLEXMAT_OFFSET;
 //attribute float SERIAL;
 
 uniform mat4 model_mat;
@@ -28,9 +31,9 @@ void main(void) {
 	A_TextureHeader vb_header;
 	A_extractTextureHeader(A_buffer_0, vb_header);
 
-	float index_position = A_extractFloat(A_buffer_0, vb_header, INDEX_INDEX_POSITION);
-	float index_normal = A_extractFloat(A_buffer_0, vb_header, INDEX_INDEX_NORMAL);
-    float index_flexmat = A_extractFloat(A_buffer_0, vb_header, INDEX_INDEX_FLEXMAT);
+	float index_position = A_extractFloat(A_buffer_0, vb_header, INDEX_INDEX_POSITION + INDEX_INDEX_POSITION_OFFSET);
+	float index_normal = A_extractFloat(A_buffer_0, vb_header, INDEX_INDEX_NORMAL + INDEX_INDEX_NORMAL_OFFSET);
+    float index_flexmat = A_extractFloat(A_buffer_0, vb_header, INDEX_INDEX_FLEXMAT + INDEX_INDEX_FLEXMAT_OFFSET);
 	
     vec3 position = A_extractVec3(A_buffer_0, vb_header, index_position);
     vec3 normal = A_extractVec3(A_buffer_0, vb_header, index_normal);
@@ -83,7 +86,7 @@ void main(void) {
     light_point.ambient = vec4(1., 1., 1., 1.);
     light_point.diffuse  =vec4(1., 1., 1., 1.);
     light_point.specular = vec4(1., 1., 1., 1.);
-    light_point.attenuation = vec3(.5, 0.00, .005);
+    light_point.attenuation = vec3(0.5, 0.0, 0.03);
 
      // direction on source of light (LightDir)
     vec3 light_dir = light_point.position.xyz - vert;

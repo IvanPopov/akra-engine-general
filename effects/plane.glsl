@@ -33,47 +33,13 @@ void main(void) {
 varying vec3 texcoord;
 
 
-
 void main(void) {
-    gl_FragColor = vec4(.0, .0, .0, .0);
 
-    float len = length(texcoord);
-    float alpha = 1.;// - len / 8.;
-    float a1, a2;
-    
-    if (abs(texcoord.x) < 0.015)
-        gl_FragColor = vec4(1., 0., 0., alpha);
-    else if(abs(texcoord.z) < 0.015)
-        gl_FragColor = vec4(0., 1., 0., alpha);
+    if (abs(texcoord.x - 0.) < 0.1)
+        gl_FragColor = RED;
+    else if(abs(texcoord.z - 0.) < 0.01)
+        gl_FragColor = GREEN;
     else {
-    
-        a1 = abs(len - floor(texcoord.x / .25) * len);
-        a2 = abs(len - floor(texcoord.z / .25) * len);
-        //if (a1 < .01) {
-        //    gl_FragColor = vec4(.0, .0, .0, 0.6);
-        //}
-        //else if (a2 < .01) {
-        //    gl_FragColor = vec4(.0, .0, .0, 0.6);
-        //}
-        //else
-        //{
-        
-            float x = abs(texcoord.x);
-            float y = abs(texcoord.z);
-            float   dx = (x - float(int((x)))), 
-                    dy = (y - float(int((y))));
-            if (.02 > dx)
-            {
-                dx = 4.;//exp2(-100000. * pow(dx, 2.5));
-                gl_FragColor = vec4(.2, .2, .2, .7) * dx;
-            }
-            else if (.02 > dy)
-            {
-                dy = 4.;//exp2(-100000. * pow(dy, 2.5));
-                gl_FragColor = vec4(.2, .2, .2, .7) * dy;
-            }
-            else
-            discard;
-        //}
+        gl_FragColor = vec4(0.3, 0.3, 0.3, 1.);
     }
 }

@@ -1,4 +1,7 @@
 #include "decode_texture.glsl"
+#define INDEX_POSITION INDEX0
+#define INDEX_NORMAL INDEX1
+#define INDEX_FLEXMAT INDEX10
 
 attribute float INDEX_POSITION;
 attribute float INDEX_NORMAL;
@@ -75,11 +78,11 @@ struct LIGHTPOINT {
 
 void main(void) {
 	LIGHTPOINT light_point;
-	light_point.position = vec4(1., 1., 1., 1.);
+	light_point.position = vec4(0., 40., 0., 1.);
     light_point.ambient = vec4(1., 1., 1., 1.);
     light_point.diffuse  =vec4(1., 1., 1., 1.);
     light_point.specular = vec4(1., 1., 1., 1.);
-    light_point.attenuation = vec3(.5, 0.00, .005);
+    light_point.attenuation = vec3(.1, 0.00, .001);
 
      // direction on source of light (LightDir)
     vec3 light_dir = light_point.position.xyz - vert;

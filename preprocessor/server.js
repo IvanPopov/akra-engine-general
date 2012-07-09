@@ -7,6 +7,7 @@ var code, custom;
 var build = 0;
 var rebuild;
 var build_num = 0;
+var q = null;
 
 function now() {
   return (new Date).getTime();
@@ -21,6 +22,11 @@ http.createServer(function (request, response) {
       response.end();
   }
   try {
+    if (q !== $_GET['q']) {
+      build = 0;
+      q = $_GET['q'];
+    }
+
     custom = preprocessor.code($_GET['q'], {include: true});
 
     for (var file in custom.include) {
