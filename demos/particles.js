@@ -33,16 +33,13 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
         pSceneObject.attachToParent(pEngine.getRootNode());
         pSceneObject.create();
-        pSceneObject.addRelPosition(-3, 2.0, 0);
+        pSceneObject.bNoRender = true;
         return pSceneObject;
     }
 
-    //this.pCube = addMeshToScene(this, cube(this));
-    //this.pTorus = addMeshToScene(this, torus(this));
-    this.pPlane = addMeshToScene(this, plane(this));
 
-    this.pPlane.addRelPosition(0, -2.0, 0);
-    this.pPlane.setScale(100.0);
+    this.pPlane = addMeshToScene(this, sceneSurface(this));
+    this.pPlane.setScale(200.0);
 
     this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
@@ -51,23 +48,51 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
     this.pUpdatePositionProg = a.loadProgram(this,'../effects/particle_update_position.glsl');
     
     //this.pDrawMeshI2IProg = a.loadProgram(this, '../effects/mesh_ai.glsl');
+    //
 
-    var pSimpleTorus = simpleTorus(25,25);
+    var pSimpleTorus = simpleTorus(10,10);
+    var pSimpleCube = simpleCube();
+    var pEmitterObject = pSimpleTorus;
 
     this.pParticleManager = new a.ParticleManager(this);
 
     //trace(this.pParticleManager);
-    var pEmitter = this.pEmitter = this.pParticleManager.createEmitter(a.EMITTER.OBJECT,5);
-    pEmitter.setParticleData([VE_VEC3('PARTICLE_POSITION')],new Float32Array([0,0,0,5,0,-5,5,0,5,-5,0,5,-5,0,-5]));
-    pEmitter.setParticleData([VE_VEC3('PARTICLE_VELOCITY')],new Float32Array([10,50,0,5,10,0,0,0,0,0,0,0,0,0,0]));
-    // 
-    //pEmitter.setParticleData([VE_VEC3('PARTICLE_POSITION')],new Float32Array([10,0,10]));
-    //pEmitter.setParticleData([VE_VEC3('PARTICLE_VELOCITY')],new Float32Array([10,50,0]));
+    
+    var nParticles = 2000;
+    var pLiveTimes = [];
+    var pPositions = [];
+    var pVelocities = [];
+    var pColours = [];
+    var fMinLiveTime = 10;
+    var fMaxLiveTime = 20;
+    var fMaxPositionShift = 5;
 
-    var iPosition = pEmitter.setObjectData([VE_VEC3('POSITION')],pSimpleTorus.vertices);
-    var iNormal = pEmitter.setObjectData([VE_VEC3('NORMAL')],pSimpleTorus.normals);
-    pEmitter.setObjectIndex([VE_FLOAT('INDEX_POSITION')],pSimpleTorus.INDEX_POSITION);
-    pEmitter.setObjectIndex([VE_FLOAT('INDEX_NORMAL')],pSimpleTorus.INDEX_NORMAL);
+    var fMinVelocity = -2;
+    var fMaxVelocity = 2;
+
+    for(var i=0;i<nParticles;i++){
+        pLiveTimes.push(fMinLiveTime + (fMaxLiveTime - fMinLiveTime) * Math.random());
+        pPositions.push(fMaxPositionShift*(Math.random()-0.5),0,fMaxPositionShift*(Math.random()-0.5));
+        pVelocities.push(fMinVelocity + (fMaxVelocity - fMinVelocity)*Math.random(),10.*Math.random() + 10.,fMinVelocity + (fMaxVelocity - fMinVelocity)*Math.random());
+        pColours.push(0,0,0.5 + Math.random(0.2));
+    }
+
+    var pEmitter = this.pEmitter = this.pParticleManager.createEmitter(a.EMITTER.OBJECT,nParticles);
+
+
+    pEmitter.setParticleData([VE_VEC3('PARTICLE_POSITION')],new Float32Array(pPositions));
+    pEmitter.setParticleData([VE_VEC3('PARTICLE_VELOCITY')],new Float32Array(pVelocities));
+    pEmitter.setParticleData([VE_FLOAT('LIVE_TIME')],new Float32Array(pLiveTimes));
+    pEmitter.setParticleData([VE_VEC3('PARTICLE_COLOUR')],new Float32Array(pColours));
+    
+    // 
+    //pEmitter.setParticleData([VE_VEC3('PARTICLE_POSITION')],new Float32Array([0,0,0]));
+    //pEmitter.setParticleData([VE_VEC3('PARTICLE_VELOCITY')],new Float32Array([1,3,0]));
+
+    var iPosition = pEmitter.setObjectData([VE_VEC3('POSITION')],pEmitterObject.vertices);
+    var iNormal = pEmitter.setObjectData([VE_VEC3('NORMAL')],pEmitterObject.normals);
+    pEmitter.setObjectIndex([VE_FLOAT('INDEX_POSITION')],pEmitterObject.INDEX_POSITION);
+    pEmitter.setObjectIndex([VE_FLOAT('INDEX_NORMAL')],pEmitterObject.INDEX_NORMAL);
     pEmitter.objectIndex(iPosition,'INDEX_POSITION');
     pEmitter.objectIndex(iNormal,'INDEX_NORMAL');
 
@@ -97,7 +122,6 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
 
 ParticlesDemo.prototype.directRender = function() {
     'use strict';
-
     var pCamera = this._pDefaultCamera;
 
     function draw(pProgram, pModel, hasMat) {
@@ -105,27 +129,8 @@ ParticlesDemo.prototype.directRender = function() {
         pProgram.applyMatrix4('model_mat', pModel.worldMatrix());
         pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
         pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
-        
-        if (hasMat) {
-            pProgram.applyMatrix3('normal_mat', pModel.normalMatrix());
-            pProgram.applyVector3('eye_pos', pCamera.worldPosition());
-        }
-
         pModel.findMesh().draw();
     }    
-
-    // this.pDrawMeshProg.activate();
-    // this.pDevice.enableVertexAttribArray(0);
-    // this.pDevice.enableVertexAttribArray(1);
-    // this.pDevice.enableVertexAttribArray(2);
-
-    //this.pTorus.addRelRotation(0.01, 0., -0.01);        
-    //this.pCube.addRelRotation(-0.01, 0.01, 0.);
-    
-    //draw(this.pDrawMeshProg, this.pCube);
-    //draw(this.pDrawMeshProg, this.pTorus);
-
-
 
     //draw plane
     this.pDrawPlaneProg.activate();
@@ -241,10 +246,13 @@ function updateRoutine(dt,t,nStep,pProgram,sPass){
         pParticleDemo.pDevice.disableVertexAttribArray(1);
         pParticleDemo.pDevice.disableVertexAttribArray(2);
         pProgram.applyFloat('dt',dt);
+        pProgram.applyFloat('t',t);
+        pProgram.applyFloat('fRand',Math.random()-0.5);
     }
     else if(sPass == 'position'){
-        pParticleDemo.pDevice.enableVertexAttribArray(1);
+        //pParticleDemo.pDevice.enableVertexAttribArray(1);
         pProgram.applyFloat('dt',dt);
+        pProgram.applyFloat('t',t);
     }
 }
 
@@ -262,4 +270,47 @@ function drawRoutine(dt,t,nStep,pProgram,sPass){
     pParticleDemo.pDevice.enableVertexAttribArray(1);
     pParticleDemo.pDevice.enableVertexAttribArray(2);
     //pParticleDemo.pDevice.enableVertexAttribArray(3);
-}
+};
+
+function simpleCube () {
+
+    var pVerticesData = new Float32Array([
+        -0.5, 0.5, 0.5,
+        0.5, 0.5, 0.5,
+        -0.5, -0.5, 0.5,
+        0.5, -0.5, 0.5,
+        -0.5, 0.5, -0.5,
+        0.5, 0.5, -0.5,
+        -0.5, -0.5, -0.5,
+        0.5, -0.5, -0.5
+    ]);
+    var pNormalsData = new Float32Array([
+        1.0, 0.0, 0.0,
+        -1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, -1.0, 0.0,
+        0.0, 0.0, 1.0,
+        0.0, 0.0, -1.0
+    ]);
+    var pVertexIndicesData = new Float32Array([
+        0, 2, 3, 0, 3, 1,
+        0, 1, 5, 0, 5, 4,
+        6, 7, 3, 6, 3, 2,
+        0, 4, 6, 0, 6, 2,
+        3, 7, 5, 3, 5, 1,
+        5, 7, 6, 5, 6, 4
+    ]);
+    var pNormalIndicesData = new Float32Array([
+        4, 4, 4, 4, 4, 4,
+        2, 2, 2, 2, 2, 2,
+        3, 3, 3, 3, 3, 3,
+        1, 1, 1, 1, 1, 1,
+        0, 0, 0, 0, 0, 0,
+        5, 5, 5, 5, 5, 5
+    ]);
+
+    
+
+    return {'vertices' :  new Float32Array(pVerticesData),'normals' :  new Float32Array(pNormalsData),
+    'INDEX_POSITION' : new Float32Array(pVertexIndicesData),'INDEX_NORMAL' : new Float32Array(pNormalIndicesData)};
+} 

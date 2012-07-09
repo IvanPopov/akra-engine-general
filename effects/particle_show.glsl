@@ -3,11 +3,12 @@
 attribute float INDEX_POSITION;
 attribute float INDEX_NORMAL;
 //attribute float INDEX_FLEXMAT;
-attribute float INDEX_PARTICLE_POSITION;
+attribute float INDEX_PARTICLE;
 uniform float INDEX_POSITION_OFFSET;
 uniform float INDEX_NORMAL_OFFSET;
 //uniform float INDEX_FLEXMAT_OFFSET;
 uniform float INDEX_PARTICLE_POSITION_OFFSET;
+uniform float INDEX_PARTICLE_COLOUR_OFFSET;
 
 uniform mat4 model_mat;
 uniform mat4 view_mat;
@@ -29,15 +30,17 @@ void main(void) {
     A_TextureHeader vb_header;
     A_extractTextureHeader(A_buffer_0, vb_header);
 
-    vec3 positionOffset = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE_POSITION + INDEX_PARTICLE_POSITION_OFFSET);
+    vec3 positionOffset = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_PARTICLE_POSITION_OFFSET);
     vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_POSITION + INDEX_POSITION_OFFSET) + positionOffset;
     vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL + INDEX_NORMAL_OFFSET);
+    vec3 color = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_PARTICLE_COLOUR_OFFSET);
 
-    mat_ambient = vec4(0.5,0.5,0.5,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 0.);
-    mat_diffuse = vec4(0.5,0.5,0.5,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 4.);
-    mat_specular = vec4(.3,.3,.3,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 8.);
-    mat_emissive = vec4(0.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 12.);
-    mat_shininess = 50.;//A_extractFloat(A_buffer_0, vb_header, INDEX_FLEXMAT + 16.);
+    //mat_ambient = vec4(0.5,0.5,0.5,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 0.);
+    mat_ambient = vec4(color,1.);
+    mat_diffuse = vec4(color,1.);//vec4(0.5,0.5,0.5,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 4.);
+    mat_specular = vec4(1.,1.,1.,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 8.);
+    mat_emissive = vec4(0.1);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 12.);
+    mat_shininess = 30.;//A_extractFloat(A_buffer_0, vb_header, INDEX_FLEXMAT + 16.);
 
     vec4 pos = view_mat * model_mat * vec4(position.xyz, 1.);
 
@@ -77,11 +80,12 @@ struct LIGHTPOINT {
 
 void main(void) {
     LIGHTPOINT light_point;
-    light_point.position = vec4(1., 1., 1., 1.);
+    //light_point.position = vec4(1., 1., 1., 1.);
+    light_point.position = vec4(0., 40., 0., 1.);
     light_point.ambient = vec4(1., 1., 1., 1.);
     light_point.diffuse  =vec4(1., 1., 1., 1.);
     light_point.specular = vec4(1., 1., 1., 1.);
-    light_point.attenuation = vec3(.5, 0.00, .005);
+    light_point.attenuation = vec3(.1, 0.00, .001);
 
      // direction on source of light (LightDir)
     vec3 light_dir = light_point.position.xyz - vert;
