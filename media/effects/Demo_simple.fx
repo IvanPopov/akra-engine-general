@@ -24,7 +24,7 @@ struct VS_INPUT
   float2	Pos		: POSITION0;
   float2	UV		: TEXCOORD0;
   float	ZPos		: POSITION1;
-  float3	Norm	: NORMAL;
+  float3	Norm[][]	: NORMAL;
 };
 
 struct VS_OUTPUT11
@@ -48,22 +48,37 @@ struct VS_OUTPUT14
     float2 vTex4  : TEXCOORD4;
     float2 vTex5  : TEXCOORD5;
 };
-
+float4 testFunc(){
+	return float4(1.0,2.0,3.0,4.0);
+}
+struct testStruct0{
+	float3 dif;
+	float3 amb[];
+};
+struct testStruct1{
+	float3 pos[][];
+	float3 norm[][];
+	testStruct0 mat[10][][];
+};
 VS_OUTPUT11 VS11(const VS_INPUT v)
 {
-	VS_OUTPUT11 Out = (VS_OUTPUT11)0;
-
+	VS_OUTPUT11 Out;
 	float4 combinedPos = float4(
 		v.Pos.x,
 		v.Pos.y,
 		v.ZPos,
 		1);
-
+	testStruct1 t1;
+	t1.pos(memof v.Pos);
+	@@(t1.pos)+=10;
+    float4 pos = (((Out).Pos).xyzw + float4(1.0,2.0,3.0,4.0)).rab;
+	float2 xy = testFunc().zw;
+	ptr abc = @@(v.Norm)++;
 	combinedPos.xy = posOffset.zw;
 
-	Out.Pos = mul(combinedPos, mViewProj);  // position (view space)
+	//Out.Pos = mul(combinedPos, mViewProj);  // position (view space)
 
-	Out.vDiffuse = dot(v.Norm, sun_vec.rgb) + ambient_light;
+	Out.vDiffuse = (float4)dot(v.Norm, sun_vec.rgb) + ambient_light;
 
 	Out.vTex0 = (v.UV+texOffset.zw)*texOffset.xy;
 	Out.vTex1 = v.UV*2.0f;
@@ -75,8 +90,8 @@ VS_OUTPUT11 VS11(const VS_INPUT v)
 
 VS_OUTPUT14 VS14(const VS_INPUT v)
 {
-	VS_OUTPUT14 Out = (VS_OUTPUT14)0;
-
+	VS_OUTPUT14 Out;
+	
 	float4 combinedPos = float4(
 		v.Pos.x,
 		v.Pos.y,
@@ -247,9 +262,6 @@ technique MultiPassTerrain
 
 			AlphaTestEnable = false;
 			AlphaBlendEnable = true;
-			SrcBlend = one;
-			DestBlend = one;
-			BlendOp = add;
 
       // shaders
       VertexShader = compile vs_1_1 VS11();

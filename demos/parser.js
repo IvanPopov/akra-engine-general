@@ -5,7 +5,7 @@ var pParser = new Parser();
 var sGrammar, sSource;
 a.fopen("/akra-engine-general/media/grammars/HLSL_grammar.gr", "r").read(function (pData) {
 	sGrammar = pData;
-	a.fopen("/akra-engine-general/media/effects/Demo.fx", "r").read(function (pData1) {
+	a.fopen("/akra-engine-general/media/effects/Demo_simple.fx", "r").read(function (pData1) {
 		sSource = pData1;
 		pParser.init(sGrammar);
 		pParser.parse(sSource);
