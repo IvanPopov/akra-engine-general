@@ -2,13 +2,12 @@
 
 attribute float INDEX_POSITION;
 attribute float INDEX_NORMAL;
-attribute float INDEX_FLEXMAT;
+//attribute float INDEX_FLEXMAT;
 attribute float INDEX_PARTICLE_POSITION;
 uniform float INDEX_POSITION_OFFSET;
 uniform float INDEX_NORMAL_OFFSET;
-uniform float INDEX_FLEXMAT_OFFSET;
+//uniform float INDEX_FLEXMAT_OFFSET;
 uniform float INDEX_PARTICLE_POSITION_OFFSET;
-//attribute float SERIAL;
 
 uniform mat4 model_mat;
 uniform mat4 view_mat;
@@ -33,12 +32,12 @@ void main(void) {
     vec3 positionOffset = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE_POSITION + INDEX_PARTICLE_POSITION_OFFSET);
     vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_POSITION + INDEX_POSITION_OFFSET) + positionOffset;
     vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL + INDEX_NORMAL_OFFSET);
-    
-    mat_ambient = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 0.);
-    mat_diffuse = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 4.);
-    mat_specular = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 8.);
-    mat_emissive = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 12.);
-    mat_shininess = A_extractFloat(A_buffer_0, vb_header, INDEX_FLEXMAT + 16.);
+
+    mat_ambient = vec4(0.5,0.5,0.5,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 0.);
+    mat_diffuse = vec4(0.5,0.5,0.5,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 4.);
+    mat_specular = vec4(.3,.3,.3,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 8.);
+    mat_emissive = vec4(0.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 12.);
+    mat_shininess = 50.;//A_extractFloat(A_buffer_0, vb_header, INDEX_FLEXMAT + 16.);
 
     vec4 pos = view_mat * model_mat * vec4(position.xyz, 1.);
 
