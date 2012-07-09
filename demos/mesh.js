@@ -47,9 +47,11 @@ MeshDemo.prototype.initDeviceObjects = function () {
     //this.pPlane.addRelPosition(0, -2.0, 0);
     this.pPlane.setScale(200.0);
 
+    this.pDrawMeshTexProg = a.loadProgram(this, '../effects/mesh.glsl', {'USE_TEXTURE_MATERIALS': 1});
     this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
     this.pDrawMeshI2IProg = a.loadProgram(this, '../effects/mesh_ai.glsl');
+
 
     var pCamera = this.getActiveCamera();
     pCamera.addRelPosition(-8.0, 5.0, 11.0);
@@ -121,34 +123,8 @@ MeshDemo.prototype.directRender = function() {
         pModel.findMesh().draw();
     }    
 
-    // this.pDrawMeshProg.activate();
-    // this.pDevice.enableVertexAttribArray(0);
-    // this.pDevice.enableVertexAttribArray(1);
-    // this.pDevice.enableVertexAttribArray(2);
-
-    // this.pTorus.addRelRotation(0.01, 0., -0.01);        
-    // this.pCube.addRelRotation(-0.01, 0.01, 0.);
-    
-    // draw(this.pDrawMeshProg, this.pCube);
-    // draw(this.pDrawMeshProg, this.pTorus);
-
-
-    // if (this.pCollada) {
-
-    //     this.pDrawMeshI2IProg.activate();
-    //     for(var i =0; i< this.pCollada.length; i++){
-    //         this.pCollada[i].addRelRotation(0.01, 0., 0.);
-    //         this.pDrawMeshI2IProg.applyFloat('INDEX_INDEX_POSITION_OFFSET', 0);
-    //         this.pDrawMeshI2IProg.applyFloat('INDEX_INDEX_NORMAL_OFFSET', 1);
-    //         this.pDrawMeshI2IProg.applyFloat('INDEX_INDEX_FLEXMAT_OFFSET', 2);
-    //         draw(this.pDrawMeshI2IProg, this.pCollada[i]);
-    //     }
-    // }
-
-
     //draw plane
     this.pDrawPlaneProg.activate();
-    this.pDevice.disableVertexAttribArray(2);
     draw(this.pDrawPlaneProg, this.pPlane, false);
 };
 
