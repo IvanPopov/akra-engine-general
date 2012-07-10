@@ -43,6 +43,7 @@
 						</emission>
 						<ambient>
 							<color>0.50000 0.50000 0.50000 1</color>
+							<texture texture="file9-sampler" texcoord="TEX1" />
 						</ambient>
 						<diffuse>
 							<color>1.00000 1.00000 1.00000 1</color>
