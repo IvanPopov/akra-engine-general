@@ -9,6 +9,9 @@ uniform float INDEX_NORMAL_OFFSET;
 //uniform float INDEX_FLEXMAT_OFFSET;
 uniform float INDEX_PARTICLE_POSITION_OFFSET;
 uniform float INDEX_PARTICLE_COLOUR_OFFSET;
+uniform float INDEX_PARTICLE_FREQUENCY_OFFSET;
+uniform float INDEX_LIVE_TIME_OFFSET;
+uniform float t;
 
 uniform mat4 model_mat;
 uniform mat4 view_mat;
@@ -24,16 +27,42 @@ varying vec4 mat_diffuse;
 varying vec4 mat_specular;
 varying vec4 mat_emissive;
 varying float mat_shininess;
+
+varying float opacity;
 //varying float serial;
+
+mat3 rotationMatrix(vec3 angles){
+
+    mat3 rotX = mat3(1.,0.,0.,
+                    0.,cos(angles.x),sin(angles.x),
+                    0.,-sin(angles.x),cos(angles.x));
+
+    mat3 rotY = mat3(cos(angles.y),0.,-sin(angles.y),
+                        0.,1.,0.,
+                        sin(angles.y),0.,cos(angles.y));
+
+    mat3 rotZ = mat3(cos(angles.z),sin(angles.z),0.,
+                     -sin(angles.z),cos(angles.z),0.,
+                        0.,0.,1.);
+
+    return rotZ*rotY*rotX;
+}
 
 void main(void) {
     A_TextureHeader vb_header;
     A_extractTextureHeader(A_buffer_0, vb_header);
 
     vec3 positionOffset = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_PARTICLE_POSITION_OFFSET);
-    vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_POSITION + INDEX_POSITION_OFFSET) + positionOffset;
+    vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_POSITION + INDEX_POSITION_OFFSET);
     vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL + INDEX_NORMAL_OFFSET);
     vec3 color = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_PARTICLE_COLOUR_OFFSET);
+    vec3 frequency = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_PARTICLE_FREQUENCY_OFFSET);
+
+    float fLiveTime = A_extractFloat(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_LIVE_TIME_OFFSET);
+
+    mat3 rotMatrix = rotationMatrix(frequency*t);
+    position = rotMatrix*position + positionOffset;
+    normal = rotMatrix*normal;
 
     //mat_ambient = vec4(0.5,0.5,0.5,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 0.);
     mat_ambient = vec4(color,1.);
@@ -47,6 +76,8 @@ void main(void) {
     norm = normalize((normal_mat * normal));
     vert = pos.xyz;
     //serial = SERIAL;
+
+    opacity = 1.-mod(t,fLiveTime)/fLiveTime;
 
     gl_Position = proj_mat * pos;
 }
@@ -68,6 +99,8 @@ varying vec4 mat_diffuse;
 varying vec4 mat_specular;
 varying vec4 mat_emissive;
 varying float mat_shininess;
+
+varying float opacity;
 
 struct LIGHTPOINT {
     vec4 position;
@@ -119,5 +152,5 @@ void main(void) {
     float light_distancedotVpow = pow(max(dot(light_distance, view_dir), .0), mat_shininess);
     color += mat_specular * light_point.specular * light_distancedotVpow * attenuation;
  
-    gl_FragColor = vec4(color.xyz, 1.);
+    gl_FragColor = vec4(color.xyz, opacity);
 }

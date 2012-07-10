@@ -7,7 +7,7 @@ uniform float INDEX_PARTICLE_POSITION_OFFSET;
 uniform float INDEX_LIVE_TIME_OFFSET;
 uniform float dt;
 uniform float t;
-uniform float fRand;
+uniform vec3 v3fRand;
 
 attribute float INDEX_UPDATE;
 
@@ -22,8 +22,8 @@ vec2 screenPosition(A_TextureHeader vb_header,float index){
 	return vec2(2.*(mod(pixelIndex,vb_header.width) + 0.5)*vb_header.stepX - 1.,2.*(floor(pixelIndex/vb_header.width) + 0.5)*vb_header.stepY - 1.);
 }
 
-float rand(vec2 co,float fRand){
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233)*fRand)) * 43758.5453) - 0.5;
+float rand(vec2 co,vec2 v2fRand){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233) + v2fRand)) * 43758.5453) - 0.5;
 }
 
 void main(void){
@@ -34,10 +34,13 @@ void main(void){
 
 
 	float fLiveTime = A_extractFloat(A_buffer_0, vb_header, INDEX_UPDATE + INDEX_LIVE_TIME_OFFSET);
-	float fRealTime = mod(t,fLiveTime);
 
-	if(fRealTime - dt < 0.){
-		updatedVelocity.xyz = 5.*vec3(rand(position.xy,fRand),5. + 2.*rand(position.yz,fRand),rand(position.zx,fRand));
+	float fRealTime = mod(t,fLiveTime);
+	float fNewTime = mod(t+dt,fLiveTime);
+
+	if(fNewTime - dt <= 0. && t>0.){
+		updatedVelocity.xyz = 5.*vec3(rand(position.xy,v3fRand.xy),5. + 2.*rand(position.yz,v3fRand.yz),rand(position.zx,v3fRand.zx));
+		//updatedVelocity.xyz = 5.*vec3(rand(position.xy,vec2(0.)),5. + 2.*rand(position.yz,vec2(0.)),rand(position.zx,vec2(0.)));
 	}
 	else{
 		updatedVelocity = A_extractVec4(A_buffer_0, vb_header, INDEX_UPDATE + INDEX_PARTICLE_VELOCITY_OFFSET);

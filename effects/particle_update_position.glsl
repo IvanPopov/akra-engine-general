@@ -31,11 +31,12 @@ void main(void){
 
 
 	float fRealTime = mod(t,fLiveTime);
+	float fNewTime = mod(t+dt,fLiveTime);
 
 	if(updatedPosition.y < 0.){
 		updatedPosition.y = 0.;
 	}
-	if(fRealTime - dt < 0.){
+	if(fNewTime - dt <= 0. && t>0.){
 		updatedPosition.xyz = vec3(0.);	
 	}
 
