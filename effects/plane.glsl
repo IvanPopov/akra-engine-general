@@ -1,7 +1,7 @@
 #include "decode_texture.glsl"
 
 attribute float INDEX_POSITION;
-attribute float INDEX_NORMAL;
+//attribute float INDEX_NORMAL;
 
 uniform mat4 model_mat;
 uniform mat4 view_mat;
@@ -15,7 +15,7 @@ void main(void) {
 	A_extractTextureHeader(A_buffer_0, vb_header);
 
 	vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_POSITION);
-	vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL);
+	//vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL);
 	vec4 pos = model_mat * vec4(position, 1.);
     texcoord = pos.xyz;
 	gl_Position = proj_mat * view_mat * pos;
@@ -35,9 +35,9 @@ varying vec3 texcoord;
 
 void main(void) {
 
-    if (abs(texcoord.x - 0.) < 0.1)
+    if (abs(texcoord.x) == 0.)
         gl_FragColor = RED;
-    else if(abs(texcoord.z - 0.) < 0.01)
+    else if(abs(texcoord.z) == 0.)
         gl_FragColor = GREEN;
     else {
         gl_FragColor = vec4(0.3, 0.3, 0.3, 1.);

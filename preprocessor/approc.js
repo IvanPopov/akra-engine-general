@@ -2053,11 +2053,32 @@ if (typeof esprima === 'undefined') {
 
                         lastString = t;
                     }
+                    else if (list[i].right.type !== Syntax.Literal) {
+                        //cl(exports.reflect(list[i].left, false, Define), exports.reflect(list[i].right, false, Define));
+                        
+                        t = eval(exports.reflect(list[i].right, false, Define));
+                        if (typeof t === 'string') {
+                           // cl('>>>',t);
+                            if(matches = t.match(/^(.*?\w)(\d+)$/i)) {
+                                t = matches[1];
+                                n = Number(matches[2]);
+                            }
+                            else {
+                                n = 0;
+                            }
+
+                            lastString = t;
+                        }
+                        else {
+                            lastString = null;
+                            n = Number(t);
+                        }
+                    }
                     else {
+
                         lastString = null;
                         n = Number(eval(exports.reflect(list[i].right, false, Define)));
                     }
-
                 }
                 else {
                     tmp = list[i];
@@ -2091,6 +2112,7 @@ if (typeof esprima === 'undefined') {
                 }
                 n++;
                 debug('//' + ('Enum: ' + exports.reflect(tmp, false) + ' : ' + t));
+
                 useDefineMacro(en, enumName, exports.reflect(enumKey, false));
             }
 
@@ -2467,6 +2489,7 @@ if (typeof esprima === 'undefined') {
                 for (var i = 0; i < enumData.length; ++ i) {
                     res += '\t';
                     bShortName = true;
+
                     if (prevValue && enumData[i].value === prevValue + 1) {
                         res += enumData[i].enumKey;
                     }

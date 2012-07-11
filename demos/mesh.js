@@ -28,8 +28,6 @@ MeshDemo.prototype.initDeviceObjects = function () {
 
 	var me = this;
     var pProgram;
-    
-    trace('root node', this.getRootNode());
 
     function addMeshToScene(pEngine, pMesh) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
@@ -71,6 +69,9 @@ MeshDemo.prototype.initDeviceObjects = function () {
 
     pDropZone.addEventListener('drop', function (e) {me.onFileDrop(e)}, false);
 
+    //default scene models
+    COLLADA(this, '/akra-engine-general/media/models/astroBoy_walk_Max.dae',
+        function (pRootNode) {pRootNode.attachToParent(me.getRootNode());});
 	return true;
 };
 
@@ -94,7 +95,6 @@ MeshDemo.prototype.onFileDrop = function (e) {
             return function(e) {     
                 COLLADA(me, e.target.result,
                     function (pRootNode) {
-                        trace(arguments, ' << COLLADA()');
                         pRootNode.attachToParent(me.getRootNode());
                     }, true);
             };

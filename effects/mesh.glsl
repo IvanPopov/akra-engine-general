@@ -1,7 +1,7 @@
 #include "decode_texture.glsl"
 #define INDEX_POSITION INDEX0
 #define INDEX_NORMAL INDEX1
-#define INDEX_TEXCOORD INDEX3
+#define INDEX_TEXCOORD INDEX2
 #define INDEX_FLEXMAT INDEX10
 
 
@@ -88,13 +88,16 @@ struct LIGHTPOINT {
 	vec3 attenuation;
 };
 
+#define tex_diffuse TEXTURE0
+#define tex_ambient TEXTURE1
+#define tex_specular TEXTURE2
+#define tex_emissive TEXTURE3
 
 #ifdef USE_TEXTURE_MATERIALS
 uniform sampler2D tex_ambient;
 uniform sampler2D tex_diffuse;
 uniform sampler2D tex_specular;
 uniform sampler2D tex_emissive;
-
 varying vec2 texcoord;
 #endif
 
@@ -136,7 +139,7 @@ void main(void) {
     // add ambient
     color += (mat_ambient 
 #ifdef USE_TEXTURE_MATERIALS
-        + texture2D(tex_ambient, texcoord)
+       // + texture2D(tex_ambient, texcoord)
 #endif
         ) * light_point.ambient * attenuation;
     
