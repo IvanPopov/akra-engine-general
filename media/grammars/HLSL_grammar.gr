@@ -10,6 +10,10 @@ Decl : VariableDecl
 Decl : VarStructDecl
 Decl : FunctionDecl
 Decl : TechniqueDecl
+Decl : UseDecl
+
+UseDecl : T_KW_USE Mode
+Mode : T_KW_STRICT
 
 Usages : Usage --NN
 Usages : Usages Usage
@@ -19,6 +23,7 @@ Usage : T_KW_EXTERN
 Usage : T_KW_VOLATILE
 Usage : T_KW_INLINE
 Usage : T_KW_SHARED
+Usage : T_KW_GLOBAL
 Usage : ConstUsage
 
 ConstUsages : ConstUsage --NN
@@ -89,6 +94,7 @@ ObjectType : T_KW_PTR
 Struct : T_KW_STRUCT StructBegin StructEnd --AN
 Struct : T_KW_STRUCT StructBegin StructDecls StructEnd
 StructDecl : T_KW_STRUCT Id StructBegin StructEnd --AN
+StructDecl : T_KW_STRUCT Id StructBegin UseDecl StructDecls StructEnd
 StructDecl : T_KW_STRUCT Id StructBegin StructDecls StructEnd
 
 ConstStructDecl : StructDecl
@@ -146,7 +152,7 @@ ParamList : ParamListBegin ParameterDecls ParamListEnd
 ParamListBegin : '('
 ParamListEnd : ')'
 
-ParameterDecls : ParameterDecl
+ParameterDecls : ParameterDecl --NN
 ParameterDecls : ParameterDecls ',' ParameterDecl
 ParameterDecl : ParamUsageType Variable
 
@@ -206,6 +212,7 @@ NonIfStmt : T_KW_WHILE '(' Expr ')' NonIfStmt
 NonIfStmt : For '(' ForInit ForCond ForStep ')' NonIfStmt
 
 Stmt : SimpleStmt --AN
+Stmt : UseDecl
 Stmt : T_KW_WHILE '(' Expr ')' Stmt
 Stmt : For '(' ForInit ForCond ForStep ')' Stmt
 Stmt : T_KW_IF '(' Expr ')' Stmt
@@ -366,6 +373,7 @@ T_KW_EXTERN : "extern"
 T_KW_VOLATILE : "volatile"
 T_KW_INLINE : "inline"
 T_KW_SHARED : "shared"
+T_KW_GLOBAL : "global"
 T_KW_CONST : "const"
 T_KW_ROW_MAJOR : "row_major"
 T_KW_COLUMN_MAJOR : "column_major"
@@ -419,6 +427,8 @@ T_KW_ASM : "asm"
 T_KW_ASM_FRAGMENT : "asm_fragment"
 T_KW_MEMOF : "memof"
 T_KW_VIDEOBUFFER : "video_buffer"
+T_KW_USE : "use"
+T_KW_STRICT : "strict"
 T_KW_PTR : "ptr"
 T_OP_INC : "++"
 T_OP_DEC : "--"

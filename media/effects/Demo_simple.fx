@@ -2,7 +2,7 @@
 // Example of effect file.
 // Source code from multipass_terrain.fx from Real-Time 3D Terrain Engines
 //
-
+use strict;
 // transformations
 float4x4 mViewProj: VIEWPROJECTION;
 
@@ -12,12 +12,12 @@ float4 texOffset : uvScaleOffset = {1.0, 1.0, 0.0f, 0.0f};
 float4 ambient_light = {0.3f,0.3f,0.6f,0.0f};
 float4 sun_vec: sunlight_vec = {0.578f,0.578f,0.578f,0.0f};
 
-texture tex0 : TEXTURE; // blend
-texture tex1 : TEXTURE; // surface 0
-texture tex2 : TEXTURE; // surface 1
-texture tex3 : TEXTURE; // surface 2
-texture tex4 : TEXTURE; // surface 3
-texture tex5 : TEXTURE; // noise channels
+texture tex0 : TEXTURE1; // blend
+texture tex1 : TEXTURE2; // surface 0
+texture tex2 : TEXTURE3; // surface 1
+texture tex3 : TEXTURE4; // surface 2
+texture tex4 : TEXTURE5; // surface 3
+texture tex5 : TEXTURE6; // noise channels
 
 struct VS_INPUT
 {
@@ -26,6 +26,8 @@ struct VS_INPUT
   float	ZPos		: POSITION1;
   float3	Norm[][]	: NORMAL;
 };
+
+float a1;
 
 struct VS_OUTPUT11
 {
@@ -56,11 +58,25 @@ struct testStruct0{
 	float3 amb[];
 };
 struct testStruct1{
+	float a;
 	float3 pos[][];
 	float3 norm[][];
 	testStruct0 mat[10][][];
 };
-VS_OUTPUT11 VS11(const VS_INPUT v)
+
+sampler LinearSamp1 = sampler_state
+{
+    Texture = <tex1>;
+    AddressU  = wrap;
+    AddressV  = wrap;
+    AddressW  = wrap;
+    MIPFILTER = LINEAR;
+    MINFILTER = LINEAR;
+    MAGFILTER = LINEAR;
+};
+float abc1 = 10;
+
+VS_OUTPUT11 VS11(uniform testStruct1 T, const VS_INPUT v)
 {
 	VS_OUTPUT11 Out;
 	float4 combinedPos = float4(
@@ -69,11 +85,13 @@ VS_OUTPUT11 VS11(const VS_INPUT v)
 		v.ZPos,
 		1);
 	testStruct1 t1;
-	t1.pos(memof v.Pos);
+//	t1.pos(memof v.Pos);
 	@@(t1.pos)+=10;
-    float4 pos = (((Out).Pos).xyzw + float4(1.0,2.0,3.0,4.0)).rab;
+    float4 pos = (Out.Pos.xyzw + float4(1.0,2.0,3.0,4.0)).rab;
 	float2 xy = testFunc().zw;
 	ptr abc = @@(v.Norm)++;
+	abc = abc1;
+	abc1 = 5;
 	combinedPos.xy = posOffset.zw;
 
 	//Out.Pos = mul(combinedPos, mViewProj);  // position (view space)
@@ -124,16 +142,7 @@ sampler LinearSamp0 = sampler_state
     MAGFILTER = LINEAR;
 };
 
-sampler LinearSamp1 = sampler_state
-{
-    Texture = <tex1>;
-    AddressU  = wrap;
-    AddressV  = wrap;
-    AddressW  = wrap;
-    MIPFILTER = LINEAR;
-    MINFILTER = LINEAR;
-    MAGFILTER = LINEAR;
-};
+
 
 sampler LinearSamp2 = sampler_state
 {
