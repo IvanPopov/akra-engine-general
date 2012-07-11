@@ -36,7 +36,7 @@ void main(void){
 	if(updatedPosition.y < 0.){
 		updatedPosition.y = 0.;
 	}
-	if(fNewTime - dt <= 0. && t>0.){
+	if(fRealTime + dt >= fLiveTime){
 		updatedPosition.xyz = vec3(0.);	
 	}
 

@@ -43,9 +43,11 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
 
     this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
-    this.pParticleShowProg = a.loadProgram(this,'../effects/particle_show.glsl');
     this.pUpdateVelocityProg = a.loadProgram(this,'../effects/particle_update_velocity.glsl');
     this.pUpdatePositionProg = a.loadProgram(this,'../effects/particle_update_position.glsl');
+    this.pParticleShowProg = a.loadProgram(this,'../effects/particle_show.glsl');
+    this.pParticleShowBillboardProg = a.loadProgram(this,'../effects/particle_show_billboard.glsl');
+    this.pParticleShowPointProg = a.loadProgram(this,'../effects/particle_show_point.glsl');
     
     //this.pDrawMeshI2IProg = a.loadProgram(this, '../effects/mesh_ai.glsl');
     //
@@ -58,71 +60,97 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
 
     //trace(this.pParticleManager);
     
-    var nParticles = 500;
-    var pLiveTimes = [];
-    var pPositions = [];
-    var pVelocities = [];
-    var pColours = [];
-    var pFrequencies = [];
+    this.pStarTexture = this.pDisplayManager.texturePool().loadResource('../../../../akra-engine-general/media/textures/rock3.dds');
+
+    var nEmitters = 1;
+
+    var nParticles = 1;
+    var pLiveTimes = new Float32Array(nParticles);
+    var pPositions = new Float32Array(nParticles*3);
+    var pVelocities = new Float32Array(nParticles*3);
+    var pColours = new Float32Array(nParticles*3);
+    var pFrequencies = new Float32Array(nParticles*3);
     var fMinLiveTime = 10;
     var fMaxLiveTime = 20;
     var fMaxPositionShift = 15;
 
-    var fMinVelocity = -2;
-    var fMaxVelocity = 2;
+    var fMinVelocity = -8;
+    var fMaxVelocity = 8;
+    for(var k=0;k<nEmitters;k++){
 
-    for(var i=0;i<nParticles;i++){
-        pLiveTimes.push(fMinLiveTime + (fMaxLiveTime - fMinLiveTime) * Math.random());
-        pPositions.push(fMaxPositionShift*(Math.random()-0.5),0,fMaxPositionShift*(Math.random()-0.5));
-        pVelocities.push(fMinVelocity + (fMaxVelocity - fMinVelocity)*Math.random(),10.*Math.random() + 10.,fMinVelocity + (fMaxVelocity - fMinVelocity)*Math.random());
-        pColours.push(0.2,0.4,0.9 + 0.1*Math.random());
-        pFrequencies.push(0.1 + 0.1*Math.random(),0.1 + 0.1*Math.random(),0.1 + 0.1*Math.random());
-    }
+        for(var i=0;i<nParticles;i++){
+            pLiveTimes[i] = fMinLiveTime + (fMaxLiveTime - fMinLiveTime) * Math.random();
 
-    var pEmitter = this.pEmitter = this.pParticleManager.createEmitter(a.EMITTER.OBJECT,nParticles);
+            pPositions[3*i    ] = fMaxPositionShift*(Math.random()-0.5);
+            pPositions[3*i + 1] = 0;
+            pPositions[3*i + 2] = fMaxPositionShift*(Math.random()-0.5);
 
+            pVelocities[3*i    ] = fMinVelocity + (fMaxVelocity - fMinVelocity)*Math.random();
+            pVelocities[3*i + 1] = 10.*(Math.random() - 0.5) + 25.;
+            pVelocities[3*i + 2] = fMinVelocity + (fMaxVelocity - fMinVelocity)*Math.random();
 
-    pEmitter.setParticleData([VE_VEC3('PARTICLE_POSITION')],new Float32Array(pPositions));
-    pEmitter.setParticleData([VE_VEC3('PARTICLE_VELOCITY')],new Float32Array(pVelocities));
-    pEmitter.setParticleData([VE_FLOAT('LIVE_TIME')],new Float32Array(pLiveTimes));
-    pEmitter.setParticleData([VE_VEC3('PARTICLE_COLOUR')],new Float32Array(pColours));
-    pEmitter.setParticleData([VE_VEC3('PARTICLE_FREQUENCY')],new Float32Array(pFrequencies));
+            pColours[3*i    ] = 0.2;
+            pColours[3*i + 1] = 0.4;
+            pColours[3*i + 2] = 0.9 + 0.1*Math.random();
+
+            pFrequencies[3*i    ] = 0.1 + 0.1*Math.random();
+            pFrequencies[3*i + 1] = 0.1 + 0.1*Math.random();
+            pFrequencies[3*i + 2] = 0.1 + 0.1*Math.random();
+        }
+
+    //var pEmitter = this.pEmitter = this.pParticleManager.createEmitter(a.EMITTER.OBJECT,nParticles);
     
-    // 
-    //pEmitter.setParticleData([VE_VEC3('PARTICLE_POSITION')],new Float32Array([0,0,0]));
-    //pEmitter.setParticleData([VE_VEC3('PARTICLE_VELOCITY')],new Float32Array([1,3,0]));
+        var pEmitter = this.pParticleManager.createEmitter(a.EMITTER.BILLBOARD,nParticles);
 
-    var iPosition = pEmitter.setObjectData([VE_VEC3('POSITION')],pEmitterObject.vertices);
-    var iNormal = pEmitter.setObjectData([VE_VEC3('NORMAL')],pEmitterObject.normals);
-    pEmitter.setObjectIndex([VE_FLOAT('INDEX_POSITION')],pEmitterObject.INDEX_POSITION);
-    pEmitter.setObjectIndex([VE_FLOAT('INDEX_NORMAL')],pEmitterObject.INDEX_NORMAL);
-    pEmitter.objectIndex(iPosition,'INDEX_POSITION');
-    pEmitter.objectIndex(iNormal,'INDEX_NORMAL');
+        pEmitter.setParticleData([VE_VEC3('PARTICLE_POSITION')],pPositions);
+        delete pPositions;
+        pEmitter.setParticleData([VE_VEC3('PARTICLE_VELOCITY')],pVelocities);
+        delete pVelocities;
+        pEmitter.setParticleData([VE_FLOAT('LIVE_TIME')],pLiveTimes);
+        delete pLiveTimes;
+        pEmitter.setParticleData([VE_VEC3('PARTICLE_COLOUR')],pColours);
+        delete pColours;
+        pEmitter.setParticleData([VE_VEC3('PARTICLE_FREQUENCY')],pFrequencies);
+        delete pFrequencies;
+        
+        //var iPosition = pEmitter.setObjectData([VE_VEC3('POSITION')],pEmitterObject.vertices);
+        //var iNormal = pEmitter.setObjectData([VE_VEC3('NORMAL')],pEmitterObject.normals);
+        //pEmitter.setObjectIndex([VE_FLOAT('INDEX_POSITION')],pEmitterObject.INDEX_POSITION);
+        //pEmitter.setObjectIndex([VE_FLOAT('INDEX_NORMAL')],pEmitterObject.INDEX_NORMAL);
+        //pEmitter.objectIndex(iPosition,'INDEX_POSITION');
+        //pEmitter.objectIndex(iNormal,'INDEX_NORMAL');
 
-    pEmitter.setLiveTime(Number.POSITIVE_INFINITY);
+        pEmitter.setObjectData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
 
-    pEmitter.updateRoutine = updateRoutine;
-    pEmitter.drawRoutine = drawRoutine;
+        pEmitter.setLiveTime(Number.POSITIVE_INFINITY);
 
-    pEmitter.attachToParent(this.getRootNode());
-    pEmitter.create();
+        pEmitter.updateRoutine = updateRoutine;
+        pEmitter.drawRoutine = drawRoutine;
 
-    pEmitter.setProgram(this.pUpdateVelocityProg);
-    pEmitter.setProgram(this.pUpdatePositionProg);
-    pEmitter.setProgram(this.pParticleShowProg);
+        pEmitter.setTimeAcceleration(0.02);
 
-    pEmitter.activate();
-    trace(this.pEmitter);
+        pEmitter.attachToParent(this.getRootNode());
+        pEmitter.create();
 
+        var iX = Math.floor(k/5) - 2;
+        var iY = k%5 - 2;
+
+        //pEmitter.addRelPosition([20*iX,0,20*iY]);
+        //trace(pEmitter.localMatrix());
+        pEmitter.setProgram(this.pUpdateVelocityProg);
+        pEmitter.setProgram(this.pUpdatePositionProg);
+        //pEmitter.setProgram(this.pParticleShowProg);
+        pEmitter.setProgram(this.pParticleShowBillboardProg);
+        //pEmitter.setProgram(this.pParticleShowPointProg);
+
+        pEmitter.activate();
+        //trace(this.pEmitter);
+    }
     var pCamera = this.getActiveCamera();
     pCamera.addRelPosition(-8.0, 5.0, 11.0);
     pCamera.addRelRotation(-3.14/5, -3.14/15, 0);
 
     window.pParticleDemo = this;
-
-
-    this.pDevice.setRenderState(a.renderStateType.SRCBLEND, a.BLEND.SRCALPHA);
-    this.pDevice.setRenderState(a.renderStateType.DESTBLEND, a.BLEND.INVSRCALPHA);
 
     return true;
 };
@@ -142,8 +170,8 @@ ParticlesDemo.prototype.directRender = function() {
     //draw plane
     this.pDrawPlaneProg.activate();
     this.pDevice.disableVertexAttribArray(2);
-
     draw(this.pDrawPlaneProg, this.pPlane, false);
+    //this.pParticleManager._renderCallback();
 };
 
 ParticlesDemo.prototype.deleteDeviceObjects = function () {
@@ -263,10 +291,9 @@ function updateRoutine(dt,t,nStep,pProgram,sPass){
     }
 }
 
-function drawRoutine(dt,t,nStep,pProgram,sPass){
+function drawRoutine(dt,t,nStep,pProgram,sPass,pEmitter){
 
     var pParticleDemo = window.pParticleDemo;
-    var pEmitter = pParticleDemo.pEmitter;
     var pCamera = pParticleDemo._pDefaultCamera;
 
     // pParticleDemo.pDevice.setRenderState(a.renderStateType.SRCBLEND, a.BLEND.SRCALPHA);
@@ -277,9 +304,13 @@ function drawRoutine(dt,t,nStep,pProgram,sPass){
     pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
     pProgram.applyFloat('t',t);
 
+    pParticleDemo.pStarTexture.activate(1);
+
+    pProgram.applyInt('particleTexture',1);
+
     pParticleDemo.pDevice.enableVertexAttribArray(0);
     pParticleDemo.pDevice.enableVertexAttribArray(1);
-    pParticleDemo.pDevice.enableVertexAttribArray(2);
+    //pParticleDemo.pDevice.enableVertexAttribArray(2);
     //pParticleDemo.pDevice.enableVertexAttribArray(3);
 };
 

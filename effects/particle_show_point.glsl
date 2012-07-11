@@ -1,11 +1,10 @@
 #include "decode_texture.glsl"
 
-attribute float INDEX_POSITION;
-attribute float INDEX_NORMAL;
+//attribute float INDEX_NORMAL;
 //attribute float INDEX_FLEXMAT;
-attribute float INDEX_PARTICLE;
+attribute float INDEX_UPDATE;
 uniform float INDEX_POSITION_OFFSET;
-uniform float INDEX_NORMAL_OFFSET;
+//uniform float INDEX_NORMAL_OFFSET;
 //uniform float INDEX_FLEXMAT_OFFSET;
 uniform float INDEX_PARTICLE_POSITION_OFFSET;
 uniform float INDEX_PARTICLE_COLOUR_OFFSET;
@@ -52,16 +51,16 @@ void main(void) {
     A_TextureHeader vb_header;
     A_extractTextureHeader(A_buffer_0, vb_header);
 
-    vec3 positionOffset = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_PARTICLE_POSITION_OFFSET);
-    vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_POSITION + INDEX_POSITION_OFFSET);
-    vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL + INDEX_NORMAL_OFFSET);
-    vec3 color = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_PARTICLE_COLOUR_OFFSET);
-    vec3 frequency = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_PARTICLE_FREQUENCY_OFFSET);
+    vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_UPDATE + INDEX_PARTICLE_POSITION_OFFSET);
+    //vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL + INDEX_NORMAL_OFFSET);
+    vec3 normal = vec3(0.,0.,1.);
+    vec3 color = A_extractVec3(A_buffer_0, vb_header, INDEX_UPDATE + INDEX_PARTICLE_COLOUR_OFFSET);
+    vec3 frequency = A_extractVec3(A_buffer_0, vb_header, INDEX_UPDATE + INDEX_PARTICLE_FREQUENCY_OFFSET);
 
-    float fLiveTime = A_extractFloat(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_LIVE_TIME_OFFSET);
+    float fLiveTime = A_extractFloat(A_buffer_0, vb_header, INDEX_UPDATE + INDEX_LIVE_TIME_OFFSET);
 
     mat3 rotMatrix = rotationMatrix(frequency*t);
-    position = rotMatrix*position + positionOffset;
+    //position = rotMatrix*position + positionOffset;
     normal = rotMatrix*normal;
 
     //mat_ambient = vec4(0.5,0.5,0.5,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 0.);
@@ -79,6 +78,7 @@ void main(void) {
 
     opacity = 1.-mod(t,fLiveTime)/fLiveTime;
 
+    gl_PointSize = 10.;
     gl_Position = proj_mat * pos;
 }
 

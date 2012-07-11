@@ -38,8 +38,8 @@ void main(void){
 	float fRealTime = mod(t,fLiveTime);
 	float fNewTime = mod(t+dt,fLiveTime);
 
-	if(fNewTime - dt <= 0. && t>0.){
-		updatedVelocity.xyz = 5.*vec3(rand(position.xy,v3fRand.xy),5. + 2.*rand(position.yz,v3fRand.yz),rand(position.zx,v3fRand.zx));
+	if(fRealTime + dt >= fLiveTime){
+		updatedVelocity.xyz = 5.*vec3(4.*rand(position.xy,v3fRand.xy),5. + 2.*rand(position.yz,v3fRand.yz),4.*rand(position.zx,v3fRand.zx));
 		//updatedVelocity.xyz = 5.*vec3(rand(position.xy,vec2(0.)),5. + 2.*rand(position.yz,vec2(0.)),rand(position.zx,vec2(0.)));
 	}
 	else{

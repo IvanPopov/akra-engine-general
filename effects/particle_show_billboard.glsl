@@ -1,16 +1,17 @@
 #include "decode_texture.glsl"
 
 attribute float INDEX_POSITION;
-attribute float INDEX_NORMAL;
+//attribute float INDEX_NORMAL;
 //attribute float INDEX_FLEXMAT;
 attribute float INDEX_PARTICLE;
 uniform float INDEX_POSITION_OFFSET;
-uniform float INDEX_NORMAL_OFFSET;
+//uniform float INDEX_NORMAL_OFFSET;
 //uniform float INDEX_FLEXMAT_OFFSET;
 uniform float INDEX_PARTICLE_POSITION_OFFSET;
 uniform float INDEX_PARTICLE_COLOUR_OFFSET;
 uniform float INDEX_PARTICLE_FREQUENCY_OFFSET;
 uniform float INDEX_LIVE_TIME_OFFSET;
+uniform float INDEX_TEXTURE_POSITION_OFFSET;
 uniform float t;
 
 uniform mat4 model_mat;
@@ -29,6 +30,8 @@ varying vec4 mat_emissive;
 varying float mat_shininess;
 
 varying float opacity;
+varying vec2 texturePosition;
+varying vec4 superColor;
 //varying float serial;
 
 mat3 rotationMatrix(vec3 angles){
@@ -54,14 +57,34 @@ void main(void) {
 
     vec3 positionOffset = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_PARTICLE_POSITION_OFFSET);
     vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_POSITION + INDEX_POSITION_OFFSET);
-    vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL + INDEX_NORMAL_OFFSET);
+    //vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL + INDEX_NORMAL_OFFSET);
+    vec3 normal = vec3(0.,0.,1.);
     vec3 color = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_PARTICLE_COLOUR_OFFSET);
     vec3 frequency = A_extractVec3(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_PARTICLE_FREQUENCY_OFFSET);
 
     float fLiveTime = A_extractFloat(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_LIVE_TIME_OFFSET);
 
+    texturePosition = A_extractVec4(A_buffer_0, vb_header, INDEX_PARTICLE + INDEX_TEXTURE_POSITION_OFFSET).rg;//(position.xy+1.)/2.;
+    texturePosition = (position.xy + 1.)/2.;
+    if(texturePosition == vec2(0.)){
+        superColor = vec4(1.,0.,0.,1.);
+    }
+    else if(texturePosition.xy == vec2(1.)){
+        superColor = vec4(0.,1.,0.,1.);
+    }
+    else if(texturePosition.xy == vec2(0.,1.)){
+        superColor = vec4(0.,0.,1.,1.);
+    }
+    else if(texturePosition.xy == vec2(1.,0.)){
+        superColor = vec4(0.,0.,1.,1.);
+    }
+    else{
+        superColor = vec4(0.5,0.5,0.5,1.);
+    }
+
+
     mat3 rotMatrix = rotationMatrix(frequency*t);
-    position = rotMatrix*position + positionOffset;
+    //position = rotMatrix*position + positionOffset;
     normal = rotMatrix*normal;
 
     //mat_ambient = vec4(0.5,0.5,0.5,1.);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 0.);
@@ -71,7 +94,8 @@ void main(void) {
     mat_emissive = vec4(0.1);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 12.);
     mat_shininess = 30.;//A_extractFloat(A_buffer_0, vb_header, INDEX_FLEXMAT + 16.);
 
-    vec4 pos = view_mat * model_mat * vec4(position.xyz, 1.);
+    vec4 pos = view_mat * model_mat * vec4(positionOffset.xyz, 1.) + vec4(position*10.,0.);
+
 
     norm = normalize(normal);
     vert = pos.xyz;
@@ -89,6 +113,7 @@ void main(void) {
 #endif                          
 
 uniform vec3 eye_pos;
+uniform sampler2D particleTexture;
 
 varying vec3 vert;
 varying vec3 norm;
@@ -101,6 +126,9 @@ varying vec4 mat_emissive;
 varying float mat_shininess;
 
 varying float opacity;
+
+varying vec2 texturePosition;
+varying vec4 superColor;
 
 struct LIGHTPOINT {
     vec4 position;
@@ -146,11 +174,12 @@ void main(void) {
     // add diffuse lighting
     color += mat_diffuse * light_point.diffuse * max(dot(norm, light_dir), .0) * attenuation;
     //color *= serial;
-
+    vec4 textureColor = texture2D(particleTexture,texturePosition);
+    //vec4 textureColor = texture2D(particleTexture,vec2(0.0));
     // add reflect lighting
     //float light_distancedotVpow = max(pow(dot(light_distance, view_dir), mat_shininess), 0.0);
     float light_distancedotVpow = pow(max(dot(light_distance, view_dir), .0), mat_shininess);
     color += mat_specular * light_point.specular * light_distancedotVpow * attenuation;
  
-    gl_FragColor = vec4(color.xyz, opacity);
+    gl_FragColor = superColor;//textureColor;// * vec4(color.xyz, opacity);
 }
