@@ -70,7 +70,7 @@ MeshDemo.prototype.initDeviceObjects = function () {
     pDropZone.addEventListener('drop', function (e) {me.onFileDrop(e)}, false);
 
     //default scene models
-    COLLADA(this, '/akra-engine-general/media/models/astroBoy_walk_Max.dae',
+    COLLADA(this, '/akra-engine-general/media/models/astroBoy_walk_Maya.dae',
         function (pRootNode) {pRootNode.attachToParent(me.getRootNode());});
 	return true;
 };

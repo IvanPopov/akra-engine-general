@@ -55,7 +55,8 @@ void main(void) {
 	vert = pos.xyz;
 
 #ifdef USE_TEXTURE_MATERIALS
-    texcoord = A_extractVec2(A_buffer_0, vb_header, INDEX_TEXCOORD + INDEX_TEXCOORD_OFFSET);
+    vec2 tc = A_extractVec2(A_buffer_0, vb_header, INDEX_TEXCOORD + INDEX_TEXCOORD_OFFSET);
+    texcoord = vec2(tc.x, tc.y);
 #endif
 
 	gl_Position = proj_mat * pos;
@@ -106,7 +107,7 @@ varying vec2 texcoord;
 
 void main(void) {
 	LIGHTPOINT light_point;
-	light_point.position = vec4(0., 40., 0., 1.);
+	light_point.position = vec4(0., 20., 10., 1.);
     light_point.ambient = vec4(1., 1., 1., 1.);
     light_point.diffuse  =vec4(1., 1., 1., 1.);
     light_point.specular = vec4(1., 1., 1., 1.);
