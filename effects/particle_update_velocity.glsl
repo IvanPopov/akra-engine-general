@@ -32,7 +32,6 @@ void main(void){
 	
 	vec4 position = A_extractVec4(A_buffer_0, vb_header, INDEX_UPDATE + INDEX_PARTICLE_POSITION_OFFSET);
 
-
 	float fLiveTime = A_extractFloat(A_buffer_0, vb_header, INDEX_UPDATE + INDEX_LIVE_TIME_OFFSET);
 
 	float fRealTime = mod(t,fLiveTime);
@@ -45,6 +44,9 @@ void main(void){
 	else{
 		updatedVelocity = A_extractVec4(A_buffer_0, vb_header, INDEX_UPDATE + INDEX_PARTICLE_VELOCITY_OFFSET);
 		updatedVelocity.xyz += calculateAcceleration()*dt;
+	}
+	if(position.y <= 0. && updatedVelocity.y <=0.){
+		updatedVelocity.y = - updatedVelocity.y*0.5;
 	}
 
 	gl_Position = vec4(screenPosition(vb_header,INDEX_UPDATE + INDEX_PARTICLE_VELOCITY_OFFSET),0.,1.);

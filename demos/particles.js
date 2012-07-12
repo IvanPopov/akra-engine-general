@@ -48,23 +48,20 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
     this.pParticleShowProg = a.loadProgram(this,'../effects/particle_show.glsl');
     this.pParticleShowBillboardProg = a.loadProgram(this,'../effects/particle_show_billboard.glsl');
     this.pParticleShowPointProg = a.loadProgram(this,'../effects/particle_show_point.glsl');
+    this.pSpriteProg = a.loadProgram(this,'../effects/sprite.glsl');
     
-    //this.pDrawMeshI2IProg = a.loadProgram(this, '../effects/mesh_ai.glsl');
-    //
+    this.pEmittersList = [];
 
     var pSimpleTorus = simpleTorus(10,10);
     var pSimpleCube = simpleCube();
     var pEmitterObject = pSimpleCube;
-
-    this.pParticleManager = new a.ParticleManager(this);
-
-    //trace(this.pParticleManager);
     
     this.pStarTexture = this.pDisplayManager.texturePool().loadResource('../../../../akra-engine-general/media/textures/star4.dds');
+    this.pTextTexture = this.pDisplayManager.texturePool().loadResource('../../../../akra-engine-general/media/textures/text.dds');
 
-    var nEmitters = 1;
+    var nEmitters = 0;
 
-    var nParticles = 100000;
+    var nParticles = 1000;
     var pLiveTimes = new Float32Array(nParticles);
     var pPositions = new Float32Array(nParticles*3);
     var pVelocities = new Float32Array(nParticles*3);
@@ -76,8 +73,22 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
 
     var fMinVelocity = -8;
     var fMaxVelocity = 8;
-    for(var k=0;k<nEmitters;k++){
 
+    var pSprite = new a.Sprite(this);
+    pSprite.setGeometry(20,40);
+    pSprite.setData([VE_VEC3('COLOR')],new Float32Array([1,0,0,0,0,1,0,0,1,0,1,0]));
+    pSprite.setData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
+    pSprite.centerPosition = Vec3.create(0,10,0);
+    trace(pSprite._pRenderData.toString());
+    pSprite.drawRoutine = spriteDraw;
+    pSprite.setProgram(this.pSpriteProg);
+
+    this.pSprite = pSprite;
+    pSprite.attachToParent(this.getRootNode());
+    pSprite.create();
+    pSprite.visible = true;
+
+    for(var k=0;k<nEmitters;k++){
         for(var i=0;i<nParticles;i++){
             pLiveTimes[i] = fMinLiveTime + (fMaxLiveTime - fMinLiveTime) * Math.random();
 
@@ -104,7 +115,8 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
 
     //var pEmitter = this.pEmitter = this.pParticleManager.createEmitter(a.EMITTER.OBJECT,nParticles);
     
-        var pEmitter = this.pParticleManager.createEmitter(a.EMITTER.BILLBOARD,nParticles);
+        var pEmitter = new a.Emitter(this,a.EMITTER.BILLBOARD,nParticles);
+        this.pEmittersList.push(pEmitter);
 
         pEmitter.setParticleData([VE_VEC3('PARTICLE_POSITION')],pPositions);
         delete pPositions;
@@ -139,8 +151,7 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
         var iX = Math.floor(k/5) - 2;
         var iY = k%5 - 2;
 
-        //pEmitter.addRelPosition([20*iX,0,20*iY]);
-        //trace(pEmitter.localMatrix());
+        pEmitter.addRelPosition([20*iX,0,20*iY]);
         pEmitter.setProgram(this.pUpdateVelocityProg);
         pEmitter.setProgram(this.pUpdatePositionProg);
         //pEmitter.setProgram(this.pParticleShowProg);
@@ -148,12 +159,10 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
         //pEmitter.setProgram(this.pParticleShowPointProg);
 
         pEmitter.activate();
-        //trace(this.pEmitter);
     }
     var pCamera = this.getActiveCamera();
     pCamera.addRelPosition(-8.0, 5.0, 11.0);
     pCamera.addRelRotation(-3.14/5, -3.14/15, 0);
-
     window.pParticleDemo = this;
 
     return true;
@@ -173,8 +182,12 @@ ParticlesDemo.prototype.directRender = function() {
 
     //draw plane
     this.pDrawPlaneProg.activate();
-    this.pDevice.disableVertexAttribArray(2);
+    var pDevice = this.pDevice;
+    
     draw(this.pDrawPlaneProg, this.pPlane, false);
+    for(var i=0;i<this.pEmittersList.length;i++){
+        this.pEmittersList[i].renderCallback();
+    }
     //this.pParticleManager._renderCallback();
 };
 
@@ -281,27 +294,25 @@ function simpleTorus (rings, sides) {
 function updateRoutine(dt,t,nStep,pProgram,sPass){
     var pParticleDemo = window.pParticleDemo;
     if(sPass == 'velocity'){
-        pParticleDemo.pDevice.enableVertexAttribArray(0);
-        pParticleDemo.pDevice.disableVertexAttribArray(1);
-        pParticleDemo.pDevice.disableVertexAttribArray(2);
         pProgram.applyFloat('dt',dt);
         pProgram.applyFloat('t',t);
         pProgram.applyVector3('v3fRand',new Float32Array([10.*(Math.random()-0.5),10.*(Math.random()-0.5),10.*(Math.random()-0.5)]));
     }
     else if(sPass == 'position'){
-        //pParticleDemo.pDevice.enableVertexAttribArray(1);
         pProgram.applyFloat('dt',dt);
         pProgram.applyFloat('t',t);
     }
 }
 
-function drawRoutine(dt,t,nStep,pProgram,sPass,pEmitter){
+function drawRoutine(dt,t,nStep,pProgram,sPass){
 
     var pParticleDemo = window.pParticleDemo;
     var pCamera = pParticleDemo._pDefaultCamera;
-
-    // pParticleDemo.pDevice.setRenderState(a.renderStateType.SRCBLEND, a.BLEND.SRCALPHA);
-    // pParticleDemo.pDevice.setRenderState(a.renderStateType.DESTBLEND, a.BLEND.INVSRCALPHA);
+    var pEmitter = pParticleDemo.pEmittersList[drawRoutine.serial];
+    drawRoutine.serial++;
+    if(drawRoutine.serial == pParticleDemo.pEmittersList.length){
+        drawRoutine.serial = 0;
+    }
 
     pProgram.applyMatrix4('model_mat', pEmitter.worldMatrix());
     pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
@@ -311,12 +322,8 @@ function drawRoutine(dt,t,nStep,pProgram,sPass,pEmitter){
     pParticleDemo.pStarTexture.activate(1);
 
     pProgram.applyInt('particleTexture',1);
-
-    pParticleDemo.pDevice.enableVertexAttribArray(0);
-    pParticleDemo.pDevice.enableVertexAttribArray(1);
-    //pParticleDemo.pDevice.enableVertexAttribArray(2);
-    //pParticleDemo.pDevice.enableVertexAttribArray(3);
 };
+STATIC(drawRoutine,serial,0);
 
 function simpleCube () {
 
@@ -359,4 +366,17 @@ function simpleCube () {
 
     return {'vertices' :  new Float32Array(pVerticesData),'normals' :  new Float32Array(pNormalsData),
     'INDEX_POSITION' : new Float32Array(pVertexIndicesData),'INDEX_NORMAL' : new Float32Array(pNormalIndicesData)};
-} 
+}
+
+function spriteDraw(pProgram){
+    'use strict';
+    var pParticleDemo = window.pParticleDemo;
+    var pCamera = pParticleDemo._pDefaultCamera;
+    var pSprite = pParticleDemo.pSprite;
+    pProgram.applyMatrix4('model_mat', pSprite.worldMatrix());
+    pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
+    pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
+
+    pParticleDemo.pTextTexture.activate(1);
+    pProgram.applyInt('spriteTexture',1);
+}
