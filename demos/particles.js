@@ -60,11 +60,11 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
 
     //trace(this.pParticleManager);
     
-    this.pStarTexture = this.pDisplayManager.texturePool().loadResource('../../../../akra-engine-general/media/textures/rock3.dds');
+    this.pStarTexture = this.pDisplayManager.texturePool().loadResource('../../../../akra-engine-general/media/textures/star4.dds');
 
     var nEmitters = 1;
 
-    var nParticles = 1;
+    var nParticles = 100000;
     var pLiveTimes = new Float32Array(nParticles);
     var pPositions = new Float32Array(nParticles*3);
     var pVelocities = new Float32Array(nParticles*3);
@@ -89,9 +89,13 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
             pVelocities[3*i + 1] = 10.*(Math.random() - 0.5) + 25.;
             pVelocities[3*i + 2] = fMinVelocity + (fMaxVelocity - fMinVelocity)*Math.random();
 
-            pColours[3*i    ] = 0.2;
-            pColours[3*i + 1] = 0.4;
-            pColours[3*i + 2] = 0.9 + 0.1*Math.random();
+            // pColours[3*i    ] = 0.2;
+            // pColours[3*i + 1] = 0.4;
+            // pColours[3*i + 2] = 0.9 + 0.1*Math.random();
+            // 
+            pColours[3*i    ] = 0.8 + 0.2 * Math.random();
+            pColours[3*i + 1] = 0.5 + 0.5 * Math.random();
+            pColours[3*i + 2] = 0.5 + 0.5 * Math.random();
 
             pFrequencies[3*i    ] = 0.1 + 0.1*Math.random();
             pFrequencies[3*i + 1] = 0.1 + 0.1*Math.random();
@@ -127,7 +131,7 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
         pEmitter.updateRoutine = updateRoutine;
         pEmitter.drawRoutine = drawRoutine;
 
-        pEmitter.setTimeAcceleration(0.02);
+        pEmitter.setTimeAcceleration(3.);
 
         pEmitter.attachToParent(this.getRootNode());
         pEmitter.create();

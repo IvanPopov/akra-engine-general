@@ -82,7 +82,6 @@ void main(void) {
         superColor = vec4(0.5,0.5,0.5,1.);
     }
 
-
     mat3 rotMatrix = rotationMatrix(frequency*t);
     //position = rotMatrix*position + positionOffset;
     normal = rotMatrix*normal;
@@ -94,14 +93,18 @@ void main(void) {
     mat_emissive = vec4(0.1);//A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 12.);
     mat_shininess = 30.;//A_extractFloat(A_buffer_0, vb_header, INDEX_FLEXMAT + 16.);
 
-    vec4 pos = view_mat * model_mat * vec4(positionOffset.xyz, 1.) + vec4(position*10.,0.);
+    
 
 
     norm = normalize(normal);
-    vert = pos.xyz;
+    
     //serial = SERIAL;
 
     opacity = 1.-mod(t,fLiveTime)/fLiveTime;
+    superColor = vec4(color,opacity);
+
+    vec4 pos = view_mat * model_mat * vec4(positionOffset.xyz, 1.) + vec4(position*2.*opacity,0.);
+    vert = pos.xyz;
 
     gl_Position = proj_mat * pos;
 }
@@ -181,5 +184,6 @@ void main(void) {
     float light_distancedotVpow = pow(max(dot(light_distance, view_dir), .0), mat_shininess);
     color += mat_specular * light_point.specular * light_distancedotVpow * attenuation;
  
-    gl_FragColor = superColor;//textureColor;// * vec4(color.xyz, opacity);
+
+    gl_FragColor = textureColor*superColor;// vec4(color.xyz, opacity);//superColor;//// ;
 }
