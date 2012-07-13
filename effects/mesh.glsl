@@ -58,7 +58,8 @@ void main(void) {
     vec2 tc = A_extractVec2(A_buffer_0, vb_header, INDEX_TEXCOORD + INDEX_TEXCOORD_OFFSET);
     texcoord = vec2(tc.x, tc.y);
 #endif
-
+    
+    //gl_PointSize = 3.;
 	gl_Position = proj_mat * pos;
 }
 
