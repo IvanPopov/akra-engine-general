@@ -15,7 +15,7 @@
 	</asset>
     <library_images>
         <image id="file9" name="file9">
-            <init_from>/media/models/Tiny_skin.dds</init_from>
+            <init_from>/akra-engine-general/media/models/Tiny_skin.dds</init_from>
         </image>
     </library_images>
 	<library_effects>
@@ -42,10 +42,11 @@
 							<color>0.00000 0.00000 0.00000 1</color>
 						</emission>
 						<ambient>
-							<color>0.50000 0.50000 0.50000 1</color>
+							<color>0.00000 0.00000 0.00000 1</color>
+							<texture texture="file9-sampler" texcoord="TEX1" />
 						</ambient>
 						<diffuse>
-							<color>1.00000 1.00000 1.00000 1</color>
+							<color>0.00000 0.00000 0.00000 1</color>
                             <texture texture="file9-sampler" texcoord="TEX0" />
 						</diffuse>
 						<specular>
@@ -133,6 +134,7 @@
 						<technique_common>
 							<instance_material symbol="Material_001" target="#Material_001">
 								<bind_vertex_input input_semantic="TEXCOORD" input_set="1" semantic="TEX0"/>
+								<bind_vertex_input input_semantic="TEXCOORD" input_set="1" semantic="TEX1"/>
 							</instance_material>
 						</technique_common>
 					</bind_material>

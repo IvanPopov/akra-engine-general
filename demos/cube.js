@@ -73,8 +73,8 @@ MyGame.prototype.buildTestScene = function (pVerticesData, pNormalsData, pIndice
 		pMap[i].mapping(0, pSerials[i], 'INDEX2');
 	};
 
-	var pProgram = this.pShaderProgram = this.displayManager().shaderProgramPool().createResource('prog_0');
-	pProgram.create(generateVSSource(pMap[0]), generateFSSource(), true);
+		var pProgram = this.pShaderProgram = this.displayManager().shaderProgramPool().createResource('prog_0');
+		pProgram.create(generateVSSource(pMap[0]), generateFSSource(), true);
 	pProgram.activate();
 	pProgram.applyVector4('ambient', new a.Color4f(.3, .3, .3, 1.));
 	//this.pDevice.disableVertexAttribArray(1);
