@@ -29,20 +29,21 @@ MeshDemo.prototype.initDeviceObjects = function () {
 	var me = this;
     var pProgram;
 
-    function addMeshToScene(pEngine, pMesh) {
+    function addMeshToScene(pEngine, pMesh, pParent) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
-        pSceneObject.attachToParent(pEngine.getRootNode());
         pSceneObject.create();
-        //pSceneObject.addRelPosition(-3, 2.0, 0);
-        pSceneObject.bNoRender = true;
+        pSceneObject.attachToParent(pParent || pEngine.getRootNode());
         return pSceneObject;
     }
 
-    // this.pCube = addMeshToScene(this, cube(this));
-    // this.pTorus = addMeshToScene(this, torus(this));
-    this.pPlane = addMeshToScene(this, sceneSurface(this));
+    this.pCubeMesh = cube(this);
 
-    //this.pPlane.addRelPosition(0, -2.0, 0);
+    this.appendMesh = function (pMesh, pNode) {
+        return addMeshToScene(me, pMesh, pNode);
+    }
+    
+    this.pPlane = addMeshToScene(this, sceneSurface(this));
+    this.pPlane.bNoRender = true;
     this.pPlane.setScale(200.0);
 
     this.pDrawMeshTexProg = a.loadProgram(this, '../effects/mesh.glsl', {'USE_TEXTURE_MATERIALS': 1});
@@ -71,7 +72,15 @@ MeshDemo.prototype.initDeviceObjects = function () {
 
     //default scene models
     COLLADA(this, '/akra-engine-general/media/models/astroBoy_walk_Maya.dae',
-        function (pRootNode) {pRootNode.attachToParent(me.getRootNode());});
+        function (pNodes) {
+            
+            for (var i = 0; i < pNodes.length; ++ i) {
+                pNodes[i].attachToParent(me.getRootNode());
+            }
+            
+            //trace(me.getRootNode().toString(true));
+        });
+
 	return true;
 };
 
