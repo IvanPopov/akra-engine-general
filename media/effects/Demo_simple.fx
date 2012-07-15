@@ -2,6 +2,7 @@
 // Example of effect file.
 // Source code from multipass_terrain.fx from Real-Time 3D Terrain Engines
 //
+
 use strict;
 // transformations
 float4x4 mViewProj: VIEWPROJECTION;
@@ -93,7 +94,15 @@ VS_OUTPUT11 VS11(uniform testStruct1 T, const VS_INPUT v)
 	abc = abc1;
 	abc1 = 5;
 	combinedPos.xy = posOffset.zw;
-
+	if(v.Pos.x > 0.){
+		Out.Pos = mul(combinedPos, mViewProj);	
+	}
+	else if(v.Pos.y > 0. && v.Pos.x == 0.){
+		Out.Pos = mul(combinedPos, mViewProj);
+	}
+	else {
+		Out.Pos = mul(combinedPos, mViewProj);
+	}
 	//Out.Pos = mul(combinedPos, mViewProj);  // position (view space)
 
 	Out.vDiffuse = (float4)dot(v.Norm, sun_vec.rgb) + ambient_light;
