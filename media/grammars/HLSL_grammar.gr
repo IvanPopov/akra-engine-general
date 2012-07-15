@@ -11,6 +11,13 @@ Decl : VarStructDecl
 Decl : FunctionDecl
 Decl : TechniqueDecl
 Decl : UseDecl
+Decl : ImportDecl
+Decl : ProvideDecl
+
+ImportDecl : T_KW_IMPORT ComplexNameOpt
+
+ProvideDecl : T_KW_PROVIDE ComplexNameOpt
+ProvideDecl : T_KW_PROVIDE ComplexNameOpt T_KW_AS ComplexNameOpt
 
 UseDecl : T_KW_USE Mode
 Mode : T_KW_STRICT
@@ -166,15 +173,47 @@ ParamUsage : T_KW_OUT
 ParamUsage : T_KW_INOUT
 ParamUsage : T_KW_UNIFORM
 ParamUsage : ConstUsage
-TechniqueDecl : T_KW_TECHNIQUE Id AnnotationOpt TechniqueBody --AN
+
+
+TechniqueDecl : T_KW_TECHNIQUE ComplexNameOpt SemanticsOpt AnnotationOpt TechniqueBody --AN
 TechniqueBody : TechniqueBegin TechniqueEnd  --AN
 TechniqueBody : TechniqueBegin PassDecls TechniqueEnd
 TechniqueBegin : '{'
 TechniqueEnd : '}'
 
+ComplexNameOpt : ComplexName --AN
+ComplexName : Id --NN
+ComplexName : ComplexName '.' Id
+
 PassDecls : PassDecl --NN
 PassDecls : PassDecls PassDecl
-PassDecl : T_KW_PASS IdOpt AnnotationOpt StateBlock --AN
+PassDecl : T_KW_PASS IdOpt AnnotationOpt PassStateBlock --AN
+PassDecl : ImportDecl
+PassDecl : ';'
+
+PassStateBlock : '{' ')' --AN
+PassStateBlock : '{' PassStates '}'
+PassStates : PassState --NN
+PassStates : PassStates PassState
+
+PassState : Id StateIndex StateExprBegin StateExpr StateExprEnd --AN
+PassState : StateIf
+PassState : StateSwitch
+
+StateIf : T_KW_IF '(' Expr ')' PassStateBlock T_KW_ELSE PassStateBlock
+StateIf : T_KW_IF '(' Expr ')' PassStateBlock T_KW_ELSE StateIf
+StateSwitch : T_KW_SWITCH '(' Expr ')' CaseBlock
+
+CaseBlock : '{' CaseStates DefaultState '}'
+CaseStates : CaseState --NN
+CaseStates : CaseStates CaseState
+
+CaseState : T_KW_CASE Dword ':' PassStates BreakOpt
+DefaultState : T_KW_DEFAULT ':' PassStates BreakOpt
+
+BreakOpt :  --NN
+BreakOpt : ';'
+BreakOpt : T_KW_BREAK ';'
 
 StateBlock : StateBlockBegin StateBlockEnd --AN
 StateBlock : StateBlockBegin States StateBlockEnd
@@ -429,6 +468,13 @@ T_KW_MEMOF : "memof"
 T_KW_VIDEOBUFFER : "video_buffer"
 T_KW_USE : "use"
 T_KW_STRICT : "strict"
+T_KW_IMPORT : "import"
+T_KW_PROVIDE : "provide"
+T_KW_SWITCH : "switch"
+T_KW_CASE : "case"
+T_KW_DEFAULT : "default"
+T_KW_BREAK : "break"
+T_KW_AS : "as"
 T_KW_PTR : "ptr"
 T_OP_INC : "++"
 T_OP_DEC : "--"
