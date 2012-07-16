@@ -11,6 +11,8 @@ uniform float INDEX_TEXCOORD_OFFSET;
 varying vec2 texcoord;
 #endif
 
+
+
 attribute float INDEX_POSITION;
 attribute float INDEX_NORMAL;
 attribute float INDEX_FLEXMAT; 
