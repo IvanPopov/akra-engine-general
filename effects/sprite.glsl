@@ -1,6 +1,6 @@
 #include "decode_texture.glsl"
 
-attribute vec3 POSITION_OFFSET;
+attribute vec2 POSITION_OFFSET;
 attribute vec2 TEXTURE_POSITION;
 
 uniform vec3 CENTER_POSITION;
@@ -36,7 +36,7 @@ void main(void) {
 
     texturePosition = TEXTURE_POSITION;
 
-    vec4 pos = view_mat * model_mat * vec4(CENTER_POSITION, 1.) + vec4(POSITION_OFFSET,0.); //+ vec4(position*2.*opacity,0.);
+    vec4 pos = view_mat * model_mat * vec4(CENTER_POSITION, 1.) + vec4(POSITION_OFFSET,0.,0.); //+ vec4(position*2.*opacity,0.);
     //vert = pos.xyz;
 
     gl_Position = proj_mat * pos;

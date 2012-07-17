@@ -1,12 +1,12 @@
 Include('geom.js')
 
-function Text3D() {
+function TextDemo() {
     A_CLASS;
 };
 
-EXTENDS(Text3D, a.Engine);
+EXTENDS(TextDemo, a.Engine);
 
-Text3D.prototype.oneTimeSceneInit = function () {
+TextDemo.prototype.oneTimeSceneInit = function () {
     'use strict';
     
     this.notifyOneTimeSceneInit();
@@ -15,20 +15,26 @@ Text3D.prototype.oneTimeSceneInit = function () {
     return true;
 }; 
 
-Text3D.prototype.restoreDeviceObjects = function () {
+TextDemo.prototype.restoreDeviceObjects = function () {
     this.notifyRestoreDeviceObjects();
     return true;
 };
 
 
-Text3D.prototype.initDeviceObjects = function () {
+TextDemo.prototype.initDeviceObjects = function () {
     this.notifyInitDeviceObjects();
 
     var me = this;
     var pShaderSource;
     var pProgram;
 
-    var pFont = new a.Font3D(this,100,"#ff0000","sans-serif",false,false);
+    var pFont = new a.Font3D(this,100,"#ff0000","monospace",false,false);
+    var pText = new a.Text3D(this,pFont);
+    pText.setText(' Akra \nEngine');
+    pText.centerPosition = Vec3.create(0,10,0);
+    pText.attachToParent(this.getRootNode());
+    pText.create();
+    pText.visible = true;
 
     function addMeshToScene(pEngine, pMesh) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
@@ -41,6 +47,7 @@ Text3D.prototype.initDeviceObjects = function () {
 
     this.pPlane = addMeshToScene(this, sceneSurface(this));
     this.pPlane.setScale(200.0);
+
 
     this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
@@ -60,24 +67,24 @@ Text3D.prototype.initDeviceObjects = function () {
     pSprite.setGeometry(20,20);
     pSprite.setData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
     pSprite.centerPosition = Vec3.create(0,10,0);
-    trace(pSprite._pRenderData.toString());
+    //trace(pSprite._pRenderData.toString());
     pSprite.drawRoutine = spriteDraw;
     pSprite.setProgram(this.pSpriteProg);
 
     this.pSprite = pSprite;
     pSprite.attachToParent(this.getRootNode());
     pSprite.create();
-    pSprite.visible = true;
+    //pSprite.visible = true;
 
     var pCamera = this.getActiveCamera();
     pCamera.addRelPosition(-8.0, 5.0, 11.0);
     pCamera.addRelRotation(-3.14/5, -3.14/15, 0);
-    window.pText3D = this;
+    window.pTextDemo = this;
 
     return true;
 };
 
-Text3D.prototype.directRender = function() {
+TextDemo.prototype.directRender = function() {
     'use strict';
     var pCamera = this._pDefaultCamera;
 
@@ -97,12 +104,12 @@ Text3D.prototype.directRender = function() {
     //this.pParticleManager._renderCallback();
 };
 
-Text3D.prototype.deleteDeviceObjects = function () {
+TextDemo.prototype.deleteDeviceObjects = function () {
     this.notifyDeleteDeviceObjects();
     return true;
 };
 
-Text3D.prototype.updateScene = function () {
+TextDemo.prototype.updateScene = function () {
     this.updateCamera(1.0, 0.1, null, 30.0, false);
 
     if (this.pKeymap.isMousePress() && this.pKeymap.isMouseMoved()) {
@@ -124,7 +131,7 @@ if (!a.info.support.webgl) {
     alert('Error:: Your browser does not support WebGL.');
 }
 else {
-    var App = new Text3D();
+    var App = new TextDemo();
     if (!App.create('canvas') || !App.run()) {
         alert('something wrong....');
     }
@@ -132,13 +139,13 @@ else {
 
 function spriteDraw(pProgram){
     'use strict';
-    var pText3D = window.pText3D;
-    var pCamera = pText3D._pDefaultCamera;
-    var pSprite = pText3D.pSprite;
+    var pTextDemo = window.pTextDemo;
+    var pCamera = pTextDemo._pDefaultCamera;
+    var pSprite = pTextDemo.pSprite;
     pProgram.applyMatrix4('model_mat', pSprite.worldMatrix());
     pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
     pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
 
-    pText3D.pTextTexture.activate(0);
+    pTextDemo.pTextTexture.activate(0);
     pProgram.applyInt('spriteTexture',0);
 }

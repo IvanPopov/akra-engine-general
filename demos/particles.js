@@ -54,14 +54,14 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
 
     var pSimpleTorus = simpleTorus(10,10);
     var pSimpleCube = simpleCube();
-    var pEmitterObject = pSimpleCube;
+    var pEmitterObject = pSimpleTorus;
     
     this.pStarTexture = this.pDisplayManager.texturePool().loadResource('../../../../akra-engine-general/media/textures/star4.dds');
     this.pTextTexture = this.pDisplayManager.texturePool().loadResource('../../../../akra-engine-general/media/textures/text.dds');
 
-    var nEmitters = 0;
+    var nEmitters = 1;
 
-    var nParticles = 1000;
+    var nParticles = 2000;
     var pLiveTimes = new Float32Array(nParticles);
     var pPositions = new Float32Array(nParticles*3);
     var pVelocities = new Float32Array(nParticles*3);
@@ -74,19 +74,19 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
     var fMinVelocity = -8;
     var fMaxVelocity = 8;
 
-    var pSprite = new a.Sprite(this);
-    pSprite.setGeometry(20,40);
-    pSprite.setData([VE_VEC3('COLOR')],new Float32Array([1,0,0,0,0,1,0,0,1,0,1,0]));
-    pSprite.setData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
-    pSprite.centerPosition = Vec3.create(0,10,0);
-    trace(pSprite._pRenderData.toString());
-    pSprite.drawRoutine = spriteDraw;
-    pSprite.setProgram(this.pSpriteProg);
+    // var pSprite = new a.Sprite(this);
+    // pSprite.setGeometry(20,40);
+    // pSprite.setData([VE_VEC3('COLOR')],new Float32Array([1,0,0,0,0,1,0,0,1,0,1,0]));
+    // pSprite.setData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
+    // pSprite.centerPosition = Vec3.create(0,10,0);
+    // trace(pSprite._pRenderData.toString());
+    // pSprite.drawRoutine = spriteDraw;
+    // pSprite.setProgram(this.pSpriteProg);
 
-    this.pSprite = pSprite;
-    pSprite.attachToParent(this.getRootNode());
-    pSprite.create();
-    pSprite.visible = true;
+    // this.pSprite = pSprite;
+    // pSprite.attachToParent(this.getRootNode());
+    // pSprite.create();
+    // pSprite.visible = true;
 
     for(var k=0;k<nEmitters;k++){
         for(var i=0;i<nParticles;i++){
@@ -115,7 +115,7 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
 
     //var pEmitter = this.pEmitter = this.pParticleManager.createEmitter(a.EMITTER.OBJECT,nParticles);
     
-        var pEmitter = new a.Emitter(this,a.EMITTER.BILLBOARD,nParticles);
+        var pEmitter = new a.Emitter(this,a.EMITTER.OBJECT,nParticles);
         this.pEmittersList.push(pEmitter);
 
         pEmitter.setParticleData([VE_VEC3('PARTICLE_POSITION')],pPositions);
@@ -129,12 +129,12 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
         pEmitter.setParticleData([VE_VEC3('PARTICLE_FREQUENCY')],pFrequencies);
         delete pFrequencies;
         
-        //var iPosition = pEmitter.setObjectData([VE_VEC3('POSITION')],pEmitterObject.vertices);
-        //var iNormal = pEmitter.setObjectData([VE_VEC3('NORMAL')],pEmitterObject.normals);
-        //pEmitter.setObjectIndex([VE_FLOAT('INDEX_POSITION')],pEmitterObject.INDEX_POSITION);
-        //pEmitter.setObjectIndex([VE_FLOAT('INDEX_NORMAL')],pEmitterObject.INDEX_NORMAL);
-        //pEmitter.objectIndex(iPosition,'INDEX_POSITION');
-        //pEmitter.objectIndex(iNormal,'INDEX_NORMAL');
+        var iPosition = pEmitter.setObjectData([VE_VEC3('POSITION')],pEmitterObject.vertices);
+        var iNormal = pEmitter.setObjectData([VE_VEC3('NORMAL')],pEmitterObject.normals);
+        pEmitter.setObjectIndex([VE_FLOAT('INDEX_POSITION')],pEmitterObject.INDEX_POSITION);
+        pEmitter.setObjectIndex([VE_FLOAT('INDEX_NORMAL')],pEmitterObject.INDEX_NORMAL);
+        pEmitter.objectIndex(iPosition,'INDEX_POSITION');
+        pEmitter.objectIndex(iNormal,'INDEX_NORMAL');
 
         pEmitter.setObjectData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
 
@@ -154,8 +154,8 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
         pEmitter.addRelPosition([20*iX,0,20*iY]);
         pEmitter.setProgram(this.pUpdateVelocityProg);
         pEmitter.setProgram(this.pUpdatePositionProg);
-        //pEmitter.setProgram(this.pParticleShowProg);
-        pEmitter.setProgram(this.pParticleShowBillboardProg);
+        pEmitter.setProgram(this.pParticleShowProg);
+        //pEmitter.setProgram(this.pParticleShowBillboardProg);
         //pEmitter.setProgram(this.pParticleShowPointProg);
 
         pEmitter.activate();
@@ -368,15 +368,15 @@ function simpleCube () {
     'INDEX_POSITION' : new Float32Array(pVertexIndicesData),'INDEX_NORMAL' : new Float32Array(pNormalIndicesData)};
 }
 
-function spriteDraw(pProgram){
-    'use strict';
-    var pParticleDemo = window.pParticleDemo;
-    var pCamera = pParticleDemo._pDefaultCamera;
-    var pSprite = pParticleDemo.pSprite;
-    pProgram.applyMatrix4('model_mat', pSprite.worldMatrix());
-    pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
-    pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
+// function spriteDraw(pProgram){
+//     'use strict';
+//     var pParticleDemo = window.pParticleDemo;
+//     var pCamera = pParticleDemo._pDefaultCamera;
+//     var pSprite = pParticleDemo.pSprite;
+//     pProgram.applyMatrix4('model_mat', pSprite.worldMatrix());
+//     pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
+//     pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
 
-    pParticleDemo.pTextTexture.activate(1);
-    pProgram.applyInt('spriteTexture',1);
-}
+//     pParticleDemo.pTextTexture.activate(1);
+//     pProgram.applyInt('spriteTexture',1);
+// }
