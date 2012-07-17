@@ -37,12 +37,22 @@ varying vec4 mat_emissive;
 varying float mat_shininess;
 
 
+mat4 transpose(mat4 mat) {
+    mat4 t = mat;
+    for (int i = 0; i < 4; ++ i) {
+        for (int j = 0; j < 4; ++ j) {
+            mat[i][j] = t[j][i];
+        }
+    }
+    return mat;
+}
+
 void main(void) {
 	A_TextureHeader vb_header;
 	A_extractTextureHeader(A_buffer_0, vb_header);
 
-	vec3 position = A_extractVec3(A_buffer_0, vb_header, INDEX_POSITION + INDEX_POSITION_OFFSET);
-	vec3 normal = A_extractVec3(A_buffer_0, vb_header, INDEX_NORMAL + INDEX_NORMAL_OFFSET);
+	vec4 position = A_extractVec4(A_buffer_0, vb_header, INDEX_POSITION + INDEX_POSITION_OFFSET);
+	vec4 normal = A_extractVec4(A_buffer_0, vb_header, INDEX_NORMAL + INDEX_NORMAL_OFFSET);
 	
 	mat_ambient = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 0.);
 	mat_diffuse = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 4.);
@@ -50,11 +60,74 @@ void main(void) {
 	mat_emissive = A_extractVec4(A_buffer_0, vb_header, INDEX_FLEXMAT + 12.);
 	mat_shininess = A_extractFloat(A_buffer_0, vb_header, INDEX_FLEXMAT + 16.);
 
-	vec4 pos = view_mat * model_mat * vec4(position.xyz, 1.);
+	vec4 pos = vec4(position.xyz, 1.);
+    vec4 vertex;
+
+#ifdef USE_ANIMATION
+    
+    float meta_ptr = position.w;
+    vec2 meta_data = A_extractVec2(A_buffer_0, vb_header, meta_ptr);
+    
+    int number_matrix = int(meta_data.x);
+    int bone_inf_ptr = int(meta_data.y);
+
+    vec2 temp;
+    float bone_matrix_ptr;
+    float weight_ptr;
+
+    vec4 st_mat1, 
+         st_mat2, 
+         st_mat3, 
+         st_mat4;
+
+    float weight;
+    mat4 bone_matrix;
+    mat4 result_mat = mat4(0.);
 
 
-	norm = normalize((normal_mat * normal));
-	vert = pos.xyz;
+    for (int i = 0; i > -1; i ++) {
+        //get data about matrix and weight
+        temp = A_extractVec2(A_buffer_0, vb_header, float(bone_inf_ptr + i * 2));
+        
+        bone_matrix_ptr = temp.x;
+        weight_ptr      = temp.y;
+
+        //get matrix
+        st_mat1 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr);
+        st_mat2 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 4.);
+        st_mat3 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 8.);
+        st_mat4 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 12.);
+
+        //bone_matrix = mat4(0.);
+        bone_matrix[0] = st_mat1;
+        bone_matrix[1] = st_mat2;
+        bone_matrix[2] = st_mat3;
+        bone_matrix[3] = st_mat4;
+
+        //get weight
+        weight = A_extractFloat(A_buffer_0, vb_header, weight_ptr);
+
+        result_mat += bone_matrix * weight;
+
+        if (int(weight_ptr) - 30432 == 14) {
+            if (weight < 0.000444) {
+                gl_PointSize = 10.;
+            }
+        }
+
+        if(i >= number_matrix) {
+            break;
+        }
+
+    }
+    //result_mat = transpose(result_mat);
+    vertex = (view_mat * result_mat * pos);
+#else
+	vertex = (view_mat * model_mat * pos);
+#endif
+
+    norm = normalize((normal_mat * normal.xyz));
+    vert = vertex.xyz;
 
 #ifdef USE_TEXTURE_MATERIALS
     vec2 tc = A_extractVec2(A_buffer_0, vb_header, INDEX_TEXCOORD + INDEX_TEXCOORD_OFFSET);
@@ -62,7 +135,7 @@ void main(void) {
 #endif
     
     //gl_PointSize = 3.;
-	gl_Position = proj_mat * pos;
+	gl_Position = proj_mat * vertex;
 }
 
 //<-- split -- >

@@ -42,11 +42,11 @@ void main(void) {
     else if(abs(z) == 0.)
         gl_FragColor = BLUE;
     else {
+        gl_FragColor = vec4(0.6, 0.6, 0.6, 1.);
+        
         if ((fract(z) == 0.) && mod(z, 5.) == 0.)
             gl_FragColor = vec4(0.35, 0.35, 0.35, 1.);
         else if ((fract(x) == 0.) && mod(x, 5.) == 0.)
             gl_FragColor = vec4(0.35, 0.35, 0.35, 1.);
-        else    
-            gl_FragColor = vec4(0.6, 0.6, 0.6, 1.);
     }
 }

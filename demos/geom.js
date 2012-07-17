@@ -161,8 +161,8 @@ function cube (pEngine, eOptions, sName) {
 } 
 
 function sceneSurface(pEngine, eOptions) {
-    var nCellW = nCellW || 25;
-    var nCellH = nCellH || 25;
+    var nCellW = nCellW || 51;
+    var nCellH = nCellH || 51;
 
     var pMesh, pSubMesh;
     var iPos;
