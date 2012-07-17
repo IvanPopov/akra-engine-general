@@ -51,8 +51,8 @@ struct VS_OUTPUT14
     float2 vTex4  : TEXCOORD4;
     float2 vTex5  : TEXCOORD5;
 };
-float4 testFunc(){
-	return float4(1.0,2.0,3.0,4.0);
+float4 testFunc(inout float x){
+	return float4(x,2.0,3.0,4.0);
 }
 struct testStruct0{
 	float3 dif;
@@ -76,10 +76,16 @@ sampler LinearSamp1 = sampler_state
     MAGFILTER = LINEAR;
 };
 float abc1 = 10;
+struct VS_OUT 
+{
+	float4 Pos  : POSITION;
+	float dif : COLOR10;
+};
 
 VS_OUTPUT11 VS11(uniform testStruct1 T, const VS_INPUT v)
 {
 	VS_OUTPUT11 Out;
+	VS_INPUT v1 = v;
 	float4 combinedPos = float4(
 		v.Pos.x,
 		v.Pos.y,
@@ -88,8 +94,8 @@ VS_OUTPUT11 VS11(uniform testStruct1 T, const VS_INPUT v)
 	testStruct1 t1;
 //	t1.pos(memof v.Pos);
 	@@(t1.pos)+=10;
-    float4 pos = (Out.Pos.xyzw + float4(1.0,2.0,3.0,4.0)).rab;
-	float2 xy = testFunc().zw;
+    float4 pos = (((Out).Pos).xyzw + float4(1.0,2.0,3.0,4.0)).rab;
+	float2 xy = testFunc(1.0).zw;
 	ptr abc = @@(v.Norm)++;
 	abc = abc1;
 	abc1 = 5;
@@ -111,8 +117,7 @@ VS_OUTPUT11 VS11(uniform testStruct1 T, const VS_INPUT v)
 	Out.vTex1 = v.UV*2.0f;
 	Out.vTex2 = v.UV*2.0f;
 	Out.vTex3 = v.UV*0.7f; // tile the noise UVs at a different rate
-
-    return Out;
+    return ((Out));
 }
 
 VS_OUTPUT14 VS14(const VS_INPUT v)
@@ -139,6 +144,12 @@ VS_OUTPUT14 VS14(const VS_INPUT v)
 	Out.vTex5 = v.UV*1.7f; // tile the noise UVs at a different rate
 
     return Out;
+}
+VS_OUT VS10(float2 pos:POSITION, float zpos: POSITION0)
+{
+	VS_OUT Out;
+	Out.Pos = float4(pos.x, pos.y, zpos, 1.);
+	return Out;
 }
 sampler LinearSamp0 = sampler_state
 {
@@ -253,12 +264,18 @@ float4 TwoSurfacePass1(VS_OUTPUT11 In) : COLOR
 
 	return (t1+ t2)* In.vDiffuse;
 }
-
+int c = 10;
 technique MultiPassTerrain
 {
     pass P0
     {
-			CULLMODE = CW;
+			if(engine.cull[c].xy == 100 && true){
+				CULLMODE = CW;
+				VertexShader = compile vs_1_1 VS10();
+			}
+			else{
+				CULLMODE = CW;
+			}
 			ZENABLE = TRUE;
 			ZWRITEENABLE = TRUE;
 			ZFUNC = LESSEQUAL;
