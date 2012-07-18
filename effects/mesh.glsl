@@ -84,12 +84,17 @@ void main(void) {
     mat4 bone_matrix;
     mat4 result_mat = mat4(0.);
 
+    float point_size = 1.;
+    float weight_summ = 0.;
 
     for (int i = 0; i > -1; i ++) {
+        if(i >= number_matrix) {
+            break;
+        }
         //get data about matrix and weight
         temp = A_extractVec2(A_buffer_0, vb_header, float(bone_inf_ptr + i * 2));
         
-        bone_matrix_ptr = temp.x;
+        bone_matrix_ptr = floor(temp.x);
         weight_ptr      = temp.y;
 
         //get matrix
@@ -98,35 +103,32 @@ void main(void) {
         st_mat3 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 8.);
         st_mat4 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 12.);
 
-        //bone_matrix = mat4(0.);
+        if( abs(bone_matrix_ptr/4. - floor(bone_matrix_ptr/4.)) > 0.1) {
+            point_size = 40.;
+        }
+
         bone_matrix[0] = st_mat1;
         bone_matrix[1] = st_mat2;
         bone_matrix[2] = st_mat3;
         bone_matrix[3] = st_mat4;
-
+        //bone_matrix = mat4(1.);
         //get weight
         weight = A_extractFloat(A_buffer_0, vb_header, weight_ptr);
-
+        weight_summ += weight;
+        //weight = 1.;
         result_mat += bone_matrix * weight;
-
-        if (int(weight_ptr) - 30432 == 14) {
-            if (weight < 0.000444) {
-                gl_PointSize = 10.;
-            }
-        }
-
-        if(i >= number_matrix) {
-            break;
-        }
-
     }
+    //result_mat /= weight_summ;
+    gl_PointSize = point_size;
     //result_mat = transpose(result_mat);
     vertex = (view_mat * result_mat * pos);
+    norm = normalize((result_mat * normal).xyz);
 #else
 	vertex = (view_mat * model_mat * pos);
+    norm = normalize((normal_mat * normal.xyz));
 #endif
 
-    norm = normalize((normal_mat * normal.xyz));
+    
     vert = vertex.xyz;
 
 #ifdef USE_TEXTURE_MATERIALS

@@ -38,9 +38,9 @@ void main(void) {
     float z = texcoord.z;
 
     if (abs(x) == 0.)
-        gl_FragColor = RED;
-    else if(abs(z) == 0.)
         gl_FragColor = BLUE;
+    else if(abs(z) == 0.)
+        gl_FragColor = RED;
     else {
         gl_FragColor = vec4(0.6, 0.6, 0.6, 1.);
         
