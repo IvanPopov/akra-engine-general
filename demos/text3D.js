@@ -28,11 +28,13 @@ TextDemo.prototype.initDeviceObjects = function () {
     var pShaderSource;
     var pProgram;
 
-    var pFont = new a.Font3D(this,100,"#ff0000","monospace",false,false);
+    var pFont = new a.Font3D(this,100,"courner",false,false);
     var pText = new a.Text3D(this,pFont);
-    pText.setText(' Akra \nEngine');
+    pText.setText(' Akra \nEngine\n');
     pText.centerPosition = Vec3.create(0,10,0);
     pText.attachToParent(this.getRootNode());
+    pText.fontColor = [1.,1.,1.,1.];
+    pText.backgroundColor = [0.,0.,0.,1.];
     pText.create();
     pText.visible = true;
 
@@ -99,6 +101,8 @@ TextDemo.prototype.directRender = function() {
     //draw plane
     this.pDrawPlaneProg.activate();
     var pDevice = this.pDevice;
+
+    //pDevice.disable(pDevice.DEPTH_TEST);
     
     draw(this.pDrawPlaneProg, this.pPlane, false);
     //this.pParticleManager._renderCallback();
