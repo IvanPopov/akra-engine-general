@@ -47,6 +47,8 @@ mat4 transpose(mat4 mat) {
     return mat;
 }
 
+
+
 void main(void) {
 	A_TextureHeader vb_header;
 	A_extractTextureHeader(A_buffer_0, vb_header);
@@ -75,19 +77,13 @@ void main(void) {
     float bone_matrix_ptr;
     float weight_ptr;
 
-    vec4 st_mat1, 
-         st_mat2, 
-         st_mat3, 
-         st_mat4;
-
     float weight;
     mat4 bone_matrix;
     mat4 result_mat = mat4(0.);
 
     float point_size = 1.;
-    float weight_summ = 0.;
 
-    for (int i = 0; i > -1; i ++) {
+    for (int i = 0; i < 32; i ++) {
         if(i >= number_matrix) {
             break;
         }
@@ -97,28 +93,20 @@ void main(void) {
         bone_matrix_ptr = floor(temp.x);
         weight_ptr      = temp.y;
 
+
         //get matrix
-        st_mat1 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr);
-        st_mat2 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 4.);
-        st_mat3 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 8.);
-        st_mat4 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 12.);
+        bone_matrix = A_extractMat4(A_buffer_0, vb_header, bone_matrix_ptr);
+        //bone_matrix[0] = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr);
+        //bone_matrix[1] = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 4.);
+        //bone_matrix[2] = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 8.);
+        //bone_matrix[3] = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 12.);
 
-        if( abs(bone_matrix_ptr/4. - floor(bone_matrix_ptr/4.)) > 0.1) {
-            point_size = 40.;
-        }
-
-        bone_matrix[0] = st_mat1;
-        bone_matrix[1] = st_mat2;
-        bone_matrix[2] = st_mat3;
-        bone_matrix[3] = st_mat4;
-        //bone_matrix = mat4(1.);
         //get weight
         weight = A_extractFloat(A_buffer_0, vb_header, weight_ptr);
-        weight_summ += weight;
-        //weight = 1.;
+
         result_mat += bone_matrix * weight;
     }
-    //result_mat /= weight_summ;
+
     gl_PointSize = point_size;
     //result_mat = transpose(result_mat);
     vertex = (view_mat * result_mat * pos);
@@ -128,15 +116,13 @@ void main(void) {
     norm = normalize((normal_mat * normal.xyz));
 #endif
 
-    
     vert = vertex.xyz;
 
 #ifdef USE_TEXTURE_MATERIALS
     vec2 tc = A_extractVec2(A_buffer_0, vb_header, INDEX_TEXCOORD + INDEX_TEXCOORD_OFFSET);
     texcoord = vec2(tc.x, tc.y);
 #endif
-    
-    //gl_PointSize = 3.;
+
 	gl_Position = proj_mat * vertex;
 }
 

@@ -74,8 +74,9 @@ MeshDemo.prototype.initDeviceObjects = function () {
     pDropZone.addEventListener('drop', function (e) {me.onFileDrop(e)}, false);
  
     //default scene models
-    COLLADA(this, '/akra-engine-general/media/models/astroBoy_walk_Maya.dae',
-        function (pNodes) {
+    COLLADA(this, {
+        file: '/akra-engine-general/media/models/astroBoy_walk_Maya.dae',
+        success: function (pNodes) {
             
             for (var i = 0; i < pNodes.length; ++ i) {
                 //pNodes[i].setInheritance(a.Scene.k_inheritRotScaleOnly);
@@ -83,7 +84,8 @@ MeshDemo.prototype.initDeviceObjects = function () {
             }
             
             //trace(me.getRootNode().toString(true));
-        });
+        }
+    });
 
 	return true;
 };
@@ -106,10 +108,13 @@ MeshDemo.prototype.onFileDrop = function (e) {
         // Closure to capture the file information.
         reader.onload = (function(theFile) {
             return function(e) {     
-                COLLADA(me, e.target.result,
-                    function (pRootNode) {
-                        pRootNode.attachToParent(me.getRootNode());
-                    }, true);
+                COLLADA(me, 
+                    {
+                        content: e.target.result,
+                        success: function (pRootNode) {
+                                    pRootNode.attachToParent(me.getRootNode());
+                                 }
+                    });
             };
         })(f);
 
