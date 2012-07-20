@@ -2,6 +2,7 @@ Include('geom.js')
 
 function TextDemo() {
     A_CLASS;
+    STATIC(fMoveSpeed,1.);
 };
 
 EXTENDS(TextDemo, a.Engine);
@@ -36,6 +37,8 @@ TextDemo.prototype.initDeviceObjects = function () {
     pText.fontColor = [1.,1.,1.,1.];
     pText.backgroundColor = [0.,0.,0.,1.];
     pText.create();
+    pText.fixedSize = true;
+    pText.setDistanceMultiplier(0.);
     pText.visible = true;
 
     function addMeshToScene(pEngine, pMesh) {
@@ -114,8 +117,13 @@ TextDemo.prototype.deleteDeviceObjects = function () {
 };
 
 TextDemo.prototype.updateScene = function () {
-    this.updateCamera(1.0, 0.1, null, 30.0, false);
-
+    if(this.pKeymap.isKeyPress(a.KEY.ADD)){
+        statics.fMoveSpeed *= 2.;
+    }
+    if(this.pKeymap.isKeyPress(a.KEY.SUBTRACT)){
+        statics.fMoveSpeed /= 2.;
+    }
+    this.updateCamera(statics.fMoveSpeed, 0.1, null, 30.0, false);
     if (this.pKeymap.isMousePress() && this.pKeymap.isMouseMoved()) {
         var pCamera = this.getActiveCamera(),
             fdX = this.pKeymap.mouseShitfX(),
