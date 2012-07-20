@@ -29,13 +29,13 @@ TextDemo.prototype.initDeviceObjects = function () {
     var pShaderSource;
     var pProgram;
 
-    var pFont = new a.Font3D(this,100,"courner",false,false);
+    var pFont = new a.Font3D(this,200,"courner",false,false);
     var pText = new a.Text3D(this,pFont);
-    pText.setText(' Akra \nEngine\n');
+    pText.setText('AAAA');
     pText.centerPosition = Vec3.create(0,10,0);
     pText.attachToParent(this.getRootNode());
-    pText.fontColor = [0.,0.,0.,1.];
-    pText.backgroundColor = [1.,1.,1.,1.];
+    pText.fontColor = [1.,1.,1.,1.];
+    pText.backgroundColor = [0.,0.,0.,1.];
     pText.create();
     pText.fixedSize = true;
     //pText.setDistanceMultiplier(1.);

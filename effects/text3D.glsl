@@ -78,6 +78,9 @@ void main(void) {
 
     if(currentLineData.x < nCurrentLinePosition){
         color = v4fBackgroundColor;
+        if(color.w == 0.){
+            discard;
+        }
     }
     else{
         float lineDataOffset = currentLineData.y;//оффсет указывающий где начинаются данные для текущей строки
@@ -85,12 +88,20 @@ void main(void) {
         vec4 letterData = A_extractVec4(A_buffer_0, vb_header,startIndex + (lineDataOffset + nCurrentLinePosition)*4.);
         vec2 realTextureCoords = letterData.xy + vec2(fract(fCurrentLinePosition),fract(fCurrentLine))*letterData.zw;
 
-        vec4 textureColor = texture2D(textTexture,vec2(realTextureCoords.x,realTextureCoords.y));
+        //довольно удачная модель прозрачности шрифтов и фона
 
-        color = v4fFontColor*textureColor.w + (1. - textureColor.w)*v4fBackgroundColor;
-    }
-    if(color.w == 0.){
-        discard;
+        float fontGeomenty = (texture2D(textTexture,vec2(realTextureCoords.x,realTextureCoords.y))).w;
+        float fEffectiveFontTransparency = fontGeomenty*v4fFontColor.a;
+
+        vec3 v3fEffectiveColor = fEffectiveFontTransparency*v4fFontColor.rgb +
+                                    (1. - fEffectiveFontTransparency)*v4fBackgroundColor.a*v4fBackgroundColor.rgb;
+
+        float fEffectiveTransperency = fEffectiveFontTransparency + (1. - fEffectiveFontTransparency)*v4fBackgroundColor.a;
+        if(fEffectiveTransperency == 0.){
+            discard;
+        }
+
+        color = vec4(v3fEffectiveColor/fEffectiveTransperency,fEffectiveTransperency);
     }
     gl_FragColor = color;
 }
