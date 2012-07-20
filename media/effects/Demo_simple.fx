@@ -4,6 +4,7 @@
 //
 
 use strict;
+video_buffer buf0;
 // transformations
 float4x4 mViewProj: VIEWPROJECTION;
 
@@ -28,7 +29,7 @@ struct VS_INPUT
   float3	Norm[][]	: NORMAL;
 };
 
-float a1;
+float a1, a2 = 3.0, a3;
 
 struct VS_OUTPUT11
 {
@@ -51,8 +52,14 @@ struct VS_OUTPUT14
     float2 vTex4  : TEXCOORD4;
     float2 vTex5  : TEXCOORD5;
 };
+float3 testFunc0(float3 pos[]);
+
 float4 testFunc(inout float x){
-	return float4(x,2.0,3.0,4.0);
+	return float4(testFunc0(float3(x+a2)),4.0);
+}
+float3 testFunc0(float3 pos123){
+	a3 = 10.;
+	return pos123;
 }
 struct testStruct0{
 	float3 dif;
@@ -92,9 +99,9 @@ VS_OUTPUT11 VS11(uniform testStruct1 T, const VS_INPUT v)
 		v.ZPos,
 		1);
 	testStruct1 t1;
-//	t1.pos(memof v.Pos);
-	@@(t1.pos)+=10;
-    float4 pos = (((Out).Pos).xyzw + float4(1.0,2.0,3.0,4.0)).rab;
+	//t1.pos(memof v.Norm);
+	//@@(t1.pos)+=10;
+    //float4 pos = (((Out).Pos).xyzw + float4(1.0,2.0,3.0,4.0)).rab;
 	float2 xy = testFunc(1.0).zw;
 	ptr abc = @@(v.Norm)++;
 	abc = abc1;
@@ -105,6 +112,13 @@ VS_OUTPUT11 VS11(uniform testStruct1 T, const VS_INPUT v)
 	}
 	else if(v.Pos.y > 0. && v.Pos.x == 0.){
 		Out.Pos = mul(combinedPos, mViewProj);
+		if(true){
+			int x = 10;
+			x = 40;
+		}
+		else{
+			int x = 20;
+		}
 	}
 	else {
 		Out.Pos = mul(combinedPos, mViewProj);

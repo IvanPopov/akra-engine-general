@@ -246,7 +246,7 @@ SimpleStmt : TypeDecl
 SimpleStmt : VariableDecl
 SimpleStmt : VarStructDecl
 
-NonIfStmt : SimpleStmt
+NonIfStmt : SimpleStmt --AN
 NonIfStmt : T_KW_WHILE '(' Expr ')' NonIfStmt
 NonIfStmt : For '(' ForInit ForCond ForStep ')' NonIfStmt
 
