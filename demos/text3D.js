@@ -34,11 +34,11 @@ TextDemo.prototype.initDeviceObjects = function () {
     pText.setText(' Akra \nEngine\n');
     pText.centerPosition = Vec3.create(0,10,0);
     pText.attachToParent(this.getRootNode());
-    pText.fontColor = [1.,1.,1.,1.];
-    pText.backgroundColor = [0.,0.,0.,1.];
+    pText.fontColor = [0.,0.,0.,1.];
+    pText.backgroundColor = [1.,1.,1.,1.];
     pText.create();
     pText.fixedSize = true;
-    pText.setDistanceMultiplier(0.);
+    //pText.setDistanceMultiplier(1.);
     pText.visible = true;
 
     function addMeshToScene(pEngine, pMesh) {
@@ -54,14 +54,14 @@ TextDemo.prototype.initDeviceObjects = function () {
     this.pPlane.setScale(200.0);
 
 
-    this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
+    //this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
     // this.pUpdateVelocityProg = a.loadProgram(this,'../effects/particle_update_velocity.glsl');
     // this.pUpdatePositionProg = a.loadProgram(this,'../effects/particle_update_position.glsl');
     // this.pParticleShowProg = a.loadProgram(this,'../effects/particle_show.glsl');
     // this.pParticleShowBillboardProg = a.loadProgram(this,'../effects/particle_show_billboard.glsl');
     // this.pParticleShowPointProg = a.loadProgram(this,'../effects/particle_show_point.glsl');
-    this.pSpriteProg = a.loadProgram(this,'../effects/sprite.glsl');
+    //this.pSpriteProg = a.loadProgram(this,'../effects/sprite.glsl');
     
     
     this.pStarTexture = this.pDisplayManager.texturePool().loadResource('../../../../akra-engine-general/media/textures/star4.dds');

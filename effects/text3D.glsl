@@ -31,11 +31,16 @@ void main(void) {
     //
     //}
     vec4 relativePositionOffset;
-    if(fDistanceMultiplier == 0. || w < 1./(fDistanceMultiplier)){
-        relativePositionOffset = vec4(realPositionOffset,0.);
+    if(fDistanceMultiplier != 0.){
+        if(w < 1./(fDistanceMultiplier)){
+            relativePositionOffset = vec4(realPositionOffset,0.);
+        }
+        else{
+            relativePositionOffset = vec4(realPositionOffset,0.)/w/(fDistanceMultiplier);
+        }
     }
     else{
-        relativePositionOffset = vec4(realPositionOffset,0.)/w/(fDistanceMultiplier);
+        relativePositionOffset = vec4(realPositionOffset,0.);
     }
     //relativePositionOffset = vec4(realPositionOffset,0.);
     gl_Position = screenRelativePosition + relativePositionOffset;
@@ -57,8 +62,6 @@ uniform float startIndex;
 uniform vec4 v4fBackgroundColor;
 uniform vec4 v4fFontColor;
 
-uniform vec2 textTextureSteps;
-
 varying float fCurrentLine;
 varying float fCurrentLinePosition;
 
@@ -79,18 +82,12 @@ void main(void) {
     else{
         float lineDataOffset = currentLineData.y;//оффсет указывающий где начинаются данные для текущей строки
 
-        vec2 startTextureCoords = A_extractVec2(A_buffer_0, vb_header,startIndex + (lineDataOffset + nCurrentLinePosition)*4.);
-
-        vec2 realTextureCoords = startTextureCoords + vec2(fract(fCurrentLinePosition),fract(fCurrentLine))*textTextureSteps;
+        vec4 letterData = A_extractVec4(A_buffer_0, vb_header,startIndex + (lineDataOffset + nCurrentLinePosition)*4.);
+        vec2 realTextureCoords = letterData.xy + vec2(fract(fCurrentLinePosition),fract(fCurrentLine))*letterData.zw;
 
         vec4 textureColor = texture2D(textTexture,vec2(realTextureCoords.x,realTextureCoords.y));
 
-        if(textureColor == vec4(0.)){
-            color = v4fBackgroundColor;
-        }
-        else{
-            color = v4fFontColor;//textureColor;//vec4(v4fFontColor.rgb,textureColor.w);
-        }
+        color = v4fFontColor*textureColor.w + (1. - textureColor.w)*v4fBackgroundColor;
     }
     if(color.w == 0.){
         discard;
