@@ -20,7 +20,9 @@ uniform float INDEX_POSITION_OFFSET;
 uniform float INDEX_NORMAL_OFFSET;
 uniform float INDEX_FLEXMAT_OFFSET;
 
-
+#ifdef USE_ANIMATION
+uniform mat4 bind_matrix;
+#endif
 uniform mat4 model_mat;
 uniform mat4 view_mat;
 uniform mat4 proj_mat;
@@ -37,15 +39,15 @@ varying vec4 mat_emissive;
 varying float mat_shininess;
 
 
-mat4 transpose(mat4 mat) {
-    mat4 t = mat;
-    for (int i = 0; i < 4; ++ i) {
-        for (int j = 0; j < 4; ++ j) {
-            mat[i][j] = t[j][i];
-        }
-    }
-    return mat;
-}
+//mat4 transpose(mat4 mat) {
+//    mat4 t = mat;
+//    for (int i = 0; i < 4; ++ i) {
+//        for (int j = 0; j < 4; ++ j) {
+//            mat[i][j] = t[j][i];
+//        }
+//    }
+//    return mat;
+//}
 
 
 
@@ -108,8 +110,7 @@ void main(void) {
     }
 
     gl_PointSize = point_size;
-    //result_mat = transpose(result_mat);
-    vertex = (view_mat * result_mat * pos);
+    vertex = (view_mat * result_mat * bind_matrix * pos);
     norm = normalize((result_mat * normal).xyz);
 #else
 	vertex = (view_mat * model_mat * pos);
@@ -175,7 +176,7 @@ void main(void) {
     light_point.ambient = vec4(1., 1., 1., 1.);
     light_point.diffuse  =vec4(1., 1., 1., 1.);
     light_point.specular = vec4(1., 1., 1., 1.);
-    light_point.attenuation = vec3(.1, 0.00, .001);
+    light_point.attenuation = vec3(1., 0.00, .000);
 
      // direction on source of light (LightDir)
     vec3 light_dir = light_point.position.xyz - vert;

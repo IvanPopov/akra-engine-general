@@ -5707,7 +5707,7 @@
     </library_lights>
     <library_images>
         <image id="file9" name="file9">
-            <init_from>./boy_10.dds</init_from>
+            <init_from>/akra-engine-general/media/models/boy_10.dds</init_from>
             <extra>
                 <technique profile="MAYA">
                     <dgnode_type>kFile</dgnode_type>
