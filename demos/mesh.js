@@ -84,8 +84,8 @@ MeshDemo.prototype.initDeviceObjects = function () {
 
 MeshDemo.prototype.onColladaLoad = function (pNodes) {
     'use strict';
-    
-     for (var i = 0; i < pNodes.length; ++ i) {
+
+    for (var i = 0; i < pNodes.length; ++ i) {
         pNodes[i].attachToParent(this.getRootNode());
     }
     
@@ -109,7 +109,8 @@ MeshDemo.prototype.onFileDrop = function (e) {
 
         // Closure to capture the file information.
         reader.onload = (function(theFile) {
-            return function(e) {     
+            return function(e) {
+                trace('##################### NEW MODEL #####################');     
                 COLLADA(me, 
                     {
                         content: e.target.result,
