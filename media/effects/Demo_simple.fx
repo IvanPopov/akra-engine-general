@@ -57,7 +57,7 @@ float3 testFunc0(float3 pos[]);
 float4 testFunc(inout float x){
 	return float4(testFunc0(float3(x+a2)),4.0);
 }
-float3 testFunc0(float3 pos123){
+float3 testFunc0(float3 pos123[]){
 	a3 = 10.;
 	return pos123;
 }
@@ -89,7 +89,7 @@ struct VS_OUT
 	float dif : COLOR10;
 };
 
-VS_OUTPUT11 VS11(uniform testStruct1 T, const VS_INPUT v)
+VS_OUTPUT11 VS11(uniform testStruct1 T, VS_INPUT v)
 {
 	VS_OUTPUT11 Out;
 	VS_INPUT v1 = v;
@@ -99,8 +99,8 @@ VS_OUTPUT11 VS11(uniform testStruct1 T, const VS_INPUT v)
 		v.ZPos,
 		1);
 	testStruct1 t1;
-	//t1.pos(memof v.Norm);
-	//@@(t1.pos)+=10;
+	t1.pos(memof v.Norm);
+	@@(t1.pos)+=10;
     //float4 pos = (((Out).Pos).xyzw + float4(1.0,2.0,3.0,4.0)).rab;
 	float2 xy = testFunc(1.0).zw;
 	ptr abc = @@(v.Norm)++;

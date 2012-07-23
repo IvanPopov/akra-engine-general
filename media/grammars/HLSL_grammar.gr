@@ -14,7 +14,10 @@ Decl : UseDecl
 Decl : ImportDecl
 Decl : ProvideDecl
 
-ImportDecl : T_KW_IMPORT ComplexNameOpt
+ImportDecl : T_KW_IMPORT ComplexNameOpt ShiftOpt
+ShiftOpt :
+ShiftOpt : T_KW_SHIFT Uint
+ShiftOpt : T_KW_SHIFT '-' Uint
 
 ProvideDecl : T_KW_PROVIDE ComplexNameOpt
 ProvideDecl : T_KW_PROVIDE ComplexNameOpt T_KW_AS ComplexNameOpt
@@ -476,6 +479,7 @@ T_KW_DEFAULT : "default"
 T_KW_BREAK : "break"
 T_KW_AS : "as"
 T_KW_PTR : "ptr"
+T_KW_SHIFT : "shift"
 T_OP_INC : "++"
 T_OP_DEC : "--"
 T_OP_LE : ">="
