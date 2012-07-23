@@ -29,17 +29,17 @@ TextDemo.prototype.initDeviceObjects = function () {
     var pShaderSource;
     var pProgram;
 
-    var pFont = new a.Font3D(this,100,"courner",false,false);
+    var pFont = new a.Font3D(this,100,"times",false,true);
     var pText = new a.Text3D(this,pFont);
-    pText.setText(' Akra \nEngine\n');
+    pText.setText('fAAA[A]g{_}e');
     pText.centerPosition = Vec3.create(0,10,0);
-    pText.attachToParent(this.getRootNode());
-    pText.fontColor = [0.,0.,0.,1.];
-    pText.backgroundColor = [1.,1.,1.,1.];
-    pText.create();
+    pText.fontColor = [1.,1.,1.,1.];
+    pText.backgroundColor = [0.,0.,0.,1.];
     pText.fixedSize = true;
     //pText.setDistanceMultiplier(1.);
     pText.visible = true;
+    pText.attachToParent(this.getRootNode());
+    pText.create();
 
     function addMeshToScene(pEngine, pMesh) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
@@ -68,17 +68,17 @@ TextDemo.prototype.initDeviceObjects = function () {
     this.pTextTexture = pFont;// = this.pDisplayManager.texturePool().loadResource('../../../../akra-engine-general/media/textures/text.dds');
 
 
-    var pSprite = new a.Sprite(this);
-    pSprite.setGeometry(20,20);
-    pSprite.setData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
-    pSprite.centerPosition = Vec3.create(0,10,0);
-    //trace(pSprite._pRenderData.toString());
-    pSprite.drawRoutine = spriteDraw;
-    pSprite.setProgram(this.pSpriteProg);
+    // var pSprite = new a.Sprite(this);
+    // pSprite.setGeometry(20,20);
+    // pSprite.setData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
+    // pSprite.centerPosition = Vec3.create(0,10,0);
+    // //trace(pSprite._pRenderData.toString());
+    // pSprite.drawRoutine = spriteDraw;
+    // pSprite.setProgram(this.pSpriteProg);
 
-    this.pSprite = pSprite;
-    pSprite.attachToParent(this.getRootNode());
-    pSprite.create();
+    // this.pSprite = pSprite;
+    // pSprite.attachToParent(this.getRootNode());
+    // pSprite.create();
     //pSprite.visible = true;
 
     var pCamera = this.getActiveCamera();
