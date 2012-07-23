@@ -50,6 +50,7 @@ MeshDemo.prototype.initDeviceObjects = function () {
     this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
     this.pDrawMeshI2IProg = a.loadProgram(this, '../effects/mesh_ai.glsl');
+	this.pDrawBoundingObjects = a.loadProgram(this, '../effects/bounding.glsl');
 //    this.pDrawMeshAnimProg = a.loadProgram(this, '../effects/mesh.glsl', {
 //        'USE_TEXTURE_MATERIALS': 1,
 //        'USE_ANIMATION': 1
