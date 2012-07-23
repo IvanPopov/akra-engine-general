@@ -8,7 +8,7 @@
     </contributor>
     <created>2009-06-22T10:42:59Z</created>
     <modified>2009-06-22T10:43:01Z</modified>
-    <unit meter="0.254" name="inch"/>
+    <unit meter="0.0254" name="inch"/>
     <up_axis>Z_UP</up_axis>
   </asset>
   <library_animations>
@@ -13195,7 +13195,7 @@
   </library_lights>
   <library_images>
     <image id="boy_10.tga" name="boy_10_tga">
-      <init_from>boy_10.dds</init_from>
+      <init_from>file:///C:/Personal/Clean/Collada/collada-dom-2.2/collada-dom/viewer/bin/boy_10.tga</init_from>
     </image>
   </library_images>
   <library_materials>

@@ -144,10 +144,10 @@ function cube (pEngine, eOptions, sName) {
     pSubMesh = pMesh.createSubset('cube::main');
     iNorm = pSubMesh.data.allocateData([VE_VEC3('NORMAL')], pNormalsData);
     iPos = pSubMesh.data.allocateData([VE_VEC3('POSITION')], pVerticesData);
-    pSubMesh.data.allocateIndex([VE_FLOAT('INDEX_POSITION')], pVertexIndicesData);
-    pSubMesh.data.allocateIndex([VE_FLOAT('INDEX_NORMAL')], pNormalIndicesData);
-    pSubMesh.data.index(iPos, 'INDEX_POSITION');
-    pSubMesh.data.index(iNorm, 'INDEX_NORMAL');
+    pSubMesh.data.allocateIndex([VE_FLOAT('INDEX0')], pVertexIndicesData);
+    pSubMesh.data.allocateIndex([VE_FLOAT('INDEX1')], pNormalIndicesData);
+    pSubMesh.data.index(iPos, 'INDEX0');
+    pSubMesh.data.index(iNorm, 'INDEX1');
     pSubMesh.applyFlexMaterial('default');
     var pMat = pSubMesh.getFlexMaterial('default');
     pMat.diffuse = new a.Color4f(0.5, 0., 0., 1.);
@@ -161,8 +161,8 @@ function cube (pEngine, eOptions, sName) {
 } 
 
 function sceneSurface(pEngine, eOptions) {
-    var nCellW = nCellW || 25;
-    var nCellH = nCellH || 25;
+    var nCellW = nCellW || 51;
+    var nCellH = nCellH || 51;
 
     var pMesh, pSubMesh;
     var iPos;

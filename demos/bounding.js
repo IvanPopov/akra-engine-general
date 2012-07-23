@@ -50,10 +50,11 @@ MeshDemo.prototype.initDeviceObjects = function () {
     this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
     this.pDrawMeshI2IProg = a.loadProgram(this, '../effects/mesh_ai.glsl');
-    this.pDrawMeshAnimProg = a.loadProgram(this, '../effects/mesh.glsl', {
-        'USE_TEXTURE_MATERIALS': 1, 
-        'USE_ANIMATION': 1
-    });
+	this.pDrawBoundingObjects = a.loadProgram(this, '../effects/bounding.glsl');
+//    this.pDrawMeshAnimProg = a.loadProgram(this, '../effects/mesh.glsl', {
+//        'USE_TEXTURE_MATERIALS': 1,
+//        'USE_ANIMATION': 1
+//    });
 
     var pCamera = this.getActiveCamera();
     pCamera.addRelPosition(-8.0, 5.0, 11.0);
@@ -74,16 +75,16 @@ MeshDemo.prototype.initDeviceObjects = function () {
     pDropZone.addEventListener('drop', function (e) {me.onFileDrop(e)}, false);
  
     //default scene models
-    COLLADA(this, '/akra-engine-general/media/models/astroBoy_walk_Maya.dae',
-        function (pNodes) {
-            
-            for (var i = 0; i < pNodes.length; ++ i) {
-                //pNodes[i].setInheritance(a.Scene.k_inheritRotScaleOnly);
-                pNodes[i].attachToParent(me.getRootNode());
-            }
-            
-            //trace(me.getRootNode().toString(true));
-        });
+//    COLLADA(this, '/akra-engine-general/media/models/astroBoy_walk_Maya.dae',
+//        function (pNodes) {
+//
+//            for (var i = 0; i < pNodes.length; ++ i) {
+//                //pNodes[i].setInheritance(a.Scene.k_inheritRotScaleOnly);
+//                pNodes[i].attachToParent(me.getRootNode());
+//            }
+//
+//            //trace(me.getRootNode().toString(true));
+//        });
 
 	return true;
 };
@@ -107,8 +108,12 @@ MeshDemo.prototype.onFileDrop = function (e) {
         reader.onload = (function(theFile) {
             return function(e) {     
                 COLLADA(me, e.target.result,
-                    function (pRootNode) {
-                        pRootNode.attachToParent(me.getRootNode());
+                    function (pNodes) {
+						for (var j = 0; j < pNodes.length; j++)
+						{
+							pNodes[j].attachToParent(me.getRootNode());
+						}
+
                     }, true);
             };
         })(f);
