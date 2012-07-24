@@ -29,12 +29,14 @@ TextDemo.prototype.initDeviceObjects = function () {
     var pShaderSource;
     var pProgram;
 
+
     var pFont = new a.Font3D(this,15,"monospace",true,false);
     var pText = new a.Text3D(this,pFont);
     pText.setText('ASSDF\n&dhfgjksa^\nEFGH{_}:; ');
     pText.centerPosition = Vec3.create(0,10,0);
     pText.fontColor = [0.,0.,0.,1.];
     pText.backgroundColor = [.0,1.0,0.0,0.];
+
     pText.fixedSize = true;
     //pText.setDistanceMultiplier(0.1);
     pText.visible = true;
