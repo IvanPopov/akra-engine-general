@@ -10,6 +10,8 @@ uniform float nLineQuantity; //в буквах
 uniform float nLineLength; //в буквах
 uniform float nFontSize;
 
+uniform vec2 nPixelsSizes;//необходимые размеры канваса в пикселях
+
 uniform vec2 v2fCanvasSizes; //необходимы для ограничения максимального размера шрифта указанным ..размер в пикселях
 uniform float fDistanceMultiplier;//параметр влияющтй на уменьшение текста с расстоянием 1 - уменьшение со скоростью сцены, 0 - фиксированный размер;
 
@@ -21,8 +23,10 @@ void main(void) {
     fCurrentLinePosition = (POSITION_OFFSET.x + 1.)/2.*nLineLength;
     fCurrentLine = (1. - (POSITION_OFFSET.y + 1.)/2.)*nLineQuantity;
 
-    vec3 realPositionOffset = vec3(POSITION_OFFSET.x*nLineLength,POSITION_OFFSET.y*nLineQuantity,0.);
-    realPositionOffset.xy *= nFontSize/v2fCanvasSizes;
+    //vec3 realPositionOffset = vec3(POSITION_OFFSET.x*nLineLength,POSITION_OFFSET.y*nLineQuantity,0.);
+    //realPositionOffset.xy *= nFontSize/v2fCanvasSizes;
+    vec3 realPositionOffset = POSITION_OFFSET;
+    realPositionOffset.xy *= nPixelsSizes/v2fCanvasSizes;
 
     vec4 position = proj_mat*view_mat * model_mat * vec4(CENTER_POSITION, 1.);
     float w = position.w;
@@ -44,7 +48,6 @@ void main(void) {
     }
     //relativePositionOffset = vec4(realPositionOffset,0.);
     gl_Position = screenRelativePosition + relativePositionOffset;
-    
 }
 
 //<-- split -- >

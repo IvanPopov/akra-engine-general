@@ -29,14 +29,14 @@ TextDemo.prototype.initDeviceObjects = function () {
     var pShaderSource;
     var pProgram;
 
-    var pFont = new a.Font3D(this,100,"times",false,true);
+    var pFont = new a.Font3D(this,15,"monospace",true,false);
     var pText = new a.Text3D(this,pFont);
-    pText.setText('fAAA[A]g{_}e');
+    pText.setText('ASSDF\n&dhfgjksa^\nEFGH{_}:; ');
     pText.centerPosition = Vec3.create(0,10,0);
-    pText.fontColor = [1.,1.,1.,1.];
-    pText.backgroundColor = [0.,0.,0.,1.];
+    pText.fontColor = [0.,0.,0.,1.];
+    pText.backgroundColor = [.0,1.0,0.0,0.];
     pText.fixedSize = true;
-    //pText.setDistanceMultiplier(1.);
+    //pText.setDistanceMultiplier(0.1);
     pText.visible = true;
     pText.attachToParent(this.getRootNode());
     pText.create();
@@ -54,32 +54,7 @@ TextDemo.prototype.initDeviceObjects = function () {
     this.pPlane.setScale(200.0);
 
 
-    //this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
-    // this.pUpdateVelocityProg = a.loadProgram(this,'../effects/particle_update_velocity.glsl');
-    // this.pUpdatePositionProg = a.loadProgram(this,'../effects/particle_update_position.glsl');
-    // this.pParticleShowProg = a.loadProgram(this,'../effects/particle_show.glsl');
-    // this.pParticleShowBillboardProg = a.loadProgram(this,'../effects/particle_show_billboard.glsl');
-    // this.pParticleShowPointProg = a.loadProgram(this,'../effects/particle_show_point.glsl');
-    //this.pSpriteProg = a.loadProgram(this,'../effects/sprite.glsl');
-    
-    
-    this.pStarTexture = this.pDisplayManager.texturePool().loadResource('../../../../akra-engine-general/media/textures/star4.dds');
-    this.pTextTexture = pFont;// = this.pDisplayManager.texturePool().loadResource('../../../../akra-engine-general/media/textures/text.dds');
-
-
-    // var pSprite = new a.Sprite(this);
-    // pSprite.setGeometry(20,20);
-    // pSprite.setData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
-    // pSprite.centerPosition = Vec3.create(0,10,0);
-    // //trace(pSprite._pRenderData.toString());
-    // pSprite.drawRoutine = spriteDraw;
-    // pSprite.setProgram(this.pSpriteProg);
-
-    // this.pSprite = pSprite;
-    // pSprite.attachToParent(this.getRootNode());
-    // pSprite.create();
-    //pSprite.visible = true;
 
     var pCamera = this.getActiveCamera();
     pCamera.addRelPosition(-8.0, 5.0, 11.0);
@@ -105,7 +80,9 @@ TextDemo.prototype.directRender = function() {
     this.pDrawPlaneProg.activate();
     var pDevice = this.pDevice;
 
-    //pDevice.disable(pDevice.DEPTH_TEST);
+    // pDevice.disable(pDevice.DEPTH_TEST);
+    // pDevice.enable(pDevice.BLEND);
+    // pDevice.blendFunc(pDevice.SRC_ALPHA, pDevice.ONE_MINUS_SRC_ALPHA);
     
     draw(this.pDrawPlaneProg, this.pPlane, false);
     //this.pParticleManager._renderCallback();
@@ -147,17 +124,4 @@ else {
     if (!App.create('canvas') || !App.run()) {
         alert('something wrong....');
     }
-}
-
-function spriteDraw(pProgram){
-    'use strict';
-    var pTextDemo = window.pTextDemo;
-    var pCamera = pTextDemo._pDefaultCamera;
-    var pSprite = pTextDemo.pSprite;
-    pProgram.applyMatrix4('model_mat', pSprite.worldMatrix());
-    pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
-    pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
-
-    pTextDemo.pTextTexture.activate(0);
-    pProgram.applyInt('spriteTexture',0);
 }
