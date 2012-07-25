@@ -71,7 +71,7 @@ void main(void) {
     //opacity = 1.-mod(t,fLiveTime)/fLiveTime;
     //superColor = vec4(color,opacity);
 
-    vec4 pos = view_mat * model_mat * vec4(CENTER_POSITION, 1.) + vec4(POSITION_OFFSET,0.); //+ vec4(position*2.*opacity,0.);
+    vec4 pos = view_mat * model_mat * (vec4(CENTER_POSITION, 1.) + vec4(POSITION_OFFSET,0.)); //+ vec4(position*2.*opacity,0.);
     vert = pos.xyz;
 
     gl_Position = proj_mat * pos;
