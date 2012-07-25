@@ -10,18 +10,21 @@ uniform float nLineQuantity; //в буквах
 uniform float nLineLength; //в буквах
 uniform float nFontSize;
 
-uniform vec2 nPixelsSizes;//необходимые размеры канваса в пикселях
+uniform vec2 nPixelsSizes;//необходимые размеры спрайта в пикселях
 
 uniform vec2 v2fCanvasSizes; //необходимы для ограничения максимального размера шрифта указанным ..размер в пикселях
 uniform float fDistanceMultiplier;//параметр влияющтй на уменьшение текста с расстоянием 1 - уменьшение со скоростью сцены, 0 - фиксированный размер;
 
-varying float fCurrentLine;
-varying float fCurrentLinePosition;
+varying vec3 fCurrentParameters;
+//.x - current line
+//.y - current line position
+
 
 void main(void) {
 
-    fCurrentLinePosition = (POSITION_OFFSET.x + 1.)/2.*nLineLength;
-    fCurrentLine = (1. - (POSITION_OFFSET.y + 1.)/2.)*nLineQuantity;
+    fCurrentParameters.x = (1. - (POSITION_OFFSET.y + 1.)/2.)*nLineQuantity;
+    fCurrentParameters.y = (POSITION_OFFSET.x + 1.)/2.*nLineLength;
+    fCurrentParameters.z = (POSITION_OFFSET.x + 1.)/2.*nPixelsSizes.x;
 
     //vec3 realPositionOffset = vec3(POSITION_OFFSET.x*nLineLength,POSITION_OFFSET.y*nLineQuantity,0.);
     //realPositionOffset.xy *= nFontSize/v2fCanvasSizes;
@@ -65,46 +68,57 @@ uniform float startIndex;
 uniform vec4 v4fBackgroundColor;
 uniform vec4 v4fFontColor;
 
-varying float fCurrentLine;
-varying float fCurrentLinePosition;
+varying vec3 fCurrentParameters;
+//.x - current line
+//.y - current line position
+//.z - current line pixel position
+
 
 void main(void) {
     vec4 color;
 
-    float nCurrentLine = floor(fCurrentLine);
-    float nCurrentLinePosition = floor(fCurrentLinePosition);
+    float nCurrentLine = floor(fCurrentParameters.x);
+    float nCurrentLinePosition = floor(fCurrentParameters.y);
+    float nCurrentPixelPosition = floor(fCurrentParameters.z);
+
+    float fAveragePixelsPerLetter = fCurrentParameters.z/fCurrentParameters.y;
 
     A_TextureHeader vb_header;
     A_extractTextureHeader(A_buffer_0, vb_header);
 
     vec4 currentLineData = A_extractVec4(A_buffer_0, vb_header,startIndex + nCurrentLine*4.);
 
-    if(currentLineData.x < nCurrentLinePosition){
-        color = v4fBackgroundColor;
-        if(color.w == 0.){
-            discard;
-        }
+    float lineDataOffset = currentLineData.x;//оффсет указывающий на описание текущей строки
+    float letterDataOffset = currentLineData.y;//оффсет указывающий на описание укв в текущей строке
+    //gl_FragColor = vec4(1.,0.,0.,1.);
+    //return;
+    vec4 positionData = A_extractVec4(A_buffer_0, vb_header,startIndex 
+        + (lineDataOffset + nCurrentLinePosition)*4.);
+
+    float letterId = positionData.x;
+
+    vec4 letterData = A_extractVec4(A_buffer_0, vb_header,startIndex 
+        + (letterDataOffset + letterId*2.)*4.);
+
+    vec2 realTextureCoords = letterData.xy + 
+        vec2(fract(fCurrentParameters.y),fract(fCurrentParameters.x))*letterData.zw;
+
+    //довольно удачная модель прозрачности шрифтов и фона
+
+    float fontGeomenty = (texture2D(textTexture,vec2(realTextureCoords.x,realTextureCoords.y))).w;
+    float fEffectiveFontTransparency = fontGeomenty*v4fFontColor.a;
+
+    vec3 v3fEffectiveColor = fEffectiveFontTransparency*v4fFontColor.rgb +
+                                (1. - fEffectiveFontTransparency)*v4fBackgroundColor.a
+                                        *v4fBackgroundColor.rgb;
+
+    float fEffectiveTransperency = fEffectiveFontTransparency 
+                + (1. - fEffectiveFontTransparency)*v4fBackgroundColor.a;
+
+    if(fEffectiveTransperency == 0.){
+        discard;
     }
-    else{
-        float lineDataOffset = currentLineData.y;//оффсет указывающий где начинаются данные для текущей строки
 
-        vec4 letterData = A_extractVec4(A_buffer_0, vb_header,startIndex + (lineDataOffset + nCurrentLinePosition)*4.);
-        vec2 realTextureCoords = letterData.xy + vec2(fract(fCurrentLinePosition),fract(fCurrentLine))*letterData.zw;
-
-        //довольно удачная модель прозрачности шрифтов и фона
-
-        float fontGeomenty = (texture2D(textTexture,vec2(realTextureCoords.x,realTextureCoords.y))).w;
-        float fEffectiveFontTransparency = fontGeomenty*v4fFontColor.a;
-
-        vec3 v3fEffectiveColor = fEffectiveFontTransparency*v4fFontColor.rgb +
-                                    (1. - fEffectiveFontTransparency)*v4fBackgroundColor.a*v4fBackgroundColor.rgb;
-
-        float fEffectiveTransperency = fEffectiveFontTransparency + (1. - fEffectiveFontTransparency)*v4fBackgroundColor.a;
-        if(fEffectiveTransperency == 0.){
-            discard;
-        }
-
-        color = vec4(v3fEffectiveColor/fEffectiveTransperency,fEffectiveTransperency);
-    }
+    color = vec4(v3fEffectiveColor/fEffectiveTransperency,fEffectiveTransperency);
     gl_FragColor = color;
 }
