@@ -8,7 +8,6 @@ uniform vec3 CENTER_POSITION;
 uniform mat4 model_mat;
 uniform mat4 view_mat;
 uniform mat4 proj_mat;
-uniform mat3 normal_mat;
 uniform sampler2D A_buffer_0;
 
 varying vec2 texturePosition;

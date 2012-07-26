@@ -39,6 +39,9 @@
     }
 </style>
 <div id='wrapper'>
+
+
+
     <canvas id="canvas"></canvas>
     <script type="text/javascript">
         (function (pCanvas) {
@@ -46,6 +49,10 @@
             pCanvas.height = window.innerHeight;
         })(document.getElementById('canvas'));
     </script>
+	
+	<video id="video" width="640" height="360" controls autoplay loop="true">	
+		<source src="http://akra/akra-engine-general/media/video/VfE.webm" type="video/webm" />
+	</video>
 </div>
 <script type='text/javascript' src="http://127.0.0.1:8000/?q=<?php echo $query; ?>;"></script>
 

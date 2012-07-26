@@ -31,8 +31,8 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
 
     function addMeshToScene(pEngine, pMesh) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
-        pSceneObject.attachToParent(pEngine.getRootNode());
         pSceneObject.create();
+		pSceneObject.attachToParent(pEngine.getRootNode());
         pSceneObject.bNoRender = true;
         return pSceneObject;
     }
@@ -41,15 +41,9 @@ ParticlesDemo.prototype.initDeviceObjects = function () {
     this.pPlane = addMeshToScene(this, sceneSurface(this));
     this.pPlane.setScale(200.0);
 
-    this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
-    this.pUpdateVelocityProg = a.loadProgram(this,'../effects/particle_update_velocity.glsl');
-    this.pUpdatePositionProg = a.loadProgram(this,'../effects/particle_update_position.glsl');
-    this.pParticleShowProg = a.loadProgram(this,'../effects/particle_show.glsl');
-    this.pParticleShowBillboardProg = a.loadProgram(this,'../effects/particle_show_billboard.glsl');
-    this.pParticleShowPointProg = a.loadProgram(this,'../effects/particle_show_point.glsl');
     this.pSpriteProg = a.loadProgram(this,'../effects/sprite.glsl');
-    
+
     this.pEmittersList = [];
 
     var pSimpleTorus = simpleTorus(10,10);
@@ -185,9 +179,6 @@ ParticlesDemo.prototype.directRender = function() {
     var pDevice = this.pDevice;
     
     draw(this.pDrawPlaneProg, this.pPlane, false);
-    for(var i=0;i<this.pEmittersList.length;i++){
-        this.pEmittersList[i].renderCallback();
-    }
     //this.pParticleManager._renderCallback();
 };
 
@@ -223,107 +214,6 @@ else {
         alert('something wrong....');
     }
 }
-
-function simpleTorus (rings, sides) {
-    rings = rings || 50;
-    sides = sides || 50;
-
-    var vertices  = [];
-    var normals   = [];
-    var tex       = [];
-    var ind       = [];
-    var r1        = 0.3;
-    var r2        = 1.5;
-    var ringDelta = 2.0 * 3.1415926 / rings;
-    var sideDelta = 2.0 * 3.1415926 / sides;
-    var invRings  = 1.0 / rings;
-    var invSides  = 1.0 / sides;
-    var index       = 0;
-    var numVertices = 0;
-    var numFaces    = 0;
-    var i, j;
-
-    for ( i = 0; i <= rings; i++ ) {
-        var theta    = i * ringDelta;
-        var cosTheta = Math.cos ( theta );
-        var sinTheta = Math.sin ( theta );
-
-        for ( j = 0; j <= sides; j++ ) {
-            var phi    = j * sideDelta;
-            var cosPhi = Math.cos ( phi );
-            var sinPhi = Math.sin ( phi );
-            var dist   = r2 + r1 * cosPhi;
-
-            vertices.push ( cosTheta * dist);
-            vertices.push ( -sinTheta * dist);
-            vertices.push ( r1 * sinPhi );
-            
-            tex.push     ( j * invSides );
-            tex.push     ( i * invRings );
-            
-            normals.push ( cosTheta * cosPhi );
-            normals.push ( -sinTheta * cosPhi );
-            normals.push ( sinPhi );
-
-            numVertices++;
-        }
-    }
-    
-    for ( i = 0; i < rings; i++ ) {
-        for ( j = 0; j < sides; j++ ) {
-            ind.push ( i*(sides+1) + j );
-            ind.push ( (i+1)*(sides+1) + j );
-            ind.push ( (i+1)*(sides+1) + j + 1 );
-            
-            ind.push ( i*(sides+1) + j );
-            ind.push ( (i+1)*(sides+1) + j + 1 );
-            ind.push ( i*(sides+1) + j + 1 );
-            
-            numFaces += 2;
-        }
-    }
-
-    var pMesh, pSubMesh;
-    var pMaterial;
-    var iPos, iNorm;
-
-    return {'vertices' :  new Float32Array(vertices),'normals' :  new Float32Array(normals),
-    'INDEX_POSITION' : new Float32Array(ind),'INDEX_NORMAL' : new Float32Array(ind)};
-};
-
-function updateRoutine(dt,t,nStep,pProgram,sPass){
-    var pParticleDemo = window.pParticleDemo;
-    if(sPass == 'velocity'){
-        pProgram.applyFloat('dt',dt);
-        pProgram.applyFloat('t',t);
-        pProgram.applyVector3('v3fRand',new Float32Array([10.*(Math.random()-0.5),10.*(Math.random()-0.5),10.*(Math.random()-0.5)]));
-    }
-    else if(sPass == 'position'){
-        pProgram.applyFloat('dt',dt);
-        pProgram.applyFloat('t',t);
-    }
-}
-
-function drawRoutine(dt,t,nStep,pProgram,sPass){
-
-    var pParticleDemo = window.pParticleDemo;
-    var pCamera = pParticleDemo._pDefaultCamera;
-    var pEmitter = pParticleDemo.pEmittersList[drawRoutine.serial];
-    drawRoutine.serial++;
-    if(drawRoutine.serial == pParticleDemo.pEmittersList.length){
-        drawRoutine.serial = 0;
-    }
-
-    pProgram.applyMatrix4('model_mat', pEmitter.worldMatrix());
-    pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
-    pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
-    pProgram.applyFloat('t',t);
-
-    pParticleDemo.pStarTexture.activate(1);
-
-    pProgram.applyInt('particleTexture',1);
-};
-STATIC(drawRoutine,serial,0);
 
 function simpleCube () {
 
@@ -362,21 +252,21 @@ function simpleCube () {
         5, 5, 5, 5, 5, 5
     ]);
 
-    
-
     return {'vertices' :  new Float32Array(pVerticesData),'normals' :  new Float32Array(pNormalsData),
     'INDEX_POSITION' : new Float32Array(pVertexIndicesData),'INDEX_NORMAL' : new Float32Array(pNormalIndicesData)};
 }
 
-// function spriteDraw(pProgram){
-//     'use strict';
-//     var pParticleDemo = window.pParticleDemo;
-//     var pCamera = pParticleDemo._pDefaultCamera;
-//     var pSprite = pParticleDemo.pSprite;
-//     pProgram.applyMatrix4('model_mat', pSprite.worldMatrix());
-//     pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
-//     pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
 
-//     pParticleDemo.pTextTexture.activate(1);
-//     pProgram.applyInt('spriteTexture',1);
-// }
+function spriteDraw(pProgram){
+    'use strict';
+    var pParticleDemo = window.pParticleDemo;
+    var pCamera = pParticleDemo._pDefaultCamera;
+    var pSprite = pParticleDemo.pSprite;
+    pProgram.applyMatrix4('model_mat', pSprite.worldMatrix());
+    pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
+    pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
+
+    pParticleDemo.pTextTexture.activate(1);
+    pProgram.applyInt('spriteTexture',1);
+}
+

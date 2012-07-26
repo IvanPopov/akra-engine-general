@@ -9930,7 +9930,12 @@
     <library_controllers>
         <controller id="boyShape-skin" name="skinCluster1">
             <skin source="#boyShape">
-                <bind_shape_matrix>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</bind_shape_matrix>
+                <bind_shape_matrix>
+                    1 0 0 0 
+                    0 1 0 0 
+                    0 0 1 0 
+                    0 0 0 1
+                </bind_shape_matrix>
                 <source id="boyShape-skin-joints">
                     <Name_array id="boyShape-skin-joints-array" count="44">bone0 bone1 bone2 bone3 bone4 bone5 bone6
                         bone7 bone8 bone9 bone10 bone11 bone12 bone13 bone14 bone15 bone16 bone17 bone18 bone19 bone20
@@ -9944,9 +9949,18 @@
                     </technique_common>
                 </source>
                 <source id="boyShape-skin-bind_poses">
-                    <float_array id="boyShape-skin-bind_poses-array" count="704">0 0.092623 -0.995701 -0.77823 0
-                        0.995701 0.092623 -7.16769 1 0 0 0 0 0 0 1 0 0.288277 0.957547 -2.41152 0 0.957547 -0.288277
-                        -8.01922 -1 0 0 0 0 0 0 1 0 0.191242 0.981543 -1.47623 0 0.981543 -0.191242 -9.44237 -1 0 0 0 0
+                    <float_array id="boyShape-skin-bind_poses-array" count="704">
+                        0 0.092623 -0.995701 -0.77823 
+                        0 0.995701 0.092623 -7.16769 
+                        1 0 0 0 
+                        0 0 0 1 
+
+                        0 0.288277 0.957547 -2.41152 
+                        0 0.957547 -0.288277 -8.01922 
+                        -1 0 0 0 
+                        0 0 0 1 
+
+                        0 0.191242 0.981543 -1.47623 0 0.981543 -0.191242 -9.44237 -1 0 0 0 0
                         0 0 1 0 -0.139543 0.990216 2.42648 0 0.990216 0.139543 -11.552 -1 0 0 0 0 0 0 1 0 -0.139543
                         0.990216 2.42648 0 0.990216 0.139543 -12.304 -1 0 0 0 0 0 0 1 0.009172 -0.000001 0.999958
                         0.715791 0.999958 -0.000201 -0.009172 -0.789631 0.000201 1 0 -11.0392 0 0 0 1 0.028294 0 0.9996
@@ -9998,7 +10012,8 @@
                     </technique_common>
                 </source>
                 <source id="boyShape-skin-weights">
-                    <float_array id="boyShape-skin-weights-array" count="1160">1 0.863691 0.136309 0.902162 0.097838
+                    <float_array id="boyShape-skin-weights-array" count="1160">
+                        1 0.863691 0.136309 0.902162 0.097838
                         0.001029 0.99897 0.998659 0.001341 0.00107 0.998929 0.998936 0.001063 0.999557 0.000443 0.999542
                         0.000457 0.999478 0.000521 0.001063 0.998936 0.999559 0.00044 0.37372 0.31795 0.308331 0.338069
                         0.336049 0.325882 0.990646 0.004748 0.004604 0.987565 0.006313 0.006122 0.099999 0.9 0.491473
