@@ -82,6 +82,7 @@ void main(void) {
     float nCurrentPixelPosition = floor(fCurrentParameters.z);
 
     float fAveragePixelsPerLetter = fCurrentParameters.z/fCurrentParameters.y;
+    float fCurrentPositionInLetter = mod(fCurrentParameters.z,fAveragePixelsPerLetter);
 
     A_TextureHeader vb_header;
     A_extractTextureHeader(A_buffer_0, vb_header);
@@ -95,13 +96,49 @@ void main(void) {
     vec4 positionData = A_extractVec4(A_buffer_0, vb_header,startIndex 
         + (lineDataOffset + nCurrentLinePosition)*4.);
 
-    float letterId = positionData.x;
+    float firstLetterLength = positionData.w - positionData.z;
+    float currentXPosition;
+    float currentYPosition = fract(fCurrentParameters.x);
+
+    float currentLetter = positionData.x;
+
+    if(fCurrentParameters.z > currentLineData.z){
+        if(v4fBackgroundColor.w == 0.){
+            discard;
+        }
+        gl_FragColor = v4fBackgroundColor;
+        return;
+    }
+
+    if(fCurrentPositionInLetter < firstLetterLength){
+        currentXPosition = (positionData.z + fCurrentPositionInLetter)/positionData.y;
+    }
+    else{
+        float totalLength = firstLetterLength;
+        float typographicalWidth;
+        //нам нужна следующая буква
+        for(int i=0;i<3;i++){
+            currentLetter++;
+
+            //данные о геометрии буквы
+            vec4 letterGeometry = A_extractVec4(A_buffer_0, vb_header,startIndex 
+                + (letterDataOffset + currentLetter*2. + 1.)*4.);
+
+            typographicalWidth = letterGeometry.x;
+
+            if(fCurrentPositionInLetter < totalLength + typographicalWidth){
+                break;
+            }
+            totalLength += typographicalWidth;
+        }
+        currentXPosition = (fCurrentPositionInLetter - totalLength)/typographicalWidth;
+    }
 
     vec4 letterData = A_extractVec4(A_buffer_0, vb_header,startIndex 
-        + (letterDataOffset + letterId*2.)*4.);
+            + (letterDataOffset + currentLetter*2.)*4.);
 
     vec2 realTextureCoords = letterData.xy + 
-        vec2(fract(fCurrentParameters.y),fract(fCurrentParameters.x))*letterData.zw;
+            vec2(currentXPosition,currentYPosition)*letterData.zw;
 
     //довольно удачная модель прозрачности шрифтов и фона
 
