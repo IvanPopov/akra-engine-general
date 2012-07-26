@@ -40,13 +40,13 @@ TextDemo.prototype.initDeviceObjects = function () {
     pText.fixedSize = true;
     //pText.setDistanceMultiplier(0.1);
     pText.visible = true;
-    pText.attachToParent(this.getRootNode());
     pText.create();
+    pText.attachToParent(this.getRootNode());
 
     function addMeshToScene(pEngine, pMesh) {
-        var pSceneObject = new a.SceneModel(pEngine, pMesh);
-        pSceneObject.attachToParent(pEngine.getRootNode());
+        var pSceneObject = new a.SceneModel(pEngine, pMesh);        
         pSceneObject.create();
+        pSceneObject.attachToParent(pEngine.getRootNode());
         pSceneObject.bNoRender = true;
         return pSceneObject;
     }
