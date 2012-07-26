@@ -1,4 +1,5 @@
 Include('geom.js')
+Insert('../media/scripts/html5slider.js');
 
 function MeshDemo() {
 	A_CLASS;
@@ -75,8 +76,9 @@ MeshDemo.prototype.initDeviceObjects = function () {
  
     //default scene models
     COLLADA(this, {
-        file: '/akra-engine-general/media/models/astroBoy_walk_Maya.dae',
-        success: this.onColladaLoad
+        file: '/akra-engine-general/media/models/astroBoy_walk_Max.DAE',
+        success: this.onColladaLoad,
+        animation: true
     });
 
 	return true;
@@ -89,14 +91,32 @@ MeshDemo.prototype.onColladaLoad = function (pNodes, pAnimations) {
         pNodes[i].attachToParent(this.getRootNode());
     }
 
-    
-    var pAnimation = pAnimations[0];
-    var pSkeleton = pNodes[0].findMesh()[0].getSkin().skeleton;
-    
-    pAnimation.bind(pSkeleton);
-    pAnimation.attachToTimeline(0.);
+    if (pAnimations) {
+        var pAnimation = pAnimations[0];
+        //var pSkeleton = pNodes[0].findMesh()[0].getSkin().skeleton;
+        
+        //pAnimation.bind(pSkeleton);
+        //pAnimation.attachToTimeline(0.);
 
-    window.pAnimation = pAnimation;
+        window.pAnimation = pAnimation;
+/*
+        var pSlider = document.createElement('input');
+        pSlider.type = "range";
+        pSlider.min = 0;
+        pSlider.max = 100;
+        pSlider.step = 1;
+
+        pSlider.onchange = function () {
+            pAnimation.play(this.value / 100.0);
+        }
+
+        pSlider.style.position = "absolute";
+        pSlider.style.top = "50px";
+        pSlider.style.zIndex = "100";
+        document.getElementById('wrapper').appendChild(pSlider);
+*/
+    }
+    
     //trace(this.getRootNode().toString(true));
 };
 
