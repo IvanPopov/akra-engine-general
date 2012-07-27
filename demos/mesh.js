@@ -73,52 +73,95 @@ MeshDemo.prototype.initDeviceObjects = function () {
     }, false);
 
     pDropZone.addEventListener('drop', function (e) {me.onFileDrop(e)}, false);
- 
+  
     //default scene models
-    COLLADA(this, {
-        file: '/akra-engine-general/media/models/astroBoy_walk_Max.DAE',
-        success: this.onColladaLoad,
-        animation: true
-    });
+    for (var i = 0; i < 1; i++) {
+        COLLADA(this, {
+            file: '/akra-engine-general/media/models/max_test/max_anim_test.DAE',
+            success: this.onColladaLoad,
+            animation: false
+        });
+    }
+
 
 	return true;
 };
 
 MeshDemo.prototype.onColladaLoad = function (pNodes, pAnimations) {
     'use strict';
-
+    
+    //var v3f = [Math.random() * 100 - 50.0, 0.0, Math.random() * 100 - 50.0];
+    var v3f = [0,0,0];
     for (var i = 0; i < pNodes.length; ++ i) {
         pNodes[i].attachToParent(this.getRootNode());
+        pNodes[i].setScale([50,50, 50 ]);
+        pNodes[i].addRelPosition(v3f.X, v3f.Z, 0.0);
     }
 
-    if (pAnimations) {
-        var pAnimation = pAnimations[0];
-        //var pSkeleton = pNodes[0].findMesh()[0].getSkin().skeleton;
-        
-        //pAnimation.bind(pSkeleton);
-        //pAnimation.attachToTimeline(0.);
 
-        window.pAnimation = pAnimation;
-/*
+    //trace(this.getRootNode().toString(true));
+    if (pAnimations) {
+        for (var i = 0; i < pNodes.length; ++ i) {
+            if (pNodes[i].findMesh) {
+                trace(i, '<< mesh');
+            }
+        }
+        var pSkeleton = pNodes[0].findMesh()[0].getSkin().skeleton;
+        
+        for (var i = 0; i < pAnimations.length; ++ i) {
+            pAnimations[i].bind(pSkeleton);
+            pAnimations[i].attachToTimeline(0.);
+        }
+        //trace(pAnimations);
+        pNodes[1].pAnimations = pAnimations;
+
         var pSlider = document.createElement('input');
+        var pTiming = this.displayManager().draw2DText(200, 50, new a.Font2D(20, '#FFF'));
+        
         pSlider.type = "range";
         pSlider.min = 0;
         pSlider.max = 100;
         pSlider.step = 1;
+        pSlider.value = 0;
 
-        pSlider.onchange = function () {
-            pAnimation.play(this.value / 100.0);
-        }
+        var fnSliderChange = function () {
+            
+            var fTime = this.value / 100.0 * 1.16667;
+            pTiming.edit(fTime + ' sec / ' + this.value);
+            for (var i = 0; i < pAnimations.length; ++ i) {
+                pAnimations[i].play(fTime);
+            }   
+        };
+
+        pSlider.onchange = fnSliderChange;
 
         pSlider.style.position = "absolute";
         pSlider.style.top = "50px";
         pSlider.style.zIndex = "100";
+
         document.getElementById('wrapper').appendChild(pSlider);
-*/
+
+        document.body.addEventListener("keypress", function(e) {
+            e = window.event || e;
+            e = e.charCode || e.keyCode;
+
+            if (e == a.KEY.F1) {
+                pSlider.value = Number(pSlider.value) + 1.0;
+                if (pSlider.value > 100) pSlider.value = 100;
+                fnSliderChange.call(pSlider);
+            }
+            else if (e == a.KEY.F2) {
+                pSlider.value -= 1;
+                if (pSlider.value < 0) pSlider.value = 0;
+                fnSliderChange.call(pSlider);
+            }
+        }, false);
+
+        fnSliderChange.call(pSlider);
     }
-    
-    //trace(this.getRootNode().toString(true));
 };
+
+
 
 MeshDemo.prototype.onFileDrop = function (e) {
     'use strict';

@@ -449,22 +449,22 @@
   </library_lights>
   <library_images>
     <image id="CMan0002-M3-Body-D_jpg">
-      <init_from>CMan0002-M3-Body-D.jpg</init_from>
+      <init_from>CMan0002-M3-Body-D.dds</init_from>
     </image>
     <image id="CMan0002-M3-Body-N_jpg">
-      <init_from>CMan0002-M3-Body-N.jpg</init_from>
+      <init_from>CMan0002-M3-Body-N.dds</init_from>
     </image>
     <image id="CMan0002-M3-Hair-D_tif">
-      <init_from>CMan0002-M3-Hair-D.tif</init_from>
+      <init_from>CMan0002-M3-Hair-D.dds</init_from>
     </image>
     <image id="CMan0002-M3-Hair-N_jpg">
-      <init_from>CMan0002-M3-Hair-N.jpg</init_from>
+      <init_from>CMan0002-M3-Hair-N.dds</init_from>
     </image>
     <image id="CMan0002-M3-Head-D_jpg">
-      <init_from>CMan0002-M3-Head-D.jpg</init_from>
+      <init_from>CMan0002-M3-Head-D.dds</init_from>
     </image>
     <image id="CMan0002-M3-Head-N_jpg">
-      <init_from>CMan0002-M3-Head-N.jpg</init_from>
+      <init_from>CMan0002-M3-Head-N.dds</init_from>
     </image>
   </library_images>
   <library_visual_scenes>
