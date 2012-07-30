@@ -9,7 +9,7 @@
     <created>2012-07-26T18:04:34</created>
     <modified>2012-07-26T18:04:34</modified>
     <unit name="meter" meter="1"/>
-    <up_axis>Z_UP</up_axis>
+    <up_axis>Y_UP</up_axis>
   </asset>
   <library_effects>
     <effect id="CMan0002-M3-Head">
@@ -371,7 +371,12 @@
           </technique_common>
         </source>
         <source id="geom-CMan0002-M3-Hair-skin1-bind_poses">
-          <float_array id="geom-CMan0002-M3-Hair-skin1-bind_poses-array" count="16">2.62011e-7 -0.1911198 0.9815667 -1.570221 -1.42796e-6 -0.9815667 -0.1911198 0.2988106 1 -1.35157e-6 -5.30094e-7 1.85869e-6 0 0 0 1</float_array>
+          <float_array id="geom-CMan0002-M3-Hair-skin1-bind_poses-array" count="16">
+            2.62011e-7 -0.1911198 0.9815667 -1.570221 
+            -1.42796e-6 -0.9815667 -0.1911198 0.2988106 
+            1 -1.35157e-6 -5.30094e-7 1.85869e-6 
+            0 0 0 1
+          </float_array>
           <technique_common>
             <accessor source="#geom-CMan0002-M3-Hair-skin1-bind_poses-array" count="1" stride="16">
               <param name="TRANSFORM" type="float4x4"/>

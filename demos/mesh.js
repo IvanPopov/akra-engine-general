@@ -77,7 +77,7 @@ MeshDemo.prototype.initDeviceObjects = function () {
     //default scene models
     for (var i = 0; i < 1; i++) {
         COLLADA(this, {
-            file: '/akra-engine-general/media/models/max_test/max_anim_test.DAE',
+            file: '/akra-engine-general/media/models/max_test/max_anim_test.DAE',//astroBoy_walk_Max.DAE
             success: this.onColladaLoad,
             animation: false
         });
@@ -94,7 +94,7 @@ MeshDemo.prototype.onColladaLoad = function (pNodes, pAnimations) {
     var v3f = [0,0,0];
     for (var i = 0; i < pNodes.length; ++ i) {
         pNodes[i].attachToParent(this.getRootNode());
-        pNodes[i].setScale([50,50, 50 ]);
+        pNodes[i].setScale(5);
         pNodes[i].addRelPosition(v3f.X, v3f.Z, 0.0);
     }
 
