@@ -1,9 +1,9 @@
-attribute vec2 position;
+attribute vec2 POSITION;
 varying vec2 texturePosition;
 
 void main(void){
-    texturePosition = (position + vec2(1.,1.))/2.;
-    gl_Position = vec4(position,0.,1.);
+    texturePosition = (POSITION + vec2(1.,1.))/2.;
+    gl_Position = vec4(POSITION,0.,1.);
 }
 
 //<-- split -- >
@@ -41,19 +41,21 @@ float buildNumber(vec4 iVector){
 vec2 getVec(float fX, float fY){
     vec4 temp;
     
-    temp = texture2D(intermediateTexture,vec2(mod(fX,v3fIntermediateTextureSize.x),
-        floor(fX/v3fIntermediateTextureSize.x))/v3fIntermediateTextureSize.y);
+    temp = texture2D(intermediateTexture,vec2(
+        (mod(fX,v3fIntermediateTextureSize.x) + 0.5)/v3fIntermediateTextureSize.x,
+        (floor(fX/v3fIntermediateTextureSize.x) + 0.5)/v3fIntermediateTextureSize.y));
     float fA =  buildNumber(temp*255.);
 
-    temp = texture2D(intermediateTexture,vec2(mod(fY,v3fIntermediateTextureSize.x),
-        floor(fY/v3fIntermediateTextureSize.x))/v3fIntermediateTextureSize.y);
-
+    temp = texture2D(intermediateTexture,vec2(
+        (mod(fY,v3fIntermediateTextureSize.x) + 0.5)/v3fIntermediateTextureSize.x,
+        (floor(fY/v3fIntermediateTextureSize.x) + 0.5)/v3fIntermediateTextureSize.y));
     float fB = buildNumber(temp*255.);
 
     float fZ = mod(fA+fB,v3fIntermediateTextureSize.z);
     
-    temp = texture2D(intermediateTexture,vec2(mod(fZ,v3fIntermediateTextureSize.x),
-        floor(fZ/v3fIntermediateTextureSize.x))/v3fIntermediateTextureSize.y);
+    temp = texture2D(intermediateTexture,vec2(
+        (mod(fZ,v3fIntermediateTextureSize.x) + 0.5)/v3fIntermediateTextureSize.x,
+        (floor(fZ/v3fIntermediateTextureSize.x) + 0.5)/v3fIntermediateTextureSize.y));
     
     float pos = buildNumber(temp*255.);
     
@@ -94,7 +96,6 @@ float perlinNoise(float fX,float fY,float fScale){
 }
 
 void main(void){
-
     vec2 coord = vec2(texturePosition.x*v2fNoiseSize.x,texturePosition.y*v2fNoiseSize.y);
 
     float fAccum = 0.;
@@ -111,9 +112,7 @@ void main(void){
         fAmplitude *= fFalloff;
         fFrequency *= 2.0;
     }
-
     fAccum = clamp(fAccum, -1.0, 1.0)*0.5 + 0.5;
 
     gl_FragColor = vec4(fAccum,fAccum,fAccum,fAccum);
-    gl_FragColor = vec4(1.,0.,0.,1.);
 }

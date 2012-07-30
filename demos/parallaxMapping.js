@@ -33,40 +33,56 @@ ParallaxMapping.prototype.initDeviceObjects = function () {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
         pSceneObject.create();
 		pSceneObject.attachToParent(pEngine.getRootNode());
-        pSceneObject.bNoRender = true;
         return pSceneObject;
     }
 
+    this.appendMesh = function (pMesh, pNode) {
+        return addMeshToScene(me, pMesh, pNode);
+    }
+    this.pCubeMesh = cube(this);
 
+    this.pLightPoint = this.appendMesh(this.pCubeMesh);
+    
     this.pPlane = addMeshToScene(this, sceneSurface(this));
+    this.pPlane.bNoRender = true;
     this.pPlane.setScale(200.0);
 
+    this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
-    //this.pSpriteProg = a.loadProgram(this,'../effects/ParallaxMapping.glsl');
-    var time1 = a.now();
     this.pPerlinProg = a.loadProgram(this,'../effects/perlin_noise.glsl');
-    trace('total time',a.now() - time1);
-    
-    this.pSpriteTexture = this.pDisplayManager.texturePool().
-        loadResource('../../../../akra-engine-general/media/textures/rock2.dds');
-
-    this.pSpriteNormalTexture = this.pDisplayManager.texturePool().
-        loadResource('../../../../akra-engine-general/media/textures/rock2_bump.dds');
+    this.pGenerateNormalProg = a.loadProgram(this,'../effects/generate_normal_map.glsl');
+    this.pParallaxProg = a.loadProgram(this,'../effects/parallaxMapping.glsl');
 
 
-    // var pSprite = new a.Sprite(this);
-    // pSprite.setGeometry(10,10);
-    // pSprite.setData([VE_VEC3('COLOR')],new Float32Array([1,0,0,0,0,1,0,0,1,0,1,0]));
-    // pSprite.setData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
-    // pSprite.centerPosition = Vec3.create(0,5,0);
-    // trace(pSprite._pRenderData.toString());
-    // pSprite.drawRoutine = spriteDraw;
-    // pSprite.setProgram(this.pSpriteProg);
+    this.pBaseTexture = this.displayManager().texturePool()
+    .loadResource('../../../../akra-engine-general/media/textures/sand_dark.dds');
+    // this.pBaseTexture = this.displayManager().texturePool()
+    // .loadResource('../../../../akra-engine-general/media/textures/tex_earth_001.png');
 
-    // this.pSprite = pSprite;
-    // pSprite.create();
-    // pSprite.attachToParent(this.getRootNode());
-    // pSprite.visible = true;
+
+    //this.pBaseTexture.(); 
+
+    this.fScale = 0.2;
+
+    this.pHeightTexture = this.displayManager().texturePool()
+        .loadResource('../../../../akra-engine-general/media/textures/BrickModernLarge01_h.png');
+    //this.pHeightTexture = computePerlinNoiseGPU(this,1024,1024,0.01,5,0.3);
+    this.pNormalTexture = this.displayManager().texturePool()
+        .loadResource('../../../../akra-engine-general/media/textures/BrickModernLarge01_n_test.png');
+    //this.pNormalTexture = computeNormalMapGPU(this,this.pHeightTexture,this.fScale,0);
+
+    var pSprite = new a.Sprite(this);
+    pSprite.setGeometry(30,30);
+    pSprite.setData([VE_VEC3('COLOR')],new Float32Array([1,0,0,0,0,1,0,0,1,0,1,0]));
+    pSprite.setData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
+    pSprite.centerPosition = Vec3.create(0,15,0);
+    pSprite.drawRoutine = spriteDraw;
+    pSprite.setProgram(this.pParallaxProg);
+
+    this.pSprite = pSprite;
+    pSprite.create();
+    pSprite.attachToParent(this.getRootNode());
+    pSprite.visible = true;
 
     var pCamera = this.getActiveCamera();
     pCamera.addRelPosition(-8.0, 5.0, 11.0);
@@ -75,7 +91,6 @@ ParallaxMapping.prototype.initDeviceObjects = function () {
 
     return true;
 };
-var isFirst = true;
 ParallaxMapping.prototype.directRender = function() {
     'use strict';
     var pCamera = this._pDefaultCamera;
@@ -89,12 +104,8 @@ ParallaxMapping.prototype.directRender = function() {
     }    
 
     //draw plane
-    //this.pDrawPlaneProg.activate();
-    //draw(this.pDrawPlaneProg, this.pPlane, false);
-    if(isFirst){
-        isFirst = false;
-        computePerlinNoiseGPU(this,1024,1024,4,2,1);
-    }
+    this.pDrawPlaneProg.activate();
+    draw(this.pDrawPlaneProg, this.pPlane, false);
 };
 
 ParallaxMapping.prototype.deleteDeviceObjects = function () {
@@ -130,61 +141,33 @@ else {
     }
 }
 
-function simpleCube () {
-
-    var pVerticesData = new Float32Array([
-        -0.5, 0.5, 0.5,
-        0.5, 0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        0.5, -0.5, 0.5,
-        -0.5, 0.5, -0.5,
-        0.5, 0.5, -0.5,
-        -0.5, -0.5, -0.5,
-        0.5, -0.5, -0.5
-    ]);
-    var pNormalsData = new Float32Array([
-        1.0, 0.0, 0.0,
-        -1.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, -1.0, 0.0,
-        0.0, 0.0, 1.0,
-        0.0, 0.0, -1.0
-    ]);
-    var pVertexIndicesData = new Float32Array([
-        0, 2, 3, 0, 3, 1,
-        0, 1, 5, 0, 5, 4,
-        6, 7, 3, 6, 3, 2,
-        0, 4, 6, 0, 6, 2,
-        3, 7, 5, 3, 5, 1,
-        5, 7, 6, 5, 6, 4
-    ]);
-    var pNormalIndicesData = new Float32Array([
-        4, 4, 4, 4, 4, 4,
-        2, 2, 2, 2, 2, 2,
-        3, 3, 3, 3, 3, 3,
-        1, 1, 1, 1, 1, 1,
-        0, 0, 0, 0, 0, 0,
-        5, 5, 5, 5, 5, 5
-    ]);
-
-    return {'vertices' :  new Float32Array(pVerticesData),'normals' :  new Float32Array(pNormalsData),
-    'INDEX_POSITION' : new Float32Array(pVertexIndicesData),'INDEX_NORMAL' : new Float32Array(pNormalIndicesData)};
-}
-
-
 function spriteDraw(pProgram){
     'use strict';
-    var pParallaxMapping = window.pParallaxMapping;
-    var pCamera = pParallaxMapping._pDefaultCamera;
-    var pSprite = pParallaxMapping.pSprite;
+    var pEngine = window.pParallaxMapping;
+    var pCamera = pEngine._pDefaultCamera;
+    var pSprite = pEngine.pSprite;
     pProgram.applyMatrix4('model_mat', pSprite.worldMatrix());
     pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
     pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
+    pProgram.applyVector3('eye_pos', pCamera.worldPosition());
 
-    pParallaxMapping.pSpriteTexture.activate(1);
-    pParallaxMapping.pSpriteNormalTexture.activate(2);
-    pProgram.applyInt('spriteTexture',1);
-    pProgram.applyInt('spriteNormalTexture',2);
+    pProgram.applyFloat('fScale',pEngine.fScale);
+
+    pEngine.pHeightTexture.activate(1);
+    pProgram.applyInt('heightTexture',1);
+
+    pEngine.pNormalTexture.activate(2);
+    pProgram.applyInt('normalTexture',2);
+
+    pEngine.pBaseTexture.activate(3);
+    pProgram.applyInt('baseTexture',3);
+
+    var w = 0.0008;
+    var time = a.now();
+    pEngine.pLightPoint.setPosition(25.*Math.sin(w*time), 15.,15.*Math.cos(w*time));
+
+    pProgram.applyVector3('light_position',
+        pEngine.pLightPoint.getPosition());
 };
 
 function computePerlinNoiseGPU(pEngine,iSizeX,iSizeY,fScale,iOctaves,fFalloff){
@@ -226,14 +209,14 @@ function computePerlinNoiseGPU(pEngine,iSizeX,iSizeY,fScale,iOctaves,fFalloff){
     pRandomTexture.applyParameter(a.TPARAM.MAG_FILTER, a.TFILTER.NEAREST);
     pRandomTexture.applyParameter(a.TPARAM.MIN_FILTER, a.TFILTER.NEAREST);
 
-    // var pTexturePerlin = pEngine.displayManager().texturePool().createResource('perlinNose' + a.now());
-    // pTexturePerlin.createTexture(iSizeX,iSizeY,0,
-    //     a.IFORMAT.RGBA8,a.ITYPE.UNSIGNED_BYTE,null);
+    var pTexturePerlin = pEngine.displayManager().texturePool().createResource('perlinNose' + a.now());
+    pTexturePerlin.createTexture(iSizeX,iSizeY,0,
+        a.IFORMAT.RGBA8,a.ITYPE.UNSIGNED_BYTE,null);
 
-    // var pPerlinFrameBuffer = pTexturePerlin._pFrameBuffer;
-    // pDevice.bindFramebuffer(pDevice.FRAMEBUFFER, pPerlinFrameBuffer);
-    // pDevice.framebufferTexture2D(pDevice.FRAMEBUFFER, pDevice.COLOR_ATT+ACHMENT0,
-    //     pDevice.TEXTURE_2D, pTexturePerlin.texture, 0);
+    var pPerlinFrameBuffer = pTexturePerlin._pFrameBuffer;
+    pDevice.bindFramebuffer(pDevice.FRAMEBUFFER, pPerlinFrameBuffer);
+    pDevice.framebufferTexture2D(pDevice.FRAMEBUFFER, pDevice.COLOR_ATTACHMENT0,
+        pDevice.TEXTURE_2D, pTexturePerlin.texture, 0);
     //pDevice.bindFramebuffer(pDevice.FRAMEBUFFER, null);
     
     var pBuffer = pEngine.displayManager().vertexBufferPool().findResource('perlin noise attribute');
@@ -245,11 +228,12 @@ function computePerlinNoiseGPU(pEngine,iSizeX,iSizeY,fScale,iOctaves,fFalloff){
     var pBufferMap = new a.BufferMap(pEngine);
     pBufferMap.primType = a.PRIMTYPE.TRIANGLESTRIP;
     pBufferMap.flow(0,pBuffer.getVertexData(0,4,[VE_VEC2('POSITION')]));
-    trace(pBufferMap.toString());
+    //trace(pBufferMap.toString());
 
     pRandomTexture.activate(0);
 
     pProgram.applyInt('intermediateTexture',0);
+    pProgram.applyInt('iOctaves',iOctaves);
     pProgram.applyFloat('fStep',fStep);
     pProgram.applyFloat('fScale',fScale);
     pProgram.applyFloat('fFalloff',fFalloff);
@@ -258,9 +242,60 @@ function computePerlinNoiseGPU(pEngine,iSizeX,iSizeY,fScale,iOctaves,fFalloff){
             intermediateTextureSizeX,intermediateTextureSizeY,iSizeX + iSizeY);
 
     pProgram.applyBufferMap(pBufferMap);
+    pDevice.viewport(0,0,iSizeX,iSizeY);
+
+    pBufferMap.draw();
+    pDevice.bindFramebuffer(pDevice.FRAMEBUFFER, null);
+
+    return pTexturePerlin;
+};
+
+function computeNormalMapGPU(pEngine,pHeightTexture,fScale,iChannel){
+
+    iChannel = ifndef(iChannel,0);
+
+    var pProgram = pEngine.pGenerateNormalProg;
+    pProgram.activate();
+
+    var pDevice = pEngine.pDevice;
+
+    var pNormalTexture = pEngine.displayManager().texturePool().
+        createResource('normalTexture' + a.now());
+
+    var iSizeX = pHeightTexture.width;
+    var iSizeY = pHeightTexture.height;
+
+    pNormalTexture.createTexture(iSizeX,iSizeY,0,
+        a.IFORMAT.RGBA8,a.ITYPE.UNSIGNED_BYTE,null);
+
+    var pNormalFrameBuffer = pNormalTexture._pFrameBuffer;
+    pDevice.bindFramebuffer(pDevice.FRAMEBUFFER, pNormalFrameBuffer);
+    pDevice.framebufferTexture2D(pDevice.FRAMEBUFFER, pDevice.COLOR_ATTACHMENT0,
+        pDevice.TEXTURE_2D, pNormalTexture.texture, 0);
+
+    var pBuffer = pEngine.displayManager().vertexBufferPool().findResource('normal map attribute');
+    if(pBuffer == null){
+        pBuffer = pEngine.displayManager().vertexBufferPool().createResource('normal map attribute');
+        pBuffer.create(32,0,new Float32Array([-1,-1,-1,1,1,-1,1,1]));
+    }
+
+    var pBufferMap = new a.BufferMap(pEngine);
+    pBufferMap.primType = a.PRIMTYPE.TRIANGLESTRIP;
+    pBufferMap.flow(0,pBuffer.getVertexData(0,4,[VE_VEC2('POSITION')]));
+
+    pHeightTexture.activate(0);
+
+    pProgram.applyInt('heightTexture',0);
+    pProgram.applyInt('iChannel',iChannel);
+    pProgram.applyFloat('fScale',fScale);
+    pProgram.applyVector2('fSteps',1/iSizeX,1/iSizeY);
+
+    pProgram.applyBufferMap(pBufferMap);
 
     pDevice.viewport(0,0,iSizeX,iSizeY);
 
     pBufferMap.draw();
-}
+    pDevice.bindFramebuffer(pDevice.FRAMEBUFFER, null);
 
+    return pNormalTexture;
+};
