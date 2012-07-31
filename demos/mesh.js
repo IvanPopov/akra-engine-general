@@ -47,12 +47,15 @@ MeshDemo.prototype.initDeviceObjects = function () {
     this.pPlane.bNoRender = true;
     this.pPlane.setScale(200.0);
 
-    this.pDrawMeshTexProg = a.loadProgram(this, '../effects/mesh.glsl', {'USE_TEXTURE_MATERIALS': 1});
     this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
+    this.pDrawMeshTexProg = a.loadProgram(this, '../effects/mesh.glsl', {'USE_TEXTURE_MATERIALS': 1});
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
     this.pDrawMeshI2IProg = a.loadProgram(this, '../effects/mesh_ai.glsl');
-    this.pDrawMeshAnimProg = a.loadProgram(this, '../effects/mesh.glsl', {
+    this.pDrawMeshAnimProgTex = a.loadProgram(this, '../effects/mesh.glsl', {
         'USE_TEXTURE_MATERIALS': 1, 
+        'USE_ANIMATION': 1
+    });
+    this.pDrawMeshAnimProg = a.loadProgram(this, '../effects/mesh.glsl', {
         'USE_ANIMATION': 1
     });
 
@@ -77,9 +80,10 @@ MeshDemo.prototype.initDeviceObjects = function () {
     //default scene models
     for (var i = 0; i < 1; i++) {
         COLLADA(this, {
-            file: '/akra-engine-general/media/models/max_test/max_anim_test.DAE',//astroBoy_walk_Max.DAE
+            file: '/akra-engine-general/media/models/demo/mesh_chr.DAE',//astroBoy_walk_Max.DAE
             success: this.onColladaLoad,
-            animation: false
+            animation: false,
+            wireframe: false
         });
     }
 
@@ -94,6 +98,7 @@ MeshDemo.prototype.onColladaLoad = function (pNodes, pAnimations) {
     var v3f = [0,0,0];
     for (var i = 0; i < pNodes.length; ++ i) {
         pNodes[i].attachToParent(this.getRootNode());
+        pNodes[i].addRelRotation(-Math.PI/2, 0, -Math.PI/2);
         pNodes[i].setScale(5);
         pNodes[i].addRelPosition(v3f.X, v3f.Z, 0.0);
     }

@@ -169,7 +169,6 @@ varying vec2 texcoord;
 
 
 
-
 void main(void) {
 	LIGHTPOINT light_point;
 	light_point.position = vec4(0., 20., 10., 1.);
@@ -205,7 +204,7 @@ void main(void) {
     // add ambient
     color += (mat_ambient 
 #ifdef USE_TEXTURE_MATERIALS
-       // + texture2D(tex_ambient, texcoord)
+        + texture2D(tex_ambient, texcoord)
 #endif
         ) * light_point.ambient * attenuation;
     
