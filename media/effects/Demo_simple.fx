@@ -4,6 +4,7 @@
 //
 
 use strict;
+provide demo.effect;
 video_buffer buf0;
 // transformations
 float4x4 mViewProj: VIEWPROJECTION;
@@ -55,6 +56,7 @@ struct VS_OUTPUT14
 float3 testFunc0(float3 pos[]);
 
 float4 testFunc(inout float x){
+	VS_OUTPUT14 Out;
 	return float4(testFunc0(float3(x+a2)),4.0);
 }
 float3 testFunc0(float3 pos123[]){
@@ -65,12 +67,18 @@ struct testStruct0{
 	float3 dif;
 	float3 amb[];
 };
+struct testStruct2{
+	float3 a1;
+	float4 b1;
+};
 struct testStruct1{
 	float a;
 	float3 pos[][];
 	float3 norm[][];
 	testStruct0 mat[10][][];
 };
+
+global testStruct2 GLOBAL_VAR;
 
 sampler LinearSamp1 = sampler_state
 {
@@ -93,19 +101,26 @@ VS_OUTPUT11 VS11(uniform testStruct1 T, VS_INPUT v)
 {
 	VS_OUTPUT11 Out;
 	VS_INPUT v1 = v;
+	ptr abc = @@(v.Norm)++;
+	struct {
+		float pos;
+		float v;
+	} abcde, abcde1;
 	float4 combinedPos = float4(
 		v.Pos.x,
 		v.Pos.y,
 		v.ZPos,
 		1);
 	testStruct1 t1;
-	t1.pos(memof v.Norm);
+	t1.pos(buf0);
 	@@(t1.pos)+=10;
+	t1.pos += 20;
+	@(t1.pos)+=10;
     //float4 pos = (((Out).Pos).xyzw + float4(1.0,2.0,3.0,4.0)).rab;
 	float2 xy = testFunc(1.0).zw;
-	ptr abc = @@(v.Norm)++;
 	abc = abc1;
 	abc1 = 5;
+	GLOBAL_VAR.a1 = float3(1,1,1);
 	combinedPos.xy = posOffset.zw;
 	if(v.Pos.x > 0.){
 		Out.Pos = mul(combinedPos, mViewProj);	
@@ -137,7 +152,7 @@ VS_OUTPUT11 VS11(uniform testStruct1 T, VS_INPUT v)
 VS_OUTPUT14 VS14(const VS_INPUT v)
 {
 	VS_OUTPUT14 Out;
-	
+	GLOBAL_VAR.a1 = float3(1,1,1);
 	float4 combinedPos = float4(
 		v.Pos.x,
 		v.Pos.y,
@@ -281,7 +296,7 @@ float4 TwoSurfacePass1(VS_OUTPUT11 In) : COLOR
 int c = 10;
 technique MultiPassTerrain
 {
-    pass P0
+	pass P0
     {
 			if(engine.cull[c].xy == 100 && true){
 				CULLMODE = CW;
