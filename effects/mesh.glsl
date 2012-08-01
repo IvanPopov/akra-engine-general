@@ -134,6 +134,8 @@ void main(void) {
 #endif                          
 
 uniform vec3 eye_pos;
+uniform mat4 model_mat;
+uniform mat4 view_mat;
 
 varying vec3 vert;
 varying vec3 norm;
@@ -183,7 +185,7 @@ void main(void) {
     light_dir = normalize(light_dir);
     
     // direction from vert to observer (ViewDir)
-    vec3 view_dir = normalize(eye_pos - vert);
+    vec3 view_dir = normalize((view_mat * model_mat * vec4(eye_pos, 1.0)).xyz - vert);
     
     // length from source of light to vert
     vec3 light_distance = normalize(reflect(-light_dir, norm));

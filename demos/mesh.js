@@ -78,43 +78,49 @@ MeshDemo.prototype.initDeviceObjects = function () {
     pDropZone.addEventListener('drop', function (e) {me.onFileDrop(e)}, false);
   
     //default scene models
-    for (var i = 0; i < 1; i++) {
-        COLLADA(this, {
-            file: '/akra-engine-general/media/models/demo/mesh_chr.DAE',//astroBoy_walk_Max.DAE
-            success: this.onColladaLoad,
-            animation: false,
-            wireframe: false
-        });
-    }
+    var pDemos = {
+        'CMan': '',
+        'astroBoy': 'astroBoy_walk_Max.DAE',
+        'hero_model': 'demo/mesh_chr.DAE',
+        'hero_anim_run': 'demo/anim_chr_run_2.DAE'
+    };
 
+    //for (var i = 0; i < 1; i++) {
+    COLLADA(this, {
+        file: '/akra-engine-general/media/models/' + pDemos['hero_model'],
+        success: function (pNodes, pMeshes, pAnimations) {
+
+            COLLADA(this, {
+                file: '/akra-engine-general/media/models/' + pDemos['hero_anim_run'],
+                animation: true,
+                scene: true,
+                success: function (pNodes2, pMeshes2, pAnimations2) {
+                    //trace(pAnimations.length, '<< animations')
+                    //trace(pMeshes[0][0].skin.skeleton.name);
+                    
+                    me.onColladaLoad(pNodes, pMeshes, pAnimations2);
+                }
+            });
+
+            //me.onColladaLoad(pNodes, pMeshes, pAnimations);
+        },
+        animation: false,
+        wireframe: true,
+        drawJoints: true  
+    });
+    //}
 
 	return true;
 };
 
-MeshDemo.prototype.onColladaLoad = function (pNodes, pAnimations) {
-    'use strict';
-    
-    //var v3f = [Math.random() * 100 - 50.0, 0.0, Math.random() * 100 - 50.0];
-    var v3f = [0,0,0];
-    for (var i = 0; i < pNodes.length; ++ i) {
-        pNodes[i].attachToParent(this.getRootNode());
-        pNodes[i].addRelRotation(-Math.PI/2, 0, -Math.PI/2);
-        pNodes[i].setScale(5);
-        pNodes[i].addRelPosition(v3f.X, v3f.Z, 0.0);
-    }
-
-
-    //trace(this.getRootNode().toString(true));
+MeshDemo.prototype.displayAnimation = function (pNodes, pMeshes, pAnimations) {
     if (pAnimations) {
-        for (var i = 0; i < pNodes.length; ++ i) {
-            if (pNodes[i].findMesh) {
-                trace(i, '<< mesh');
-            }
-        }
-        var pSkeleton = pNodes[0].findMesh()[0].getSkin().skeleton;
+        //var pSkeleton = pMeshes[0][0].skin.skeleton;
+        //trace('skeleton > ', pSkeleton.name);
         
         for (var i = 0; i < pAnimations.length; ++ i) {
-            pAnimations[i].bind(pSkeleton);
+            //pAnimations[i].bind(pSkeleton);
+            pAnimations[i].bind(this.getRootNode());
             pAnimations[i].attachToTimeline(0.);
         }
         //trace(pAnimations);
@@ -131,7 +137,7 @@ MeshDemo.prototype.onColladaLoad = function (pNodes, pAnimations) {
 
         var fnSliderChange = function () {
             
-            var fTime = this.value / 100.0 * 1.16667;
+            var fTime = this.value / 100.0 * pAnimations[0]._fDuration;
             pTiming.edit(fTime + ' sec / ' + this.value);
             for (var i = 0; i < pAnimations.length; ++ i) {
                 pAnimations[i].play(fTime);
@@ -164,6 +170,23 @@ MeshDemo.prototype.onColladaLoad = function (pNodes, pAnimations) {
 
         fnSliderChange.call(pSlider);
     }
+}
+
+MeshDemo.prototype.onColladaLoad = function (pNodes, pMeshes, pAnimations) {
+    'use strict';
+    
+    if (pNodes) {
+        //var v3f = [Math.random() * 100 - 50.0, 0.0, Math.random() * 100 - 50.0];
+        var v3f = [0,0,0];
+        for (var i = 0; i < pNodes.length; ++ i) {
+            pNodes[i].attachToParent(this.getRootNode());
+            pNodes[i].addRelRotation(-Math.PI/2, 0, -Math.PI/2);
+            pNodes[i].setScale(5);  
+            pNodes[i].addRelPosition(v3f.X, v3f.Z, 0.0);
+        }
+    }
+
+    this.displayAnimation(pNodes, pMeshes, pAnimations);
 };
 
 
