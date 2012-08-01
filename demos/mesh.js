@@ -1,4 +1,5 @@
 Include('geom.js')
+Insert('../media/scripts/html5slider.js');
 
 function MeshDemo() {
 	A_CLASS;
@@ -46,12 +47,15 @@ MeshDemo.prototype.initDeviceObjects = function () {
     this.pPlane.bNoRender = true;
     this.pPlane.setScale(200.0);
 
-    this.pDrawMeshTexProg = a.loadProgram(this, '../effects/mesh.glsl', {'USE_TEXTURE_MATERIALS': 1});
     this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
+    this.pDrawMeshTexProg = a.loadProgram(this, '../effects/mesh.glsl', {'USE_TEXTURE_MATERIALS': 1});
     this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
     this.pDrawMeshI2IProg = a.loadProgram(this, '../effects/mesh_ai.glsl');
-    this.pDrawMeshAnimProg = a.loadProgram(this, '../effects/mesh.glsl', {
+    this.pDrawMeshAnimProgTex = a.loadProgram(this, '../effects/mesh.glsl', {
         'USE_TEXTURE_MATERIALS': 1, 
+        'USE_ANIMATION': 1
+    });
+    this.pDrawMeshAnimProg = a.loadProgram(this, '../effects/mesh.glsl', {
         'USE_ANIMATION': 1
     });
 
@@ -72,21 +76,121 @@ MeshDemo.prototype.initDeviceObjects = function () {
     }, false);
 
     pDropZone.addEventListener('drop', function (e) {me.onFileDrop(e)}, false);
- 
+  
     //default scene models
-    COLLADA(this, '/akra-engine-general/media/models/astroBoy_walk_Maya.dae',
-        function (pNodes) {
-            
-            for (var i = 0; i < pNodes.length; ++ i) {
-                //pNodes[i].setInheritance(a.Scene.k_inheritRotScaleOnly);
-                pNodes[i].attachToParent(me.getRootNode());
-            }
-            
-            //trace(me.getRootNode().toString(true));
-        });
+    var pDemos = {
+        'CMan': '',
+        'astroBoy': 'astroBoy_walk_Max.DAE',
+        'hero_model': 'demo/mesh_chr.DAE',
+        'hero_anim_run': 'demo/anim_chr_run_2.DAE',
+        'hero_anim_idl': 'demo/anim_chr_idle.DAE'
+    };
+
+    //for (var i = 0; i < 1; i++) {
+    COLLADA(this, {
+        file: '/akra-engine-general/media/models/' + pDemos['hero_model'],
+        success: function (pNodes, pMeshes, pAnimations) {
+
+            COLLADA(this, {
+                file: '/akra-engine-general/media/models/' + pDemos['hero_anim_idl'],
+                animation: true,
+                scene: true,
+                success: function (pNodes2, pMeshes2, pAnimations2) {
+                    //trace(pAnimations.length, '<< animations')
+                    //trace(pMeshes[0][0].skin.skeleton.name);
+                    
+                    me.onColladaLoad(pNodes, pMeshes, pAnimations2);
+                }
+            });
+
+            //me.onColladaLoad(pNodes, pMeshes, pAnimations);
+        },
+        animation: false,
+        wireframe: false,
+        drawJoints: false  
+    });
+    //}
 
 	return true;
 };
+
+MeshDemo.prototype.displayAnimation = function (pNodes, pMeshes, pAnimations) {
+    if (pAnimations) {
+        //var pSkeleton = pMeshes[0][0].skin.skeleton;
+        //trace('skeleton > ', pSkeleton.name);
+        
+        for (var i = 0; i < pAnimations.length; ++ i) {
+            //pAnimations[i].bind(pSkeleton);
+            pAnimations[i].bind(this.getRootNode());
+            pAnimations[i].attachToTimeline(0.);
+        }
+        //trace(pAnimations);
+        pNodes[1].pAnimations = pAnimations;
+
+        var pSlider = document.createElement('input');
+        var pTiming = this.displayManager().draw2DText(200, 50, new a.Font2D(20, '#FFF'));
+        
+        pSlider.type = "range";
+        pSlider.min = 0;
+        pSlider.max = 100;
+        pSlider.step = 1;
+        pSlider.value = 0;
+
+        var fnSliderChange = function () {
+            
+            var fTime = this.value / 100.0 * pAnimations[0]._fDuration;
+            pTiming.edit(fTime + ' sec / ' + this.value);
+            for (var i = 0; i < pAnimations.length; ++ i) {
+                pAnimations[i].play(fTime);
+            }   
+        };
+
+        pSlider.onchange = fnSliderChange;
+
+        pSlider.style.position = "absolute";
+        pSlider.style.top = "50px";
+        pSlider.style.zIndex = "100";
+
+        document.getElementById('wrapper').appendChild(pSlider);
+
+        document.body.addEventListener("keypress", function(e) {
+            e = window.event || e;
+            e = e.charCode || e.keyCode;
+
+            if (e == a.KEY.F1) {
+                pSlider.value = Number(pSlider.value) + 1.0;
+                if (pSlider.value > 100) pSlider.value = 100;
+                fnSliderChange.call(pSlider);
+            }
+            else if (e == a.KEY.F2) {
+                pSlider.value -= 1;
+                if (pSlider.value < 0) pSlider.value = 0;
+                fnSliderChange.call(pSlider);
+            }
+        }, false);
+
+        fnSliderChange.call(pSlider);
+    }
+}
+
+MeshDemo.prototype.onColladaLoad = function (pNodes, pMeshes, pAnimations) {
+    'use strict';
+    
+    if (pNodes) {
+        //var v3f = [Math.random() * 100 - 50.0, 0.0, Math.random() * 100 - 50.0];
+        var v3f = [0,0,0];
+        for (var i = 0; i < pNodes.length; ++ i) {
+            pNodes[i].attachToParent(this.getRootNode());
+            //pNodes[i].addRelRotation(-Math.PI/2, 0, -Math.PI/2);
+            //pNodes[i].setScale(5);  
+            pNodes[i].addRelPosition(v3f.X, v3f.Z, 0.0);
+        }
+    }
+
+    this.displayAnimation(pNodes, pMeshes, pAnimations);
+};
+
+
 
 MeshDemo.prototype.onFileDrop = function (e) {
     'use strict';
@@ -105,11 +209,13 @@ MeshDemo.prototype.onFileDrop = function (e) {
 
         // Closure to capture the file information.
         reader.onload = (function(theFile) {
-            return function(e) {     
-                COLLADA(me, e.target.result,
-                    function (pRootNode) {
-                        pRootNode.attachToParent(me.getRootNode());
-                    }, true);
+            return function(e) {
+                trace('##################### NEW MODEL #####################');     
+                COLLADA(me, 
+                    {
+                        content: e.target.result,
+                        success: me.onColladaLoad
+                    });
             };
         })(f);
 

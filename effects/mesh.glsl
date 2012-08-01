@@ -20,7 +20,9 @@ uniform float INDEX_POSITION_OFFSET;
 uniform float INDEX_NORMAL_OFFSET;
 uniform float INDEX_FLEXMAT_OFFSET;
 
-
+#ifdef USE_ANIMATION
+uniform mat4 bind_matrix;
+#endif
 uniform mat4 model_mat;
 uniform mat4 view_mat;
 uniform mat4 proj_mat;
@@ -37,15 +39,17 @@ varying vec4 mat_emissive;
 varying float mat_shininess;
 
 
-mat4 transpose(mat4 mat) {
-    mat4 t = mat;
-    for (int i = 0; i < 4; ++ i) {
-        for (int j = 0; j < 4; ++ j) {
-            mat[i][j] = t[j][i];
-        }
-    }
-    return mat;
-}
+//mat4 transpose(mat4 mat) {
+//    mat4 t = mat;
+//    for (int i = 0; i < 4; ++ i) {
+//        for (int j = 0; j < 4; ++ j) {
+//            mat[i][j] = t[j][i];
+//        }
+//    }
+//    return mat;
+//}
+
+
 
 void main(void) {
 	A_TextureHeader vb_header;
@@ -75,19 +79,13 @@ void main(void) {
     float bone_matrix_ptr;
     float weight_ptr;
 
-    vec4 st_mat1, 
-         st_mat2, 
-         st_mat3, 
-         st_mat4;
-
     float weight;
     mat4 bone_matrix;
     mat4 result_mat = mat4(0.);
 
     float point_size = 1.;
-    float weight_summ = 0.;
 
-    for (int i = 0; i > -1; i ++) {
+    for (int i = 0; i < 32; i ++) {
         if(i >= number_matrix) {
             break;
         }
@@ -97,46 +95,35 @@ void main(void) {
         bone_matrix_ptr = floor(temp.x);
         weight_ptr      = temp.y;
 
+
         //get matrix
-        st_mat1 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr);
-        st_mat2 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 4.);
-        st_mat3 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 8.);
-        st_mat4 = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 12.);
+        bone_matrix = A_extractMat4(A_buffer_0, vb_header, bone_matrix_ptr);
+        //bone_matrix[0] = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr);
+        //bone_matrix[1] = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 4.);
+        //bone_matrix[2] = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 8.);
+        //bone_matrix[3] = A_extractVec4(A_buffer_0, vb_header, bone_matrix_ptr + 12.);
 
-        if( abs(bone_matrix_ptr/4. - floor(bone_matrix_ptr/4.)) > 0.1) {
-            point_size = 40.;
-        }
-
-        bone_matrix[0] = st_mat1;
-        bone_matrix[1] = st_mat2;
-        bone_matrix[2] = st_mat3;
-        bone_matrix[3] = st_mat4;
-        //bone_matrix = mat4(1.);
         //get weight
         weight = A_extractFloat(A_buffer_0, vb_header, weight_ptr);
-        weight_summ += weight;
-        //weight = 1.;
+
         result_mat += bone_matrix * weight;
     }
-    //result_mat /= weight_summ;
+
     gl_PointSize = point_size;
-    //result_mat = transpose(result_mat);
-    vertex = (view_mat * result_mat * pos);
+    vertex = (view_mat * result_mat * bind_matrix * pos);
     norm = normalize((result_mat * normal).xyz);
 #else
 	vertex = (view_mat * model_mat * pos);
     norm = normalize((normal_mat * normal.xyz));
 #endif
 
-    
     vert = vertex.xyz;
 
 #ifdef USE_TEXTURE_MATERIALS
     vec2 tc = A_extractVec2(A_buffer_0, vb_header, INDEX_TEXCOORD + INDEX_TEXCOORD_OFFSET);
     texcoord = vec2(tc.x, tc.y);
 #endif
-    
-    //gl_PointSize = 3.;
+
 	gl_Position = proj_mat * vertex;
 }
 
@@ -147,6 +134,8 @@ void main(void) {
 #endif                          
 
 uniform vec3 eye_pos;
+uniform mat4 model_mat;
+uniform mat4 view_mat;
 
 varying vec3 vert;
 varying vec3 norm;
@@ -182,14 +171,13 @@ varying vec2 texcoord;
 
 
 
-
 void main(void) {
 	LIGHTPOINT light_point;
 	light_point.position = vec4(0., 20., 10., 1.);
     light_point.ambient = vec4(1., 1., 1., 1.);
     light_point.diffuse  =vec4(1., 1., 1., 1.);
     light_point.specular = vec4(1., 1., 1., 1.);
-    light_point.attenuation = vec3(.1, 0.00, .001);
+    light_point.attenuation = vec3(1., 0.00, .000);
 
      // direction on source of light (LightDir)
     vec3 light_dir = light_point.position.xyz - vert;
@@ -197,7 +185,7 @@ void main(void) {
     light_dir = normalize(light_dir);
     
     // direction from vert to observer (ViewDir)
-    vec3 view_dir = normalize(eye_pos - vert);
+    vec3 view_dir = normalize((view_mat * model_mat * vec4(eye_pos, 1.0)).xyz - vert);
     
     // length from source of light to vert
     vec3 light_distance = normalize(reflect(-light_dir, norm));
@@ -218,7 +206,7 @@ void main(void) {
     // add ambient
     color += (mat_ambient 
 #ifdef USE_TEXTURE_MATERIALS
-       // + texture2D(tex_ambient, texcoord)
+        + texture2D(tex_ambient, texcoord)
 #endif
         ) * light_point.ambient * attenuation;
     

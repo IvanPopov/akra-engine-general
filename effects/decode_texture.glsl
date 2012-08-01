@@ -1,3 +1,9 @@
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+    //#define texture2D(sampler, ) texture2D
+#else
+    #define texture2D(A, B) texture2DLod(A, B, 0.)
+#endif
+
 #ifndef A_VB_COMPONENT3
 #define A_VB_COMPONENT4
 #endif
@@ -11,6 +17,7 @@
 #endif
 
 #define A_tex2D(S, H, X, Y) texture2D(S, vec2(H.stepX * X , H.stepY * Y))
+#define A_tex2Dv(S, H, V) texture2D(S, V)
 
 struct A_TextureHeader {
     float width;
@@ -145,4 +152,18 @@ vec4 A_extractVec4(const sampler2D sampler, const A_TextureHeader header, const 
 #ifdef A_VB_COMPONENT3
 #endif
     return vec4(0);
+}
+
+vec2 A_findPixel(const A_TextureHeader header, const float offset) {
+    float pixelNumber = floor(offset / A_VB_ELEMENT_SIZE);         
+    return vec2(header.stepX * (mod(pixelNumber, header.width) + .5), header.stepY * (floor(pixelNumber / header.width) + .5));
+}
+
+mat4 A_extractMat4(const sampler2D sampler, const A_TextureHeader header, const float offset) {
+    return mat4(
+        A_tex2Dv(sampler, header, A_findPixel(header, offset)), 
+        A_tex2Dv(sampler, header, A_findPixel(header, offset + 4.)),
+        A_tex2Dv(sampler, header, A_findPixel(header, offset + 8.)),
+        A_tex2Dv(sampler, header, A_findPixel(header, offset + 12.))
+        );
 }
