@@ -16,9 +16,9 @@ varying vec2 texturePosition;
 
 varying vec3 vertex;
 
-varying vec3 v3fT;
-varying vec3 v3fN;
-varying vec3 v3fB;
+varying vec3 v3fTtm;
+varying vec3 v3fNtm;
+varying vec3 v3fBtm;
 
 void main(void) {
     A_TextureHeader vb_header;
@@ -29,9 +29,9 @@ void main(void) {
     vec4 pos = view_mat * model_mat * (vec4(CENTER_POSITION, 1.) + vec4(POSITION_OFFSET,0.,0.));
     vertex = pos.xyz;
 
-    v3fT = vec3(1.,0.,0.);
-    v3fB = vec3(0.,1.,0.);
-    v3fN = vec3(0.,0.,1.);
+    v3fTtm = (view_mat * model_mat *vec4(1.,0.,0.,0.)).xyz;
+    v3fBtm = (view_mat * model_mat *vec4(0.,1.,0.,0.)).xyz;
+    v3fNtm = (view_mat * model_mat *vec4(0.,0.,1.,0.)).xyz;
 
     gl_Position = proj_mat * pos;
 }
@@ -49,20 +49,21 @@ uniform sampler2D normalTexture;
 uniform sampler2D baseTexture;
 uniform mat4 model_mat;
 uniform mat4 view_mat;
-//uniform int iSteps;
-const int iSteps = 5;
+uniform int iSteps;
 
 uniform float fBumpScale;
-
 uniform vec3 light_position;
 
 varying vec2 texturePosition;
 
 varying vec3 vertex;
 
-varying vec3 v3fT;
-varying vec3 v3fN;
-varying vec3 v3fB;
+varying vec3 v3fTtm;
+varying vec3 v3fNtm;
+varying vec3 v3fBtm;
+
+const int iMinShadowStep = 55;
+const int iMaxShadowStep = 60;
 
 struct LIGHTPOINT {
     vec4 position;
@@ -79,21 +80,21 @@ vec4 mat_diffuse;
 vec4 mat_specular;
 float mat_shininess;
 
-float fSteps;
-
 void main(void) {
 
-    vec3 view_dir = normalize(eye_pos - vertex);
+    vec3 realEyePos = (view_mat * model_mat * vec4(eye_pos,1.)).xyz;
 
-    vec3 tangent = (view_mat * model_mat * vec4(normalize(v3fT),0.)).xyz;
-    vec3 binormal = (view_mat * model_mat * vec4(normalize(v3fB),0.)).xyz;
-    vec3 normal = (view_mat * model_mat * vec4(normalize(v3fN),0.)).xyz;
+    vec3 view_dir = normalize(realEyePos - vertex);
 
-    vec3 tsView = vec3( dot(tangent,view_dir),
-                        dot(binormal,view_dir),
-                        dot(normal,view_dir)); //разложение видового вектора по базису
+    vec3 v3fT = normalize(v3fTtm);
+    vec3 v3fN = normalize(v3fNtm);
+    vec3 v3fB = normalize(v3fBtm);
 
-    fSteps = mix(float(iSteps)*2., float(iSteps), tsView.z);
+    vec3 tsView = vec3( dot(v3fT,view_dir),
+                        dot(v3fB,view_dir),
+                        dot(v3fN,view_dir)); //разложение видового вектора по базису
+
+    float fSteps = mix(float(iSteps)*2., float(iSteps), tsView.z);
 
     vec2 realTexturePosition = texturePosition;
 
@@ -106,19 +107,19 @@ void main(void) {
     float step;
     vec2 delta;
 
-    step = 1./float(iSteps);
-    delta = vec2(-tsView.x,tsView.y)*fBumpScale/(tsView.z * fSteps);
+    step = 1./float(fSteps);
+    delta = vec2(tsView.x,tsView.y)*fBumpScale/(tsView.z * fSteps);
 
     for(int i=0; i<100;i++){
         if(fSurfaceHeight >= height || float(i) >= fSteps){
             break;
         }
         height -= step;
-        realTexturePosition += delta;
+        realTexturePosition -= delta;
         fSurfaceHeight = texture2D(heightTexture,realTexturePosition).x;
     }
 
-    normal = texture2D(normalTexture,realTexturePosition).xyz;
+    vec3 normal = texture2D(normalTexture,realTexturePosition).xyz;
     normal = 2.*normal - 1.;
     normal = (view_mat * model_mat * vec4(normal,0.)).xyz;
 
@@ -170,20 +171,20 @@ void main(void) {
 
     /////////////////////////////////////////////////////////////////
 
-    float selfShadow = 0.;
+    float selfShadow = 0.35;
 
-    vec3 tsLighting = vec3( dot(tangent,light_dir),
-                            dot(binormal,light_dir),
-                            dot(normal,light_dir)); //разложение направления на источник по базису;
-
-    if(dot(normal,tsLighting) > 0.){
-        float fNumShadowSteps = mix(60.,5.,tsLighting.z);
+    vec3 tsLighting = vec3( dot(v3fT,light_dir),
+                            dot(v3fB,light_dir),
+                            dot(v3fN,light_dir)); //разложение направления на источник по базису;
+    
+    if(tsLighting.z >= 0.){
+        float fNumShadowSteps = mix(float(iMaxShadowStep),float(iMinShadowStep),tsLighting.z);
         step = 1./fNumShadowSteps;
-        delta = vec2(tsLighting.x,-tsLighting.y)*fBumpScale/(fNumShadowSteps * tsLighting.z);
+        delta = vec2(tsLighting.x,tsLighting.y)*fBumpScale/(fNumShadowSteps * tsLighting.z);
 
         height = fSurfaceHeight + step*0.1;
 
-        for(int i=0;i<100;i++){
+        for(int i=0;i<iMaxShadowStep;i++){
             if(fSurfaceHeight >= height || height >= 1.){
                 break;
             }
@@ -199,7 +200,9 @@ void main(void) {
         }
     }
 
-
-    gl_FragColor = color/1.3;
+    //selfShadow = 1.;
+    
+    gl_FragColor = color/1.45;
     gl_FragColor.rgb *= selfShadow;
+    //gl_FragColor = vec4(dot(normal,light_dir));
 }

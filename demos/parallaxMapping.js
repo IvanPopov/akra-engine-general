@@ -13,8 +13,11 @@ ParallaxMapping.prototype.oneTimeSceneInit = function () {
     this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0.0, 500.0));
     this.showStats(true);
 
-    this.pHeightTexture = this.displayManager().texturePool()
-        .loadResource('../../../../akra-engine-general/media/textures/lion-bump.png');
+    // this.pHeightTexture = this.displayManager().texturePool()
+    //     .loadResource('../../../../akra-engine-general/media/textures/lion-bump.png');
+
+    // this.pBaseTexture = this.displayManager().texturePool()
+    //     .loadResource('../../../../akra-engine-general/media/textures/lion.png');
 
     return true;
 }; 
@@ -58,35 +61,37 @@ ParallaxMapping.prototype.initDeviceObjects = function () {
     this.pParallaxProg = a.loadProgram(this,'../effects/parallaxMapping.glsl');
 
 
+    // this.pBaseTexture = this.displayManager().texturePool()
+    // .loadResource('../../../../akra-engine-general/media/textures/lion.png');
+
     this.pBaseTexture = this.displayManager().texturePool()
-    .loadResource('../../../../akra-engine-general/media/textures/lion.png');
-    // this.pBaseTexture = this.displayManager().texturePool()
-    // .loadResource('../../../../akra-engine-general/media/textures/brick_t.png');
-    // this.pBaseTexture = this.displayManager().texturePool()
-    //     .loadResource('../../../../akra-engine-general/media/textures/sand_dark.dds');
+    .loadResource('../../../../akra-engine-general/media/textures/brick_t.png');
+     // this.pBaseTexture = this.displayManager().texturePool()
+     //     .loadResource('../../../../akra-engine-general/media/textures/sand_dark.dds');
     // this.pBaseTexture = this.displayManager().texturePool()
     //     .loadResource('../../../../akra-engine-general/media/textures/brick_texture_133.png');
 
 
-    //this.pBaseTexture.(); 
+    this.pBaseTexture.applyParameter(a.TPARAM.WRAP_S, a.TWRAPMODE.CLAMP_TO_EDGE);
+    this.pBaseTexture.applyParameter(a.TPARAM.WRAP_T, a.TWRAPMODE.CLAMP_TO_EDGE);
 
-    this.fScale = 0.01;
+    this.fScale = 0.15;
 
     // this.pHeightTexture = this.displayManager().texturePool()
     //     .loadResource('../../../../akra-engine-general/media/textures/lion-bump.png');
 
-    // this.pHeightTexture = this.displayManager().texturePool()
-    //     .loadResource('../../../../akra-engine-general/media/textures/brick_h_gs.png');
+    this.pHeightTexture = this.displayManager().texturePool()
+        .loadResource('../../../../akra-engine-general/media/textures/brick_h_gs.png');
     // this.pHeightTexture = this.displayManager().texturePool()
     //     .loadResource('../../../../akra-engine-general/media/textures/BrickModernLarge01_h.png');
     // this.pHeightTexture = this.displayManager().texturePool()
     //     .loadResource('../../../../akra-engine-general/media/textures/brick_heigth_172.png');
     //this.pHeightTexture = computePerlinNoiseGPU(this,1024,1024,0.01,5,0.3);
-    // this.pNormalTexture = this.displayManager().texturePool()
-    //     .loadResource('../../../../akra-engine-general/media/textures/brick_n.png');
+    this.pNormalTexture = this.displayManager().texturePool()
+        .loadResource('../../../../akra-engine-general/media/textures/brick_n.png');
     // this.pNormalTexture = this.displayManager().texturePool()
     //     .loadResource('../../../../akra-engine-general/media/textures/BrickModernLarge01_n_test.png');
-    this.pNormalTexture = computeNormalMapGPU(this,this.pHeightTexture,this.fScale,0);
+    //this.pNormalTexture = computeNormalMapGPU(this,this.pHeightTexture,this.fScale,0);
 
     var pSprite = new a.Sprite(this);
     pSprite.setGeometry(30,30);
@@ -179,15 +184,16 @@ function spriteDraw(pProgram){
     pEngine.pBaseTexture.activate(3);
     pProgram.applyInt('baseTexture',3);
 
-    pProgram.applyInt('iLevels',20);
+    pProgram.applyInt('iSteps',50);
 
-    var w = 0.0001;
-    var time = a.now();
-    pEngine.pLightPoint.setPosition(25.*Math.sin(w*time), 15.,15.*Math.cos(w*time));
-    //pEngine.pLightPoint.setPosition(20., 15.,10.);
+    // var w = 0.0002;
+    // var time = a.now();
+    // pEngine.pLightPoint.setPosition(25.*Math.sin(w*time), 10.,15.*Math.cos(w*time));
+    pEngine.pLightPoint.setPosition(10., 10.,10.);
 
     pProgram.applyVector3('light_position',
         pEngine.pLightPoint.getPosition());
+
 };
 
 function computePerlinNoiseGPU(pEngine,iSizeX,iSizeY,fScale,iOctaves,fFalloff){
