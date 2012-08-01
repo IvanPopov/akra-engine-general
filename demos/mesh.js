@@ -82,7 +82,8 @@ MeshDemo.prototype.initDeviceObjects = function () {
         'CMan': '',
         'astroBoy': 'astroBoy_walk_Max.DAE',
         'hero_model': 'demo/mesh_chr.DAE',
-        'hero_anim_run': 'demo/anim_chr_run_2.DAE'
+        'hero_anim_run': 'demo/anim_chr_run_2.DAE',
+        'hero_anim_idl': 'demo/anim_chr_idle.DAE'
     };
 
     //for (var i = 0; i < 1; i++) {
@@ -91,7 +92,7 @@ MeshDemo.prototype.initDeviceObjects = function () {
         success: function (pNodes, pMeshes, pAnimations) {
 
             COLLADA(this, {
-                file: '/akra-engine-general/media/models/' + pDemos['hero_anim_run'],
+                file: '/akra-engine-general/media/models/' + pDemos['hero_anim_idl'],
                 animation: true,
                 scene: true,
                 success: function (pNodes2, pMeshes2, pAnimations2) {
@@ -105,8 +106,8 @@ MeshDemo.prototype.initDeviceObjects = function () {
             //me.onColladaLoad(pNodes, pMeshes, pAnimations);
         },
         animation: false,
-        wireframe: true,
-        drawJoints: true  
+        wireframe: false,
+        drawJoints: false  
     });
     //}
 
@@ -180,8 +181,8 @@ MeshDemo.prototype.onColladaLoad = function (pNodes, pMeshes, pAnimations) {
         var v3f = [0,0,0];
         for (var i = 0; i < pNodes.length; ++ i) {
             pNodes[i].attachToParent(this.getRootNode());
-            pNodes[i].addRelRotation(-Math.PI/2, 0, -Math.PI/2);
-            pNodes[i].setScale(5);  
+            //pNodes[i].addRelRotation(-Math.PI/2, 0, -Math.PI/2);
+            //pNodes[i].setScale(5);  
             pNodes[i].addRelPosition(v3f.X, v3f.Z, 0.0);
         }
     }
