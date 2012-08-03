@@ -61,8 +61,8 @@ MeshDemo.prototype.initDeviceObjects = function () {
 
     var pCamera = this.getActiveCamera();
     // pCamera.addRelPosition(-.0, 10.0, 0.0);
-    pCamera.addPosition(-8.0, 5.0, 11.0);
-    pCamera.addRelRotation(-3.14/5, -3.14/15, 0);
+    pCamera.addRelPosition(-8.0, 5.0, 11.0);
+    pCamera.addRelRotation(-3.14/5, 0, 0);
 
 
     if (a.info.support.api.file === false) {
@@ -108,7 +108,7 @@ MeshDemo.prototype.initDeviceObjects = function () {
             //me.onColladaLoad(pNodes, pMeshes, pAnimations);
         },
         animation: false,
-        wireframe: false,
+        wireframe: true,
         drawJoints: true 
     });
     //}
@@ -157,13 +157,13 @@ MeshDemo.prototype.displayAnimation = function (pNodes, pMeshes, pAnimations) {
                 me.fAngle = 0;
             }
 
-            // for (var i = 0; i < pNodes.length; ++ i) {
-            //     pNodes.addPosition(
-            //         Math.cos(me.fAngle / 180 * Math.PI) * 10, 
-            //         0, 
-            //         Math.sin(me.fAngle / 180 * Math.PI) * 10
-            //         );
-            // }
+            for (var i = 0; i < pNodes.length; ++ i) {
+                pNodes[i].setPosition(
+                    Math.cos(me.fAngle / 180 * Math.PI) * 20, 
+                    0, 
+                    Math.sin(me.fAngle / 180 * Math.PI) * 20);
+                pNodes[i].setRotation(me.fAngle / 180 * Math.PI, Math.PI/2, 0);
+            }
 
             fnSliderChange.call(pSlider);
         }
@@ -204,7 +204,7 @@ MeshDemo.prototype.onColladaLoad = function (pNodes, pMeshes, pAnimations) {
         var v3f = [0,0,0];
         for (var i = 0; i < pNodes.length; ++ i) {
             pNodes[i].attachToParent(this.getRootNode());
-            pNodes[i].addRelRotation(-Math.PI/2, Math.PI/2, 0);
+            pNodes[i].addRelRotation(0, -Math.PI/2, 0);
             pNodes[i].setScale(5);  
             pNodes[i].addRelPosition(v3f.X, v3f.Z, 0.0);
         }
@@ -287,7 +287,7 @@ MeshDemo.prototype.updateScene = function () {
         fdX /= pScreen.width / 10.0;
         fdY /= pScreen.height / 10.0;
 
-        pCamera.addRelRotation(0, fdY, fdX);
+        pCamera.addRelRotation(fdX, fdY, 0);
     }
 
     return this.notifyUpdateScene();
