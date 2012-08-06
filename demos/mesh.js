@@ -94,20 +94,21 @@ MeshDemo.prototype.initDeviceObjects = function () {
     COLLADA(this, {
         file: '/akra-engine-general/media/models/' + pDemos['hero_model'],
         success: function (pNodes, pMeshes, pAnimations) {
-
             COLLADA(this, {
-                file: '/akra-engine-general/media/models/' + pDemos['hero_anim_idl'],
+                file: '/akra-engine-general/media/models/' + pDemos['hero_anim_run'],
                 animation: true,
                 scene: false,
                 success: function (pNodes2, pMeshes2, pAnimations2) {
-                    //trace(pAnimations.length, '<< animations')
-                    //trace(pMeshes[0][0].skin.skeleton.name);
-
-                    me.onColladaLoad(pNodes, pMeshes, pAnimations2);
+                    COLLADA(this, {
+                        file: '/akra-engine-general/media/models/' + pDemos['hero_anim_idl'],
+                        animation: true,
+                        scene: false,
+                        success: function (pNodes3, pMeshes3, pAnimations3) {
+                            me.onColladaLoad(pNodes, pMeshes, pAnimations2.concat(pAnimations2));
+                        }
+                    });
                 }
             });
-
-            //me.onColladaLoad(pNodes, pMeshes, pAnimations);
         },
         animation: false,
         wireframe: true,
@@ -120,16 +121,13 @@ MeshDemo.prototype.initDeviceObjects = function () {
 
 MeshDemo.prototype.displayAnimation = function (pNodes, pMeshes, pAnimations) {
     if (pAnimations) {
-        //var pSkeleton = pMeshes[0][0].skin.skeleton;
-        //trace('skeleton > ', pSkeleton.name);
-        
-        for (var i = 0; i < pAnimations.length; ++ i) {
-            //pAnimations[i].bind(pSkeleton);
-            pAnimations[i].bind(this.getRootNode());
-            pAnimations[i].attachToTimeline(0.);
-        }
-        //trace(pAnimations);
-        pNodes[1].pAnimations = pAnimations;
+
+        var pAnimController = new a.AnimationController(a.Animation.MODE_REPEAT);
+        pAnimController.addAnimation(pAnimations);
+        pAnimController.bind(this.getRootNode());
+
+        //pAnimController.setAnimationPriority(1, a.Animation.PRIORITY_LOW);
+        //pAnimController.setPriorityBlend(.1);
 
         var pSlider = document.createElement('input');
         var pTiming = this.displayManager().draw2DText(200, 50, new a.Font2D(20, '#FFF'));
@@ -147,9 +145,7 @@ MeshDemo.prototype.displayAnimation = function (pNodes, pMeshes, pAnimations) {
             
             var fTime = this.value / 100.0 * pAnimations[0]._fDuration;
             pTiming.edit(fTime + ' sec / ' + this.value);
-            for (var i = 0; i < pAnimations.length; ++ i) {
-                pAnimations[i].play(fTime);
-            }   
+            pAnimController.time(fTime);
         };
 
         this.animStep = function () {
@@ -257,7 +253,6 @@ MeshDemo.prototype.directRender = function() {
     'use strict';
 
     var pCamera = this._pDefaultCamera;
-    if (this.animStep) this.animStep();
     function draw(pProgram, pModel, hasMat) {
         hasMat = ifndef(hasMat, true);
         pProgram.applyMatrix4('model_mat', pModel.worldMatrix());
@@ -296,7 +291,7 @@ MeshDemo.prototype.updateScene = function () {
 
         pCamera.addRelRotation(fdX, fdY, 0);
     }
-
+    if (this.animStep) this.animStep();
     return this.notifyUpdateScene();
 };
 
