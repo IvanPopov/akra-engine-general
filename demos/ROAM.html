@@ -1,0 +1,366 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Cube / Akra Engine</title>
+    </head>
+    <body>
+        <script>
+            function TriTreeNode()
+            {
+                this.baseNeighbor=null;
+                this.leftNeighbor=null;
+                this.rightNeighbor=null;
+                this.leftChild=null;
+                this.rightChild=null;
+            }
+            var constMax=1000000;
+            var TriangleNodePool=Array(constMax);
+            for(var i=0;i<constMax;i++)
+                TriangleNodePool[i]= new TriTreeNode();
+
+            function requestTriNode()
+            {
+                pNode=null;
+                //console.log(requestTriNode.iNextTriNode,constMax);
+                if(requestTriNode.iNextTriNode<constMax)
+                {
+                    pNode=TriangleNodePool[requestTriNode.iNextTriNode];
+                    requestTriNode.iNextTriNode++;
+                    for (var i in pNode)
+                    {
+                        pNode[i]=null;
+                    }
+                }
+                return pNode;
+            }
+            requestTriNode.iNextTriNode=0;
+
+            function resetTriTree()
+            {
+                requestTriNode.iNextTriNode=0;
+            }
+
+            function Section(pNorthSection,pSouthSection,pEastSection,pWestSection)
+            {
+
+                this.pNorthSection = pNorthSection;
+                this.pSouthSection = pSouthSection;
+                this.pEastSection = pEastSection;
+                this.pWestSection = pWestSection;
+
+                this._rootTriangleA=new TriTreeNode();
+                this._rootTriangleB=new TriTreeNode();
+
+
+                this.leftNeighborOfA = null;
+                this.rightNeighborOfA = null;
+                this.leftNeighborOfB = null;
+                this.rightNeighborOfB = null;
+
+                this._varianceTreeA=null;
+                this._varianceTreeB=null;
+
+                this._maxIndices = 10000;
+                this._pIndexList=Array()
+                this._totalIndices=0;
+
+                if (pNorthSection)
+                {
+                    this.leftNeighborOfA =
+                            pNorthSection.triangleB();
+                }
+                if (pSouthSection)
+                {
+                    this.leftNeighborOfB =
+                            pSouthSection.triangleA();
+                }
+                if (pEastSection)
+                {
+                    this.rightNeighborOfB =
+                            pEastSection.triangleA();
+                }
+                if (pWestSection)
+                {
+                    this.rightNeighborOfA =
+                            pWestSection.triangleB();
+                }
+
+                this._totalVariances = 1<<10;
+
+            }
+
+            Section.prototype.triangleB=function()
+            {
+                return this._rootTriangleB;
+            }
+
+            Section.prototype.triangleA=function()
+            {
+                return this._rootTriangleA;
+            }
+
+            Section.prototype.prepareForRending=function()
+            {
+                this._0 = {x:0,y:0};
+                this._1 = {x:0,y:1};
+                this._2 = {x:1,y:1};
+                this._3 = {x:1,y:0};
+            }
+
+            Section.prototype.tessellate=function(vScale, vLimit)
+            {
+                time=new Date();
+                this.recursiveTessellate(
+                        this._rootTriangleA,
+                        this._1, this._2, this._0, //
+                        this._varianceTreeA, 1,
+                        vScale, vLimit);
+
+                //this.recursiveTessellate(
+                //        this._rootTriangleB,
+                //       this._3, this._0, this._2,
+                //        this._varianceTreeB, 1,
+                 //       vScale, vLimit);
+                console.log((new Date())-time);
+            }
+
+            Section.prototype.reset=function()
+            {
+                this._totalIndices=0;
+                this._rootTriangleA.leftChild = null;
+                this._rootTriangleA.rightChild = null;
+                this._rootTriangleB.leftChild = null;
+                this._rootTriangleB.rightChild = null;
+
+                this._rootTriangleA.baseNeighbor = this._rootTriangleB;
+                this._rootTriangleB.baseNeighbor = this._rootTriangleA;
+
+                // link to our neighbors
+                this._rootTriangleA.leftNeighbor = this.leftNeighborOfA;
+                this._rootTriangleA.rightNeighbor = this.rightNeighborOfA;
+                this._rootTriangleB.leftNeighbor = this.leftNeighborOfB;
+                this._rootTriangleB.rightNeighbor = this.rightNeighborOfB;
+            }
+
+            Section.prototype.recursiveTessellate=function(pTri, //вершина дерева треугольников
+                    distA, distB, distC, //растояния до углов треугольников, центр, лево, право
+                    pVTree, vIndex, //массив погрешности по высоте
+                    vScale, vLimit)
+            {
+                if ((vIndex<<1)+1 < this._totalVariances)
+                {
+                    //console.log("vIndex",vIndex,"totalVariances",this._totalVariances)
+                    var midPoint = {x:(distB.x + distC.x)*0.5,y:(distB.y + distC.y)*0.5}
+
+                    // Если треугольник не поделен
+                    if (!pTri.leftChild)
+                    {
+                        //var vRatio = (pVTree[vIndex]*vScale)/(midDist+0.0001f);
+                        var midDist1 =Math.sqrt((pView.x-midPoint.x)*(pView.x-midPoint.x)+(pView.y-midPoint.y)*(pView.y-midPoint.y));
+                        var midDist2 =Math.sqrt((pView.x-distB.x)*(pView.x-distB.x)+(pView.y-distB.y)*(pView.y-distB.y));
+                        var midDist3 =Math.sqrt((pView.x-distC.x)*(pView.x-distC.x)+(pView.y-distC.y)*(pView.y-distC.y));
+
+                        var vRatio = (1*vScale)/(Math.min(midDist1,midDist2,midDist3)+19.0001);
+
+                        if (vRatio > vLimit)
+                        {
+                            // subdivide this triangle
+                            //console.log("split");
+                            this.split(pTri);
+                        }
+                    }
+
+                    // Если треугольник поделен, продолжаем
+                    if (pTri.leftChild)
+                    {
+                        //debug_assert(tri->leftChild, "invalid triangle node");
+                        //debug_assert(tri->rightChild, "invalid triangle node");
+
+                        this.recursiveTessellate(pTri.leftChild,
+                                midPoint, distA,distB,
+                                pVTree, vIndex<<1,
+                                vScale, vLimit);
+
+                        this.recursiveTessellate(pTri.rightChild,
+                                midPoint,distC,distA,
+                                pVTree, (vIndex<<1)+1,
+                                vScale, vLimit);
+                    }
+                }
+            }
+
+            Section.prototype.split = function(pTri)
+            {
+                // Если разбит то смысла разбивать еще нет
+                if (pTri.leftChild)
+                    return;
+
+                // If this triangle is not in a proper diamond, force split our base neighbor
+                if (pTri.baseNeighbor && (pTri.baseNeighbor.baseNeighbor!=pTri))
+                    this.split(pTri.baseNeighbor);
+
+                // Create children and link into mesh
+                pTri.leftChild  = requestTriNode();
+                pTri.rightChild = requestTriNode();
+
+                //debug_assert(pTri.leftChild != pTri, "recursive link");
+                //debug_assert(pTri.rightChild != pTri, "recursive link");
+
+                // Если не удалось выделить треугольник, то не разбиваем
+                if ( !pTri.leftChild
+                        || !pTri.rightChild)
+                {
+                    console.log("не удалось выделить треугольник");
+                    pTri.leftChild  = 0;
+                    pTri.rightChild = 0;
+                    return;
+                }
+
+                // Fill in the information we can get from the parent (neighbor pointers)
+                pTri.leftChild.baseNeighbor  = pTri.leftNeighbor;
+                pTri.leftChild.leftNeighbor  = pTri.rightChild;
+
+                pTri.rightChild.baseNeighbor  = pTri.rightNeighbor;
+                pTri.rightChild.rightNeighbor = pTri.leftChild;
+
+                // Link our Left Neighbor to the new children
+                if (pTri.leftNeighbor)
+                {
+                    if (pTri.leftNeighbor.baseNeighbor == pTri)
+                        pTri.leftNeighbor.baseNeighbor = pTri.leftChild;
+                    else if (pTri.leftNeighbor.leftNeighbor == pTri)
+                        pTri.leftNeighbor.leftNeighbor = pTri.leftChild;
+                    else if (pTri.leftNeighbor.rightNeighbor == pTri)
+                        pTri.leftNeighbor.rightNeighbor = pTri.leftChild;
+                    else
+                    {
+                        debug_assert(0, "Invalid Left Neighbor!");
+                    }
+                }
+
+                // Link our Right Neighbor to the new children
+                if (pTri.rightNeighbor)
+                {
+                    if (pTri.rightNeighbor.baseNeighbor == pTri)
+                        pTri.rightNeighbor.baseNeighbor = pTri.rightChild;
+                    else if (pTri.rightNeighbor.rightNeighbor == pTri)
+                        pTri.rightNeighbor.rightNeighbor = pTri.rightChild;
+                    else if (pTri.rightNeighbor.leftNeighbor == pTri)
+                        pTri.rightNeighbor.leftNeighbor = pTri.rightChild;
+                    else
+                    {
+                        debug_assert(0, "Invalid Right Neighbor!");
+                    }
+                }
+
+                // Link our Base Neighbor to the new children
+                if (pTri.baseNeighbor)
+                {
+                    if ( pTri.baseNeighbor.leftChild )
+                    {
+                        pTri.baseNeighbor.leftChild.rightNeighbor = pTri.rightChild;
+                        pTri.baseNeighbor.rightChild.leftNeighbor = pTri.leftChild;
+                        pTri.leftChild.rightNeighbor = pTri.baseNeighbor.rightChild;
+                        pTri.rightChild.leftNeighbor = pTri.baseNeighbor.leftChild;
+                    }
+                    else
+                    {
+                        this.split( pTri.baseNeighbor);  // Base Neighbor (in a diamond with us) was not split yet, so do that now.
+                    }
+                }
+                else
+                {
+                    // An edge triangle, trivial case.
+                    pTri.leftChild.rightNeighbor = null;
+                    pTri.rightChild.leftNeighbor = null;
+                }
+            }
+
+            Section.prototype.buildTriangleList=function()
+            {
+                // add all the triangles to the roamTerrain
+                // in root triangle A
+                this.recursiveBuildTriangleList(
+                        this._rootTriangleA,
+                        {x:0.,y:1.},{x:1.,y:1.}, {x:0.,y:0.});
+
+                // add all the triangles to the roamTerrain
+                // in root triangle B
+                this.recursiveBuildTriangleList(
+                        this._rootTriangleB,
+                        {x:1.,y:0.},{x:0.,y:0.}, {x:1.,y:1.});
+            }
+
+            Section.prototype.recursiveBuildTriangleList=function(pTri,pointBase,pointLeft,pointRight)
+            {
+                   //console.log("recursiveBuildTriangleList",pTri.leftChild)
+                if (pTri.leftChild)
+                {
+                    if(!pTri.rightChild)
+                        console.log("invalid triangle node");
+
+                    var pointMid = {x:(pointLeft.x+pointRight.x)/2,y:(pointLeft.y+pointRight.y)/2};
+                    this.recursiveBuildTriangleList(
+                            pTri.leftChild,
+                            pointMid, pointBase, pointLeft);
+                    this.recursiveBuildTriangleList(
+                            pTri.rightChild,
+                            pointMid, pointRight, pointBase);
+
+                }
+                else if (this._totalIndices + 1 < this._maxIndices)
+                {
+                    // add the local triangle to the index list
+                    this._pIndexList[this._totalIndices++]=[pointBase,pointLeft,pointRight];
+                }
+            }
+
+
+
+            function draw()
+            {
+                var pCanvas=document.getElementById("canvas");
+                //console.log(pCanvas)
+                var p2D=pCanvas.getContext("2d");
+                p2D.fillStyle = "#fff"; // цвет фона
+                p2D.strokeStyle = "#f00"; //цвет линий
+                p2D.lineWidth = 2;
+                p2D.fillRect(0, 0, pCanvas.width, pCanvas.height);
+                p2D.beginPath();
+                //console.log("Total ",pSec._totalIndices);
+                for(var i=0;i<pSec._totalIndices;i++)
+                {
+                    //console.log("\t",i,pSec._pIndexList[i]);
+                    p2D.moveTo(pSec._pIndexList[i][0].x*pCanvas.width, pSec._pIndexList[i][0].y*pCanvas.height);
+                    p2D.lineTo(pSec._pIndexList[i][1].x*pCanvas.width, pSec._pIndexList[i][1].y*pCanvas.height);
+                    p2D.lineTo(pSec._pIndexList[i][2].x*pCanvas.width, pSec._pIndexList[i][2].y*pCanvas.height);
+                    p2D.lineTo(pSec._pIndexList[i][0].x*pCanvas.width, pSec._pIndexList[i][0].y*pCanvas.height);
+                }
+                p2D.stroke();
+            }
+
+            pSec =new Section();
+
+            var pView;
+            function fClick()
+            {
+                pView={x:parseFloat(document.getElementById("x").value),y:parseFloat(document.getElementById("y").value)}
+                resetTriTree();
+                pSec.reset();
+                pSec.prepareForRending();
+                pSec.tessellate(2, 0.1); //(vScale, vLimit);
+                pSec.buildTriangleList();
+                draw();
+                //console.log(pView.x,pView.y);
+            }
+        </script>
+        <div>
+            <p>x: <input type="range" min="0.5" max="1.9" id="x" value="0.5" step="0.01"
+                                      onchange="fClick()"></p>
+            <p>y: <input type="range" min="0.5" max="1.9" id="y" value="0.5" step="0.01"
+                                      onchange="fClick()"></p>
+            <canvas id="canvas" width="320" height="320"></canvas>
+            <button onclick="fClick();">draw</button>
+        </div>
+    </body>
+</html>
