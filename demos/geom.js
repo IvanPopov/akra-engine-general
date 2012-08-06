@@ -271,3 +271,120 @@ function plane (pEngine, eOptions, sName, nCellW, nCellH) {
 
     return pMesh;
 }
+
+function bias (pEngine, eOptions, sName) {
+    var pMesh, pSubMesh;
+    var iPos, iNorm;
+
+    var pVerticesData = new Float32Array([
+                                             -0.01, 0.0, 0.01,
+                                             0.01, 0.0, 0.01, //yaw
+                                             0.0, 1., 0.,
+
+                                             -0.01, 0.0, -0.01,
+                                             0.01, 0.0, -0.01, //yaw
+                                             0.0, 1., 0.,
+
+                                             0.01, 0.0,-0.01,
+                                             0.01, 0.0, 0.01, //yaw
+                                             0.0, 1., 0.,
+
+                                             -0.01, 0.0, -0.01,
+                                             -0.01, 0.0, 0.01, //yaw
+                                             0.0, 1., 0.,
+
+                                             0.0, -0.01, 0.01,
+                                             0.0, 0.01, 0.01, //pitch
+                                             1., 0., 0.0,
+
+                                             0.0, -0.01, -0.01,
+                                             0.0, 0.01, -0.01, //pitch
+                                             1., 0., 0.0,
+
+                                             0.0, 0.01, -0.01,
+                                             0.0, 0.01, 0.01, //pitch
+                                             1., 0., 0.0,
+
+                                             0.0, -0.01, -0.01,
+                                             0.0, -0.01, 0.01, //pitch
+                                             1., 0., 0.0,
+
+                                             0.01, -0.01, 0.0,
+                                             0.01, 0.01, 0.0,//roll
+                                             0.0, 0.0, 1.0,
+
+                                             -0.01, -0.01, 0.0,
+                                             -0.01, 0.01, 0.0,//roll
+                                             0.0, 0.0, 1.0,
+
+                                             -0.01, 0.01, 0.0,
+                                             0.01, 0.01, 0.0,//roll
+                                             0.0, 0.0, 1.0,
+
+                                             -0.01, -0.01, 0.0,
+                                             0.01, -0.01, 0.0,//roll
+                                             0.0, 0.0, 1.0
+                                         ]);
+
+
+    var pColorData = new Float32Array([
+                                             1., 0., 0.,
+                                             1., 0., 0., //yaw
+                                             1., 0., 0.,
+
+                                             1., 0., 0.,
+                                             1., 0., 0., //yaw
+                                             1., 0., 0.,
+
+                                             1., 0., 0.,
+                                             1., 0., 0., //yaw
+                                             1., 0., 0.,
+
+                                             1., 0., 0.,
+                                             1., 0., 0., //yaw
+                                             1., 0., 0.,
+
+                                             0., 1., 0.,
+                                             0., 1., 0., //pitch
+                                             0., 1., 0.,
+
+                                             0., 1., 0.,
+                                             0., 1., 0., //pitch
+                                             0., 1., 0.,
+
+                                             0., 1., 0.,
+                                             0., 1., 0., //pitch
+                                             0., 1., 0.,
+
+                                             0., 1., 0.,
+                                             0., 1., 0., //pitch
+                                             0., 1., 0.,
+
+                                             0., 0., 1.,
+                                             0., 0., 1.,//roll
+                                             0., 0., 1.,
+
+                                             0., 0., 1.,
+                                             0., 0., 1.,//roll
+                                             0., 0., 1.,
+
+                                             0., 0., 1.,
+                                             0., 0., 1.,//roll
+                                             0., 0., 1.,
+
+                                             0., 0., 1.,
+                                             0., 0., 1.,//roll
+                                             0., 0., 1.
+                                         ]);
+
+
+    var  iPos;
+
+    pMesh = new a.Mesh(pEngine, eOptions || 0, sName || 'bias');
+    pSubMesh = pMesh.createSubset('bias::main');
+    pSubMesh.data.allocateAttribute([VE_VEC3('POSITION')], pVerticesData);
+    pSubMesh.data.allocateAttribute([VE_VEC3('COLOR')], pColorData);
+    //pSubMesh.data.allocateIndex([VE_FLOAT('INDEX0')], pVertexIndicesData);
+    //pSubMesh.data.index(iPos, 'INDEX0');
+    return pMesh;
+}
