@@ -2601,6 +2601,10 @@ if (typeof esprima === 'undefined') {
             return sCode;
         }
 
+        function resetPathStack () {
+            PathStack = [];
+        }
+
         exports['analyze'] = analyze;
         exports['code'] = parse;
         exports['file'] = file;
@@ -2612,6 +2616,7 @@ if (typeof esprima === 'undefined') {
         exports['scriptType'] = 'text/akra-js';
         exports['keywords'] = {};
         exports['log'] = false;
+        exports['reset'] = resetPathStack;
 
         exports.watch();
     })();

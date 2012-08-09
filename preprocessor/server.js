@@ -46,6 +46,7 @@ http.createServer(function (request, response) {
   }
   catch (e) {
     response.end(e.message);
+    preprocessor.reset();
   }
 
 
