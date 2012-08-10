@@ -4,8 +4,6 @@
 
 compiled/
 
-
-*.bak
 *.back
 *.prev
 *.sublime-project

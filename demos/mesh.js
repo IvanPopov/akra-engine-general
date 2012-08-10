@@ -1,240 +1,5 @@
-function loadGLSLSource(sPath, sFilename) {
-    var sShader = a.ajax({url: sPath + sFilename, async: false}).data;
-    var fnReplacer = function (sSource, sMatch) {
-        return a.ajax({url: sPath + sMatch, async: false}).data;
-    }
-
-    sShader = sShader.replace(/\#include\s+\"([\w\.]+)\"/ig, fnReplacer);
-    sShader = sShader.split('//<-- split -- >');
-    return {vertex: sShader[0], fragment: sShader[1]};
-}
-
-// function cube (pEngine, eOptions, sName) {
-// 	sName = sName || 'cube';
-
-//     var pMesh,
-//         pSubMesh;
-//     var iPos, iNorm;
-
-//     var pVerticesData = new Float32Array([
-//         -0.5, 0.5, 0.5,
-//         0.5, 0.5, 0.5,
-//         -0.5, -0.5, 0.5,
-//         0.5, -0.5, 0.5,
-//         -0.5, 0.5, -0.5,
-//         0.5, 0.5, -0.5,
-//         -0.5, -0.5, -0.5,
-//         0.5, -0.5, -0.5
-//     ]);
-
-//     var pNormalsData = new Float32Array([
-//         1.0, 0.0, 0.0,
-//         -1.0, 0.0, 0.0,
-//         0.0, 1.0, 0.0,
-//         0.0, -1.0, 0.0,
-//         0.0, 0.0, 1.0,
-//         0.0, 0.0, -1.0
-//     ]);
-
-//     var pVertexIndicesData = new Float32Array([
-//         0, 2, 3, 0, 3, 1,
-//         0, 1, 5, 0, 5, 4,
-//         6, 7, 3, 6, 3, 2,
-//         0, 4, 6, 0, 6, 2,
-//         3, 7, 5, 3, 5, 1,
-//         5, 7, 6, 5, 6, 4
-//     ]);
-//     var pNormalIndicesData = new Float32Array([
-//         4, 4, 4, 4, 4, 4,
-//         2, 2, 2, 2, 2, 2,
-//         3, 3, 3, 3, 3, 3,
-//         1, 1, 1, 1, 1, 1,
-//         0, 0, 0, 0, 0, 0,
-//         5, 5, 5, 5, 5, 5
-//     ]);
-
-//     var iNorm, iPos;
-//     pMesh = new a.Mesh(pEngine, eOptions, sName);
- 
-    
-//     pSubMesh = pMesh.allocateSubset('cube::main');
-
-//     //iNorm = pSubMesh.allocateData([VE_VEC3('NORMAL')], pNormalsData);
-//     //iPos = pSubMesh.allocateData([VE_VEC3('POSITION')], pVerticesData);
-    
-//     iPos = pMesh.allocateData([VE_VEC3('POSITION')], pVerticesData);
-//     iNorm = pMesh.allocateData([VE_VEC3('NORMAL')], pNormalsData);
-    
-//     pMesh.addMaterial('default');
-    
-//     pSubMesh.allocateIndex([VE_FLOAT('INDEX1')], pVertexIndicesData);
-//     pSubMesh.allocateIndex([VE_FLOAT('INDEX2')], pNormalIndicesData);
-       
-//     pSubMesh.index(iPos, 'INDEX1');
-//     pSubMesh.index(iNorm, 'INDEX2');
-
-//     //trace('index set: 1', pSubMesh._pMap.toString());
-
-//     pSubMesh.addIndexSet();
-
-//     pSubMesh.allocateIndex([VE_FLOAT('INDEX3')], pVertexIndicesData);
-//     pSubMesh.allocateIndex([VE_FLOAT('INDEX4')], pNormalIndicesData);
-
-//     pSubMesh.index(iPos, 'INDEX3');
-//     pSubMesh.index(iNorm, 'INDEX4');
-
-//     //trace('index set: 2', pSubMesh._pMap.toString());
-
-//     pSubMesh.selectIndexSet(0);
-//     pMesh.setMaterial('default');
-//     //trace('index set: 1', pSubMesh._pMap.toString());
-//     return pMesh;
-// }
-
-function torus (pEngine, eOptions, sName, rings, sides) {
-    rings = rings || 30;
-    sides = sides || 30;
-
-    var vertices  = [];
-    var normals   = [];
-    var tex       = [];
-    var ind       = [];
-    var r1        = 0.1;
-    var r2        = 0.5;
-    var ringDelta = 2.0 * 3.1415926 / rings;
-    var sideDelta = 2.0 * 3.1415926 / sides;
-    var invRings  = 1.0 / rings;
-    var invSides  = 1.0 / sides;
-    var index       = 0;
-    var numVertices = 0;
-    var numFaces    = 0;
-    var i, j;
-
-    for ( i = 0; i <= rings; i++ ) {
-        var theta    = i * ringDelta;
-        var cosTheta = Math.cos ( theta );
-        var sinTheta = Math.sin ( theta );
-
-        for ( j = 0; j <= sides; j++ ) {
-            var phi    = j * sideDelta;
-            var cosPhi = Math.cos ( phi );
-            var sinPhi = Math.sin ( phi );
-            var dist   = r2 + r1 * cosPhi;
-
-            vertices.push ( cosTheta * dist + 1.5);
-            vertices.push ( -sinTheta * dist);
-            vertices.push ( r1 * sinPhi );
-            
-            tex.push     ( j * invSides );
-            tex.push     ( i * invRings );
-            
-            normals.push ( cosTheta * cosPhi );
-            normals.push ( -sinTheta * cosPhi );
-            normals.push ( sinPhi );
-
-            numVertices++;
-        }
-    }
-    
-    for ( i = 0; i < rings; i++ ) {
-        for ( j = 0; j < sides; j++ ) {
-            ind.push ( i*(sides+1) + j );
-            ind.push ( (i+1)*(sides+1) + j );
-            ind.push ( (i+1)*(sides+1) + j + 1 );
-            
-            ind.push ( i*(sides+1) + j );
-            ind.push ( (i+1)*(sides+1) + j + 1 );
-            ind.push ( i*(sides+1) + j + 1 );
-            
-            numFaces += 2;
-        }
-    }
-
-    var pMesh, pSubMesh;
-    var pMaterial;
-    var iPos, iNorm;
-    pMesh = new a.Mesh(pEngine, eOptions || 0, sName || 'torus');
-    pSubMesh = pMesh.allocateSubset('torus::main');
-
-    var vertnorm = [];
-    for (var i = 0; i < vertices.length; i += 3) {
-        vertnorm.push(vertices[i], vertices[i + 1], vertices[i + 2]);
-        vertnorm.push(normals[i], normals[i + 1], normals[i + 2]);
-    }
-
-    //iNorm = pSubMesh.allocateData([VE_VEC3('NORMAL')], new Float32Array(normals));
-    //iPos = pSubMesh.allocateData([VE_VEC3('POSITION')], new Float32Array(vertices));
-    iPosNorm = pSubMesh.allocateData([VE_VEC3('POSITION'), VE_VEC3('NORMAL')], 
-        new Float32Array(vertnorm));
-
-    pSubMesh.allocateIndex([VE_FLOAT('INDEX_POSITION'), VE_FLOAT('INDEX_NORMAL', 0)], 
-        new Float32Array(ind));
-
-    //pSubMesh.allocateIndex([VE_FLOAT('INDEX_POSITION')], new Float32Array(ind));
-    //pSubMesh.allocateIndex([VE_FLOAT('INDEX_NORMAL')], new Float32Array(ind));
-
-    pSubMesh.index(iPosNorm, 'INDEX_POSITION');
-    pSubMesh.index(iPosNorm, 'INDEX_NORMAL');
-    pSubMesh.applyFlexMaterial('blue');
-
-    pMaterial = pSubMesh.getFlexMaterial('blue');
-    pMaterial.diffuse = new a.Color4f(0.3, 0.3, 1.0, 1.0);
-    return pMesh;
-}
-
-function cube (pEngine, eOptions, sName) {
-    var pMesh, pSubMesh;
-    var iPos, iNorm;
-
-    var pVerticesData = new Float32Array([
-        -0.5, 0.5, 0.5,
-        0.5, 0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        0.5, -0.5, 0.5,
-        -0.5, 0.5, -0.5,
-        0.5, 0.5, -0.5,
-        -0.5, -0.5, -0.5,
-        0.5, -0.5, -0.5
-    ]);
-    var pNormalsData = new Float32Array([
-        1.0, 0.0, 0.0,
-        -1.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, -1.0, 0.0,
-        0.0, 0.0, 1.0,
-        0.0, 0.0, -1.0
-    ]);
-    var pVertexIndicesData = new Float32Array([
-        0, 2, 3, 0, 3, 1,
-        0, 1, 5, 0, 5, 4,
-        6, 7, 3, 6, 3, 2,
-        0, 4, 6, 0, 6, 2,
-        3, 7, 5, 3, 5, 1,
-        5, 7, 6, 5, 6, 4
-    ]);
-    var pNormalIndicesData = new Float32Array([
-        4, 4, 4, 4, 4, 4,
-        2, 2, 2, 2, 2, 2,
-        3, 3, 3, 3, 3, 3,
-        1, 1, 1, 1, 1, 1,
-        0, 0, 0, 0, 0, 0,
-        5, 5, 5, 5, 5, 5
-    ]);
-
-    var iNorm, iPos;
-
-    pMesh = new a.Mesh(pEngine, eOptions || 0, sName || 'cube');
-    pSubMesh = pMesh.allocateSubset('cube::main');
-    iNorm = pSubMesh.allocateData([VE_VEC3('NORMAL')], pNormalsData);
-    iPos = pSubMesh.allocateData([VE_VEC3('POSITION')], pVerticesData);
-    pSubMesh.allocateIndex([VE_FLOAT('INDEX_POSITION')], pVertexIndicesData);
-    pSubMesh.allocateIndex([VE_FLOAT('INDEX_NORMAL')], pNormalIndicesData);
-    pSubMesh.index(iPos, 'INDEX_POSITION');
-    pSubMesh.index(iNorm, 'INDEX_NORMAL');
-    pSubMesh.applyFlexMaterial('default');
-
-    return pMesh;
-} 
+Include('geom.js')
+Insert('../media/scripts/html5slider.js');
 
 function MeshDemo() {
 	A_CLASS;
@@ -249,7 +14,7 @@ MeshDemo.prototype.oneTimeSceneInit = function () {
 	this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0.0, 500.0));
     this.showStats(true);
 	return true;
-}; 
+};
 
 MeshDemo.prototype.restoreDeviceObjects = function () {
 	this.notifyRestoreDeviceObjects();
@@ -258,46 +23,228 @@ MeshDemo.prototype.restoreDeviceObjects = function () {
 
 
 MeshDemo.prototype.initDeviceObjects = function () {
+    'use strict';
+    
 	this.notifyInitDeviceObjects();
-	
-	var pCubeMesh = cube(this);
-    var pTorusMesh = torus(this);
-    var pShaderSource = loadGLSLSource('../effects/', 'mesh.glsl');
 
-    var pProgram = this.displayManager().shaderProgramPool().createResource('draw_mesh');
-    pProgram.create(pShaderSource.vertex, pShaderSource.fragment, true);
+	var me = this;
+    var pProgram;
 
-    this.pCube = new a.SceneModel(this, pCubeMesh);
-    this.pTorus = new a.SceneModel(this, pTorusMesh);
-    this.pCube.attachToParent(this.getRootNode());
-    this.pTorus.attachToParent(this.getRootNode());
-    this.pCube.create();
-    this.pTorus.create();
+    function addMeshToScene(pEngine, pMesh, pParent) {
+        var pSceneObject = new a.SceneModel(pEngine, pMesh);
+        pSceneObject.create();
+        pSceneObject.attachToParent(pParent || pEngine.getRootNode());
+        return pSceneObject;
+    }
 
-    this.pDrawMeshProg = pProgram;
+    this.pCubeMesh = cube(this);
+
+    this.appendMesh = function (pMesh, pNode) {
+        return addMeshToScene(me, pMesh, pNode);
+    }
+    
+    this.pPlane = addMeshToScene(this, sceneSurface(this));
+    this.pPlane.bNoRender = true;
+    this.pPlane.setScale(200.0);
+
+    this.pDrawMeshProg = a.loadProgram(this, '../effects/mesh.glsl');
+    this.pDrawMeshTexProg = a.loadProgram(this, '../effects/mesh.glsl', {'USE_TEXTURE_MATERIALS': 1});
+    this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
+    this.pDrawMeshI2IProg = a.loadProgram(this, '../effects/mesh_ai.glsl');
+    this.pDrawMeshAnimProgTex = a.loadProgram(this, '../effects/mesh.glsl', {
+        'USE_TEXTURE_MATERIALS': 1, 
+        'USE_ANIMATION': 1
+    });
+    this.pDrawMeshAnimProg = a.loadProgram(this, '../effects/mesh.glsl', {
+        'USE_ANIMATION': 1
+    });
+
+    var pCamera = this.getActiveCamera();
+    pCamera.addRelPosition(-8.0, 5.0, 11.0);
+    pCamera.addRelRotation(-3.14/5, -3.14/15, 0);
+
+    if (a.info.support.api.file === false) {
+        error('file api unsupported...');
+    }
+
+    var pDropZone = this.displayManager().getTextLayer();
+    
+    pDropZone.addEventListener('dragover', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy'; 
+    }, false);
+
+    pDropZone.addEventListener('drop', function (e) {me.onFileDrop(e)}, false);
+  
+    //default scene models
+    var pDemos = {
+        'CMan': '',
+        'astroBoy': 'astroBoy_walk_Max.DAE',
+        'hero_model': 'demo/mesh_chr.DAE',
+        'hero_anim_run': 'demo/anim_chr_run_2.DAE',
+        'hero_anim_idl': 'demo/anim_chr_idle.DAE'
+    };
+
+    //for (var i = 0; i < 1; i++) {
+    COLLADA(this, {
+        file: '/akra-engine-general/media/models/' + pDemos['hero_model'],
+        success: function (pNodes, pMeshes, pAnimations) {
+
+            COLLADA(this, {
+                file: '/akra-engine-general/media/models/' + pDemos['hero_anim_idl'],
+                animation: true,
+                scene: true,
+                success: function (pNodes2, pMeshes2, pAnimations2) {
+                    //trace(pAnimations.length, '<< animations')
+                    //trace(pMeshes[0][0].skin.skeleton.name);
+                    
+                    me.onColladaLoad(pNodes, pMeshes, pAnimations2);
+                }
+            });
+
+            //me.onColladaLoad(pNodes, pMeshes, pAnimations);
+        },
+        animation: false,
+        wireframe: false,
+        drawJoints: false  
+    });
+    //}
+
 	return true;
+};
+
+MeshDemo.prototype.displayAnimation = function (pNodes, pMeshes, pAnimations) {
+    if (pAnimations) {
+        //var pSkeleton = pMeshes[0][0].skin.skeleton;
+        //trace('skeleton > ', pSkeleton.name);
+        
+        for (var i = 0; i < pAnimations.length; ++ i) {
+            //pAnimations[i].bind(pSkeleton);
+            pAnimations[i].bind(this.getRootNode());
+            pAnimations[i].attachToTimeline(0.);
+        }
+        //trace(pAnimations);
+        pNodes[1].pAnimations = pAnimations;
+
+        var pSlider = document.createElement('input');
+        var pTiming = this.displayManager().draw2DText(200, 50, new a.Font2D(20, '#FFF'));
+        
+        pSlider.type = "range";
+        pSlider.min = 0;
+        pSlider.max = 100;
+        pSlider.step = 1;
+        pSlider.value = 0;
+
+        var fnSliderChange = function () {
+            
+            var fTime = this.value / 100.0 * pAnimations[0]._fDuration;
+            pTiming.edit(fTime + ' sec / ' + this.value);
+            for (var i = 0; i < pAnimations.length; ++ i) {
+                pAnimations[i].play(fTime);
+            }   
+        };
+
+        pSlider.onchange = fnSliderChange;
+
+        pSlider.style.position = "absolute";
+        pSlider.style.top = "50px";
+        pSlider.style.zIndex = "100";
+
+        document.getElementById('wrapper').appendChild(pSlider);
+
+        document.body.addEventListener("keypress", function(e) {
+            e = window.event || e;
+            e = e.charCode || e.keyCode;
+
+            if (e == a.KEY.F1) {
+                pSlider.value = Number(pSlider.value) + 1.0;
+                if (pSlider.value > 100) pSlider.value = 100;
+                fnSliderChange.call(pSlider);
+            }
+            else if (e == a.KEY.F2) {
+                pSlider.value -= 1;
+                if (pSlider.value < 0) pSlider.value = 0;
+                fnSliderChange.call(pSlider);
+            }
+        }, false);
+
+        fnSliderChange.call(pSlider);
+    }
+}
+
+MeshDemo.prototype.onColladaLoad = function (pNodes, pMeshes, pAnimations) {
+    'use strict';
+    
+    if (pNodes) {
+        //var v3f = [Math.random() * 100 - 50.0, 0.0, Math.random() * 100 - 50.0];
+        var v3f = [0,0,0];
+        for (var i = 0; i < pNodes.length; ++ i) {
+            pNodes[i].attachToParent(this.getRootNode());
+            //pNodes[i].addRelRotation(-Math.PI/2, 0, -Math.PI/2);
+            //pNodes[i].setScale(5);  
+            pNodes[i].addRelPosition(v3f.X, v3f.Z, 0.0);
+        }
+    }
+
+    this.displayAnimation(pNodes, pMeshes, pAnimations);
+};
+
+
+
+MeshDemo.prototype.onFileDrop = function (e) {
+    'use strict';
+    
+    e.stopPropagation();
+    e.preventDefault();
+
+    var pFiles = e.dataTransfer.files;
+    var me = this;
+    for (var i = 0, f; f = pFiles[i]; i++) {
+        if (f.name.substr(f.name.lastIndexOf('.') + 1) !== 'dae') {
+            continue;
+        }
+
+        var reader = new FileReader();
+
+        // Closure to capture the file information.
+        reader.onload = (function(theFile) {
+            return function(e) {
+                trace('##################### NEW MODEL #####################');     
+                COLLADA(me, 
+                    {
+                        content: e.target.result,
+                        success: me.onColladaLoad
+                    });
+            };
+        })(f);
+
+        reader.readAsText(f);
+    }
 };
 
 MeshDemo.prototype.directRender = function() {
     'use strict';
 
-    var pProgram = this.pDrawMeshProg;
-    var pCamera = this.getActiveCamera();
+    var pCamera = this._pDefaultCamera;
 
-    function draw(pModel) {
-        pModel.addRelRotation(0.01, 0., 0.);
-        pProgram.activate();
+    function draw(pProgram, pModel, hasMat) {
+        hasMat = ifndef(hasMat, true);
         pProgram.applyMatrix4('model_mat', pModel.worldMatrix());
-        pProgram.applyMatrix3('normal_mat', pModel.normalMatrix());
         pProgram.applyMatrix4('proj_mat', pCamera.projectionMatrix());
         pProgram.applyMatrix4('view_mat', pCamera.viewMatrix());
-        pProgram.applyVector3('eye_pos', pCamera.worldPosition());
-        pModel._pMesh.draw();
-    }
+        
+        if (hasMat) {
+            pProgram.applyMatrix3('normal_mat', pModel.normalMatrix());
+            pProgram.applyVector3('eye_pos', pCamera.worldPosition());
+        }
 
-    this.pCube.addRelRotation(0., 0.01, 0.);
-    draw(this.pCube);
-    draw(this.pTorus);
+        pModel.findMesh().draw();
+    }    
+
+    //draw plane
+    this.pDrawPlaneProg.activate();
+    draw(this.pDrawPlaneProg, this.pPlane, false);
 };
 
 MeshDemo.prototype.deleteDeviceObjects = function () {
