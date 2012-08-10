@@ -1,7 +1,11 @@
+Include("geom.js")
+
 function ShaderDemo() {
     A_CLASS;
-    STATIC(fMoveSpeed,1.);
-};
+    this.pPlane = null;
+    STATIC(fMoveSpeed, 1.);
+}
+;
 
 EXTENDS(ShaderDemo, a.Engine);
 
@@ -9,7 +13,7 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     'use strict';
     this.notifyOneTimeSceneInit();
     return true;
-}; 
+};
 
 ShaderDemo.prototype.restoreDeviceObjects = function () {
     this.notifyRestoreDeviceObjects();
@@ -18,12 +22,35 @@ ShaderDemo.prototype.restoreDeviceObjects = function () {
 
 
 ShaderDemo.prototype.initDeviceObjects = function () {
-    this.shaderManager().loadEffectFile('http://akra/akra-engine-general/media/effects/Demo_simple.fx');
+    this.shaderManager().loadEffectFile('http://akra/akra-engine-general/media/effects/Simple_effect.fx');
+    function addMeshToScene(pEngine, pMesh, pParent) {
+        var pSceneObject = new a.SceneModel(pEngine, pMesh);
+//        pSceneObject.create();
+//        pSceneObject.attachToParent(pParent || pEngine.getRootNode());
+        return pSceneObject;
+    }
+
+    this.pPlane = addMeshToScene(this, sceneSurface(this));
+    this.pPlane.bNoRender = true;
+    var pSnapshot = this.pPlane._pMeshes[0][0]._pActiveSnapshot;
+    var pData = this.pPlane._pMeshes[0][0]._pRenderData;
+    var pEffectResource = pSnapshot._pRenderMethod._pEffect;
+    var time = new Date();
+    pEffectResource.use(this.shaderManager().getComponentByName("akra.base.simple"));
+    pSnapshot.begin();
+    pSnapshot.activatePass(0);
+    pSnapshot.setParameter("col", [0.3,0.4,0.5]);
+    pData.applyMe();
+    pSnapshot.renderPass();
+    time = new Date() - time;
+
+    console.log(this.pPlane._pMeshes[0][0], this.shaderManager(), time);
+
     this.notifyInitDeviceObjects();
     return true;
 };
 
-ShaderDemo.prototype.directRender = function() {
+ShaderDemo.prototype.directRender = function () {
     'use strict';
 };
 
