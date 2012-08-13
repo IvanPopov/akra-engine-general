@@ -22,15 +22,22 @@ texture tex3 : TEXTURE4; // surface 2
 texture tex4 : TEXTURE5; // surface 3
 texture tex5 : TEXTURE6; // noise channels
 
+struct Material{
+	float3 dif : DIFFUSE;
+	float3 amb[] : AMBIENT;
+};
+float a1, a2 = 3.0, a3;
+
 struct VS_INPUT
 {
   float2	Pos		: POSITION0;
   float2	UV		: TEXCOORD0;
   float	ZPos		: POSITION1;
   float3	Norm[][]	: NORMAL;
+  Material       mat[][] : MATERIAL;
 };
 
-float a1, a2 = 3.0, a3;
+
 
 struct VS_OUTPUT11
 {
@@ -115,7 +122,7 @@ VS_OUTPUT11 VS11(uniform testStruct1 T, VS_INPUT v)
 	t1.pos(buf0);
 	@@(t1.pos)+=10;
 	t1.pos += 20;
-	@(t1.pos)+=10;
+	@(t1.pos)+=@(v.mat.amb);
     //float4 pos = (((Out).Pos).xyzw + float4(1.0,2.0,3.0,4.0)).rab;
 	float2 xy = testFunc(1.0).zw;
 	abc = abc1;

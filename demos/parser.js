@@ -23,6 +23,8 @@ ShaderDemo.prototype.restoreDeviceObjects = function () {
 
 ShaderDemo.prototype.initDeviceObjects = function () {
     this.shaderManager().loadEffectFile('http://akra/akra-engine-general/media/effects/Simple_effect.fx');
+//    this.shaderManager().loadEffectFile('http://akra/akra-engine-general/media/effects/Demo_simple.fx');
+
     function addMeshToScene(pEngine, pMesh, pParent) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
 //        pSceneObject.create();
@@ -36,15 +38,19 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     var pData = this.pPlane._pMeshes[0][0]._pRenderData;
     var pEffectResource = pSnapshot._pRenderMethod._pEffect;
     var time = new Date();
+
     pEffectResource.use(this.shaderManager().getComponentByName("akra.base.simple"));
     pSnapshot.begin();
     pSnapshot.activatePass(0);
     pSnapshot.setParameter("col", [0.3,0.4,0.5]);
     pData.applyMe();
     pSnapshot.renderPass();
+    pSnapshot.deactivatePass();
+    pSnapshot.end();
+
     time = new Date() - time;
 
-    console.log(this.pPlane._pMeshes[0][0], this.shaderManager(), time);
+    console.log(pData, this.shaderManager(), time);
 
     this.notifyInitDeviceObjects();
     return true;
