@@ -3,8 +3,7 @@ attribute vec4  VALUE;
 attribute float INDEX;                                                          
 attribute float SHIFT;                                                          
                                                                                 
-uniform vec2 size;                                                              
-                                                                                
+uniform vec2 size;
 varying vec4 color;                                                            
                                                                                 
 void main(void){                                                                
@@ -35,14 +34,11 @@ void main(void){
         }                               
         else {                          
             color = vec4(value.rgb, color.a);          
-        } 
-
-
+        }
     }
     else {                                                                                              
         color = value;                                                              
     }
-
     gl_Position = vec4(2. * (mod(serial, size.x) + .5) / size.x - 1.,                  
                     2. * (floor(serial / size.x)  + .5) / size.y - 1., 0., 1.);        
 }                                                                               
@@ -51,8 +47,7 @@ void main(void){
 
 #ifdef GL_ES                        
     precision highp float;          
-#endif                              
-                                    
+#endif
 varying vec4 color;                 
                                     
 void main(void) {                    

@@ -22,8 +22,20 @@ ShaderDemo.prototype.restoreDeviceObjects = function () {
 
 
 ShaderDemo.prototype.initDeviceObjects = function () {
-    this.shaderManager().loadEffectFile('http://akra/akra-engine-general/media/effects/Simple_effect.fx');
+    var pManager = this.shaderManager();
+    pManager.loadEffectFile('http://akra/akra-engine-general/media/effects/Simple_effect.fx');
 //    this.shaderManager().loadEffectFile('http://akra/akra-engine-general/media/effects/Demo_simple.fx');
+    var pEffectResource = this.displayManager().effectPool().createResource("ABC");
+    var pSnapshot = new RenderSnapshot();
+    var pMethod = this.displayManager().renderMethodPool().createResource("METHOD111");
+    pMethod.effect = pEffectResource;
+    pSnapshot.method = pMethod;
+    pEffectResource.use(this.shaderManager().getComponentByName("akra.base.simple"));
+    pSnapshot.begin();
+    pSnapshot.activatePass(0);
+    pSnapshot.setParameter("scale", 0.5);
+    pSnapshot.renderPass();
+    //console.log(this.pShaderManager);
 
     function addMeshToScene(pEngine, pMesh, pParent) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
@@ -34,9 +46,10 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 
     this.pPlane = addMeshToScene(this, sceneSurface(this));
     this.pPlane.bNoRender = true;
-    var pSnapshot = this.pPlane._pMeshes[0][0]._pActiveSnapshot;
+    pSnapshot = this.pPlane._pMeshes[0][0]._pActiveSnapshot;
     var pData = this.pPlane._pMeshes[0][0]._pRenderData;
-    var pEffectResource = pSnapshot._pRenderMethod._pEffect;
+    pEffectResource = pSnapshot._pRenderMethod._pEffect;
+
     var time = new Date();
 
     pEffectResource.use(this.shaderManager().getComponentByName("akra.base.simple"));
@@ -44,13 +57,14 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     pSnapshot.activatePass(0);
     pSnapshot.setParameter("col", [0.3,0.4,0.5]);
     pData.applyMe();
-    pSnapshot.renderPass();
+    var pEntry = pSnapshot.renderPass();
     pSnapshot.deactivatePass();
     pSnapshot.end();
 
+    pManager.activate(pEntry);
     time = new Date() - time;
 
-    console.log(pData, this.shaderManager(), time);
+    console.log(pEntry, this.shaderManager(), time);
 
     this.notifyInitDeviceObjects();
     return true;
