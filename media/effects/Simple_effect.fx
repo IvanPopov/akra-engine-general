@@ -28,7 +28,7 @@ struct VS_INPUT{
 };
 struct VS_OUTPUT{
 	float4 pos:POSITION;
-	float4 col:COLOR;
+	float4 col:COLOR1;
 };
 
 float col:COLOR1 = 1.0;
@@ -46,9 +46,20 @@ float4 mainFS(VS_OUTPUT IN) : COLOR{
     //col = float3(1.0,0.5,0.0);
 	return IN.col + tex2D(LinearSamp1, float2(col, scale));
 }
+
+VS_OUTPUT mainVS_1(float4 pos:POS, float4 color:COL1){
+    VS_OUTPUT Out;
+    Out.col = color;
+    Out.pos = pos;
+	return Out;
+}
+float4 mainFS_1(float4 color:COLOR1) : COLOR{
+	return color;
+}
+
 technique akra.base.simple{
 	pass P0{
-		VertexShader = compile vs_1_1 mainVS();
-        PixelShader  = compile ps_2_0 mainFS();
+		VertexShader = compile mainVS_1();
+        PixelShader  = compile mainFS_1();
 	}
 }

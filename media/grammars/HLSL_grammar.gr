@@ -291,7 +291,7 @@ ComplexExpr : BaseType '(' ArgumentsOpt ')'
 ComplexExpr : NonTypeId '(' ArgumentsOpt ')'
 ComplexExpr : ObjectExpr
 
-ObjectExpr : T_KW_COMPILE Target NonTypeId '(' ArgumentsOpt ')'
+ObjectExpr : T_KW_COMPILE NonTypeId '(' ArgumentsOpt ')'
 ObjectExpr : T_KW_SAMPLER_STATE StateBlock
 ObjectExpr : T_KW_COMPILE_FRAGMENT Target NonTypeId '(' ArgumentsOpt ')'
 ObjectExpr : T_KW_STATEBLOCK_STATE StateBlock
