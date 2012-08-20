@@ -57,6 +57,13 @@ float4 fs_main_1(VS_OUT data): COLOR{
     return data.col;
 }
 
+
+
+
+
+
+
+
 technique update_video_buffer{
     pass p0 {
         VertexShader = compile vs_main_1();

@@ -22,8 +22,10 @@ ShaderDemo.prototype.restoreDeviceObjects = function () {
 
 
 ShaderDemo.prototype.initDeviceObjects = function () {
+    A_TRACER.BEGIN();
     var pManager = this.shaderManager();
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/Plane.afx');
 //    this.shaderManager().loadEffectFile('http://akra/akra-engine-general/media/effects/Simple_effect.fx');
     var pEffectResource;// = this.displayManager().effectPool().createResource("ABC");
     var pSnapshot;// = new RenderSnapshot();
@@ -45,30 +47,47 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 //        pSceneObject.attachToParent(pParent || pEngine.getRootNode());
         return pSceneObject;
     }
+
 //
     this.pPlane = addMeshToScene(this, sceneSurface(this));
     console.log((new Date() - time));
     this.pPlane.bNoRender = true;
     pSnapshot = this.pPlane._pMeshes[0][0]._pActiveSnapshot;
-    var pData = this.pPlane._pMeshes[0][0]._pRenderData;
-//    pEffectResource = pSnapshot._pRenderMethod._pEffect;
+    var pMap = this.pPlane._pMeshes[0][0]._pRenderData._pMap;
+    pEffectResource = pSnapshot._pRenderMethod._pEffect;
+
+    pEffectResource.use(this.shaderManager().getComponentByName("akra.system.plane"));
+    pSnapshot.begin();
+    pSnapshot.activatePass(0);
+    pSnapshot.setParameter("model_mat", [
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    ]);
+    pSnapshot.setParameter("view_mat", [
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    ]);
+    pSnapshot.setParameter("proj_mat", [
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    ]);
+    pSnapshot.applyBufferMap(pMap);
+    var pEntry = pSnapshot.renderPass();
+    pSnapshot.deactivatePass();
+    pSnapshot.end();
 //
-//
-//
-//    pEffectResource.use(this.shaderManager().getComponentByName("akra.base.simple"));
-//    pSnapshot.begin();
-//    pSnapshot.activatePass(0);
-//    pSnapshot.setParameter("col", [0.3,0.4,0.5]);
-//    pData.applyMe();
-//    var pEntry = pSnapshot.renderPass();
-//    pSnapshot.deactivatePass();
-//    pSnapshot.end();
-//
-//    pManager.activate(pEntry);
+    this.pDevice.viewport(0, 0, 1200, 700);
+    pManager.render(pEntry);
 //    time = new Date() - time;
 
     console.log(this.shaderManager(), time);
-
+    A_TRACER.END();
     this.notifyInitDeviceObjects();
     return true;
 };

@@ -400,7 +400,6 @@ if (typeof esprima === 'undefined') {
 
         var InFunction = 0;
         var InMemderExp = 0;
-        var CurFile = '';
         function reflect (Tree, UseSemicolon, Define, IsEmpty, State, CodeNum) {
             UseSemicolon = (UseSemicolon === undefined ? true : UseSemicolon);
             IsEmpty = (IsEmpty === undefined ? true : IsEmpty);
@@ -412,7 +411,7 @@ if (typeof esprima === 'undefined') {
 
             State = (State === undefined ? true : State);
 
-            
+            var CurFile = '';
             var Code = '';
             var SystemObjects = {};
             //CodeNum = CodeNum || {val: 0};
@@ -671,11 +670,12 @@ if (typeof esprima === 'undefined') {
                         }
                     }
                 }
-                if (name == Keywords.FILE && !InDefine) {
+
+                if (name == Keywords.FILE) {
                     c('"' + CurFile + '"');
                 }
-                else if (name == Keywords.LINE && !InDefine) {
-                    c('"' + '' + '"');
+                else if (name == Keywords.LINE) {
+                    c('""');
                 }
                 else {
                     c(name);
@@ -1027,10 +1027,6 @@ if (typeof esprima === 'undefined') {
                         if (!subst.skip) {
                            // cl('<include: ' + id + '> included. ');
                             
-                            // if (exports['log']) {
-                            //     cl('file: ' + fileName + ' in processing...');
-                            // }
-
                             prevFile = CurFile;
                             CurFile = id;
                             if (!insert) {
@@ -1040,9 +1036,7 @@ if (typeof esprima === 'undefined') {
                             else {
                                 c(subst.insert);
                             }
-                            if (exports['log']) {
-                                cl('file: ' + fileName + ' processed.');
-                            }
+                            //cl('file: ' + id + ' processed.');
                             CurFile = prevFile;
                         }
                         else {
@@ -1321,7 +1315,6 @@ if (typeof esprima === 'undefined') {
 
                             r(node);
                             delete Define.property[key];
-                            delete Define.func[call];
                             return;
                         }
                     }
@@ -2053,32 +2046,11 @@ if (typeof esprima === 'undefined') {
 
                         lastString = t;
                     }
-                    else if (list[i].right.type !== Syntax.Literal) {
-                        //cl(exports.reflect(list[i].left, false, Define), exports.reflect(list[i].right, false, Define));
-                        
-                        t = eval(exports.reflect(list[i].right, false, Define));
-                        if (typeof t === 'string') {
-                           // cl('>>>',t);
-                            if(matches = t.match(/^(.*?\w)(\d+)$/i)) {
-                                t = matches[1];
-                                n = Number(matches[2]);
-                            }
-                            else {
-                                n = 0;
-                            }
-
-                            lastString = t;
-                        }
-                        else {
-                            lastString = null;
-                            n = Number(t);
-                        }
-                    }
                     else {
-
                         lastString = null;
-                        n = Number(eval(exports.reflect(list[i].right, false, Define)));
+                        n = Number(exports.reflect(list[i].right, false, Define));
                     }
+
                 }
                 else {
                     tmp = list[i];
@@ -2112,7 +2084,6 @@ if (typeof esprima === 'undefined') {
                 }
                 n++;
                 debug('//' + ('Enum: ' + exports.reflect(tmp, false) + ' : ' + t));
-
                 useDefineMacro(en, enumName, exports.reflect(enumKey, false));
             }
 
@@ -2489,7 +2460,6 @@ if (typeof esprima === 'undefined') {
                 for (var i = 0; i < enumData.length; ++ i) {
                     res += '\t';
                     bShortName = true;
-
                     if (prevValue && enumData[i].value === prevValue + 1) {
                         res += enumData[i].enumKey;
                     }
@@ -2548,7 +2518,7 @@ if (typeof esprima === 'undefined') {
 
             var pEnums = {};
             var all = ''
-
+        
             for (var i in Define.property) {
                 switch (i) {
                     case sk(Keywords.FILE):
@@ -2576,7 +2546,7 @@ if (typeof esprima === 'undefined') {
             for (var i in Define.enums) {
                 all += enumCb(i, Define.enums[i]) + '\n';
             }
-            InDefine = true;
+
             for (var i in Define.func) {
                 var f = Define.func[i];
                 var func = '', args = '';
@@ -2589,7 +2559,7 @@ if (typeof esprima === 'undefined') {
 
                 all += macroCb(func, args, exports.reflect(f.rel.body, true, 0, 0, false)) + '\n';
             }
-            InDefine = false;
+
             return all;
         };
 
@@ -2607,14 +2577,14 @@ if (typeof esprima === 'undefined') {
         exports['watch'] = watch;
         exports['extractMacro'] = extractMacro;
         exports['extractFileMacro'] = extractFileMacro;
-        exports['defaultInclude'] = 'Include.js';
-        exports['debug'] = false;
-        exports['scriptType'] = 'text/akra-js';
-        exports['keywords'] = {};
-        exports['log'] = false;
+		exports['defaultInclude'] = 'Include.js';
+		exports['debug'] = false;
+		exports['scriptType'] = 'text/akra-js';
+		exports['keywords'] = {};
 
         exports.watch();
     })();
 
 })((typeof exports === 'undefined' ? (Preprocessor = {}) : exports));
+
 
