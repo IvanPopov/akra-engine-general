@@ -6,24 +6,23 @@ function onConnection(pErr) {
 
 
 
-var pPipe = a.NET.pipe('ws://localhost');
+var rpc = new a.NET.RPC('ws://localhost', {}, function () {
+	var i = 0;
+	setInterval(function () {
+		rpc.echo(i ++, function (n) {
+			trace('echo:', n);
+		});
+		rpc.bufferTest(function (pBuffer) {
+			trace('Float32Array >> ', new Float32Array(pBuffer));
+		});
+	}, 1000);
+});
 
-if (pPipe) {
-	pPipe.on('open', function () {
-		// pPipe.rpc();
+//var pipe = new a.NET.Pipe('ws://localhost');
 
-		// var n = 0;
+//var i = 0;
 
-		// for (var i = 1000; i --;) {
-		// 	(function (id) { 
-		// 		pPipe.proc('echo', id, function (pRes) {
-		// 			trace(id, '==', pRes, 'test: ', pRes === id? 'passed': 'failed');
-		// 		});
-		// 	})(Math.floor(Math.random() * 10000));
-		// }
-		 
-		trace('works...');
 
-	})
-}
 
+
+//rpc.trace(1,2,3);
