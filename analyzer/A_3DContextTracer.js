@@ -70,7 +70,7 @@ function addslashes (str) {
     return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
 }
 A_3DContextTracer.prototype.createResourceRef = function (sText, pData) {
-    trace(pData.replace(/;/ig, ";\n"));
+    //trace(pData.replace(/;/ig, ";\n"));
     return '<a href="javascript: alert(\'' + addslashes(pData) + '\');">' + sText + '</a>';
 };
 
