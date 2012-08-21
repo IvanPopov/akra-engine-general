@@ -1,28 +1,31 @@
-function onConnection(pErr) {
-	debug_assert(pErr, pErr.message);
+var useWorker = false;
 
-	trace('connected.');
+if (useWorker) {
+	var pipe = new a.NET.Pipe('/akra-engine-core/src/network/RPCthread.js');
+
+	pipe.on('message', function (pMessage) {
+		trace('message from pipe: ', pMessage);
+	});
+
+	pipe.on('error', function () {
+		trace('oops, something going wrong...');
+	});
+
+	pipe.send(true);
+
 }
+else {
 
-
-
-var rpc = new a.NET.RPC('ws://localhost', {}, function () {
+	var rpc = new a.NET.RPC('ws://localhost', {}, function () {
 	var i = 0;
 	setInterval(function () {
 		rpc.echo(i ++, function (n) {
-			trace('echo:', n);
+			trace(n);
 		});
 		rpc.bufferTest(function (pBuffer) {
-			trace('Float32Array >> ', new Float32Array(pBuffer));
+			trace(new Float32Array(pBuffer));
 		});
-	}, 1000);
-});
+		}, 1000);
+	});
 
-//var pipe = new a.NET.Pipe('ws://localhost');
-
-//var i = 0;
-
-
-
-
-//rpc.trace(1,2,3);
+}
