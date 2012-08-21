@@ -1,4 +1,7 @@
 Ifdef(__AKRA_ENGINE__);
+
+Define (__ANALYZER, true);
+
 Define (A_TIMESTAMP(), function () {
     (new Date()).getTime();
 });

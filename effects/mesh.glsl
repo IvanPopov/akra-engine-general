@@ -173,7 +173,7 @@ varying vec2 texcoord;
 
 void main(void) {
 	LIGHTPOINT light_point;
-	light_point.position = vec4(0., 20., 10., 1.);
+	light_point.position = vec4(10., 20., 10., 1.);
     light_point.ambient = vec4(1., 1., 1., 1.);
     light_point.diffuse  =vec4(1., 1., 1., 1.);
     light_point.specular = vec4(1., 1., 1., 1.);

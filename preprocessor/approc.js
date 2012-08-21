@@ -2571,16 +2571,23 @@ if (typeof esprima === 'undefined') {
             return sCode;
         }
 
+        function resetPathStack () {
+            PathStack = [];
+        }
+
         exports['analyze'] = analyze;
         exports['code'] = parse;
         exports['file'] = file;
         exports['watch'] = watch;
         exports['extractMacro'] = extractMacro;
         exports['extractFileMacro'] = extractFileMacro;
-		exports['defaultInclude'] = 'Include.js';
-		exports['debug'] = false;
-		exports['scriptType'] = 'text/akra-js';
-		exports['keywords'] = {};
+        exports['defaultInclude'] = 'Include.js';
+        exports['debug'] = false;
+        exports['scriptType'] = 'text/akra-js';
+        exports['keywords'] = {};
+        exports['log'] = false;
+        exports['reset'] = resetPathStack;
+
 
         exports.watch();
     })();
