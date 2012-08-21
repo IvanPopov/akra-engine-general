@@ -70,6 +70,7 @@ function addslashes (str) {
     return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
 }
 A_3DContextTracer.prototype.createResourceRef = function (sText, pData) {
+    trace(pData.replace(/;/ig, ";\n"));
     return '<a href="javascript: alert(\'' + addslashes(pData) + '\');">' + sText + '</a>';
 };
 
@@ -303,6 +304,50 @@ A_3DContextTracer.prototype.stencilOpSeparate = function (eFace, eFail, eZfail, 
     return this.pContext.stencilOpSeparate(eFace, eFail, eZfail, eZpass);
 };
 
+// Framebuffer object
+
+A_3DContextTracer.prototype.bindFramebuffer = function (eTarget, pBuffer) {
+    A_TR_NOTIFY('bindFramebuffer ( ' + A_TR_CONST(eTarget) + ', ' + pBuffer + ' )');
+    return this.pContext.bindFramebuffer(eTarget, pBuffer);
+};
+
+A_3DContextTracer.prototype.checkFramebufferStatus = function (eTarget) {
+    A_TR_NOTIFY('checkFramebufferStatus ( ' + A_TR_CONST(eTarget) + ' )');
+    return this.pContext.checkFramebufferStatus(eTarget);
+};
+
+A_3DContextTracer.prototype.createFramebuffer = function () {
+    A_TR_NOTIFY('createFramebuffer (  )');
+    return this.pContext.createFramebuffer();
+};
+
+A_3DContextTracer.prototype.deleteFramebuffer = function (pBuffer) {
+    A_TR_NOTIFY('deleteFramebuffer ( ' + pBuffer + ' )');
+    return this.pContext.deleteFramebuffer(pBuffer);
+};
+
+A_3DContextTracer.prototype.framebufferRenderbuffer = function (eTarget, eAttachment, eRenderBufferTarget, pRenderBuffer) {
+    A_TR_NOTIFY('framebufferRenderbuffer ( ' + A_TR_CONST(eTarget) + ', ' + A_TR_CONST(eAttachment) + ', ' +
+                A_TR_CONST(eRenderBufferTarget) + ', ' + pRenderBuffer + ' )');
+    return this.pContext.framebufferRenderbuffer(eTarget, eAttachment, eRenderBufferTarget, pRenderBuffer);
+};
+
+A_3DContextTracer.prototype.framebufferTexture2D = function (eTarget, eAttachment, eTextureTarget, pTexture, iLevel) {
+    A_TR_NOTIFY('framebufferTexture2D ( ' + A_TR_CONST(eTarget) + ', ' + A_TR_CONST(eAttachment) + ', ' +
+                A_TR_CONST(eTextureTarget) + ', ' + pTexture + ', ' + iLevel + ' )');
+    return this.pContext.framebufferTexture2D(eTarget, eAttachment, eTextureTarget, pTexture, iLevel);
+};
+
+A_3DContextTracer.prototype.getFramebufferAttachmentParameter = function (eTarget, eAttachment, eName) {
+    A_TR_NOTIFY('getFramebufferAttachmentParameter ( ' + A_TR_CONST(eTarget) + ', ' + A_TR_CONST(eAttachment) + ', ' +
+                A_TR_CONST(eName) + ' )');
+    return this.pContext.getFramebufferAttachmentParameter(eTarget, eAttachment, eName);
+};
+
+A_3DContextTracer.prototype.isFramebuffer = function (pBuffer) {
+    A_TR_NOTIFY('isFramebuffer ( ' + pBuffer + ' )');
+    return this.pContext.isFramebuffer(pBuffer);
+};
 
 // Renderbuffer objects
 

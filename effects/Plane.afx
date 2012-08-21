@@ -21,6 +21,9 @@ float4 fs_main_2(VS_OUT IN) : COLOR {
     float x = IN.tex.x;
     float z = IN.tex.z;
     float4 color;
+    //if(x == 0. && z == 0.){
+//        return float4(1.0,0.0,0.0,0.0);
+    //}
 
     if (abs(x) == 0.){
         color = float4(0., 0., 1., 1.);
