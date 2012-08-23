@@ -5,9 +5,9 @@ struct VS_OUT {
     float4 pos:POSITION;
 };
 
-float4x4 model_mat:MODELMATRIX;
-float4x4 view_mat:VIEWMATRIX;
-float4x4 proj_mat:PROJMATRIX;
+float4x4 model_mat:MODEL_MATRIX;
+float4x4 view_mat:VIEW_MATRIX;
+float4x4 proj_mat:PROJ_MATRIX;
 
 VS_OUT vs_main_2(float3 pos:POSITION){
     VS_OUT Out;

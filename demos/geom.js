@@ -31,10 +31,10 @@ function torus (pEngine, eOptions, sName, rings, sides) {
             vertices.push ( cosTheta * dist);
             vertices.push ( -sinTheta * dist);
             vertices.push ( r1 * sinPhi );
-            
+
             tex.push     ( j * invSides );
             tex.push     ( i * invRings );
-            
+
             normals.push ( cosTheta * cosPhi );
             normals.push ( -sinTheta * cosPhi );
             normals.push ( sinPhi );
@@ -42,17 +42,17 @@ function torus (pEngine, eOptions, sName, rings, sides) {
             numVertices++;
         }
     }
-    
+
     for ( i = 0; i < rings; i++ ) {
         for ( j = 0; j < sides; j++ ) {
             ind.push ( i*(sides+1) + j );
             ind.push ( (i+1)*(sides+1) + j );
             ind.push ( (i+1)*(sides+1) + j + 1 );
-            
+
             ind.push ( i*(sides+1) + j );
             ind.push ( (i+1)*(sides+1) + j + 1 );
             ind.push ( i*(sides+1) + j + 1 );
-            
+
             numFaces += 2;
         }
     }
@@ -99,55 +99,79 @@ function cube (pEngine, eOptions, sName) {
     var iPos, iNorm;
 
     var pVerticesData = new Float32Array([
-        -0.5, 0.5, 0.5,
-        0.5, 0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        0.5, -0.5, 0.5,
-        -0.5, 0.5, -0.5,
-        0.5, 0.5, -0.5,
-        -0.5, -0.5, -0.5,
-        0.5, -0.5, -0.5
-    ]);
+                                             -0.5, 0.5, 0.5,
+                                             0.5, 0.5, 0.5,
+                                             -0.5, -0.5, 0.5,
+                                             0.5, -0.5, 0.5,
+                                             -0.5, 0.5, -0.5,
+                                             0.5, 0.5, -0.5,
+                                             -0.5, -0.5, -0.5,
+                                             0.5, -0.5, -0.5
+                                         ]);
+
+    var pMapData = new Float32Array([
+                                        0, 0, 0,
+                                        1, 0, 0,
+                                        0, 1, 0,
+                                        1, 1, 0
+                                    ]);
+
     var pNormalsData = new Float32Array([
-        1.0, 0.0, 0.0,
-        -1.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, -1.0, 0.0,
-        0.0, 0.0, 1.0,
-        0.0, 0.0, -1.0
-    ]);
+                                            1.0, 0.0, 0.0,
+                                            -1.0, 0.0, 0.0,
+                                            0.0, 1.0, 0.0,
+                                            0.0, -1.0, 0.0,
+                                            0.0, 0.0, 1.0,
+                                            0.0, 0.0, -1.0
+                                        ]);
     var pVertexIndicesData = new Float32Array([
-        0, 2, 3, 0, 3, 1,
-        0, 1, 5, 0, 5, 4,
-        6, 7, 3, 6, 3, 2,
-        0, 4, 6, 0, 6, 2,
-        3, 7, 5, 3, 5, 1,
-        5, 7, 6, 5, 6, 4
-    ]);
+                                                  0, 2, 3, 0, 3, 1,//front
+                                                  0, 1, 5, 0, 5, 4,//top
+                                                  6, 7, 3, 6, 3, 2,//bottom
+                                                  0, 4, 6, 0, 6, 2,//left
+                                                  3, 7, 5, 3, 5, 1,//right
+                                                  5, 7, 6, 5, 6, 4 //back
+                                              ]);
     var pNormalIndicesData = new Float32Array([
-        4, 4, 4, 4, 4, 4,
-        2, 2, 2, 2, 2, 2,
-        3, 3, 3, 3, 3, 3,
-        1, 1, 1, 1, 1, 1,
-        0, 0, 0, 0, 0, 0,
-        5, 5, 5, 5, 5, 5
-    ]);
+                                                  4, 4, 4, 4, 4, 4,
+                                                  2, 2, 2, 2, 2, 2,
+                                                  3, 3, 3, 3, 3, 3,
+                                                  1, 1, 1, 1, 1, 1,
+                                                  0, 0, 0, 0, 0, 0,
+                                                  5, 5, 5, 5, 5, 5
+                                              ]);
+
+    var pMapIndices = new Float32Array([
+                                           0, 2, 3, 0, 3, 1,
+                                           0, 2, 3, 0, 3, 1,
+                                           0, 2, 3, 0, 3, 1,
+                                           0, 2, 3, 0, 3, 1,
+                                           0, 2, 3, 0, 3, 1,
+                                           0, 2, 3, 0, 3, 1
+                                       ]);
 
     var pSerialData = new Float32Array(pNormalIndicesData.length);
     for (var i = 0; i < pSerialData.length; i++) {
         pSerialData[i] = i % 3;
     };
 
-    var iNorm, iPos;
+    var iNorm, iPos, iMap;
 
     pMesh = new a.Mesh(pEngine, eOptions || 0, sName || 'cube');
     pSubMesh = pMesh.createSubset('cube::main');
+
     iNorm = pSubMesh.data.allocateData([VE_VEC3('NORMAL')], pNormalsData);
-    iPos = pSubMesh.data.allocateData([VE_VEC3('POSITION')], pVerticesData);
+    iPos  = pSubMesh.data.allocateData([VE_VEC3('POSITION')], pVerticesData);
+    iMap  = pSubMesh.data.allocateData([VE_VEC3('TEXCOORD0')], pMapData);
+
     pSubMesh.data.allocateIndex([VE_FLOAT('INDEX0')], pVertexIndicesData);
     pSubMesh.data.allocateIndex([VE_FLOAT('INDEX1')], pNormalIndicesData);
-    pSubMesh.data.index(iPos, 'INDEX0');
+    pSubMesh.data.allocateIndex([VE_FLOAT('INDEX2')], pMapIndices);
+
+    pSubMesh.data.index(iPos,  'INDEX0');
     pSubMesh.data.index(iNorm, 'INDEX1');
+    pSubMesh.data.index(iMap,  'INDEX2');
+
     pSubMesh.applyFlexMaterial('default');
     var pMat = pSubMesh.getFlexMaterial('default');
     pMat.diffuse = new a.Color4f(0.5, 0., 0., 1.);
@@ -158,7 +182,7 @@ function cube (pEngine, eOptions, sName) {
     //trace(pSubMesh._pMap.toString());
 
     return pMesh;
-} 
+}
 
 function sceneSurface(pEngine, eOptions) {
     var nCellW = nCellW || 51;
@@ -177,7 +201,7 @@ function sceneSurface(pEngine, eOptions) {
         pVerticesData[n]        = -.5;
         pVerticesData[n + 2]    = z * fStepY -.5;
         n += 3;
-        
+
         pVerticesData[n]        = .5;
         pVerticesData[n + 2]    = z * fStepY -.5;
         n += 3;
@@ -197,14 +221,14 @@ function sceneSurface(pEngine, eOptions) {
     var pVertexIndicesData = new Float32Array((nCellW + nCellH) * 2);
 
     n = 0;
-    for (var z = 0; z < nCellH; ++ z) {            
+    for (var z = 0; z < nCellH; ++ z) {
         pVertexIndicesData[n ++]   = z * 2;
         pVertexIndicesData[n ++]   = z * 2 + 1;
     };
 
     for (var x = 0; x < nCellW; ++ x) {
         pVertexIndicesData[n ++]   = nCellH * 2 + x * 2;
-        pVertexIndicesData[n ++]   = nCellH * 2 + x * 2 + 1; 
+        pVertexIndicesData[n ++]   = nCellH * 2 + x * 2 + 1;
     };
 
     pMesh = new a.Mesh(pEngine, 0, 'scene-surface');//a.RenderDataBuffer.VB_READABLE
@@ -258,7 +282,7 @@ function plane (pEngine, eOptions, sName, nCellW, nCellH) {
 
     pMesh = new a.Mesh(pEngine, eOptions || 0, sName || 'plane');
     pSubMesh = pMesh.createSubset('plane::main', a.PRIMTYPE.TRIANGLELIST);
-    
+
     iNorm = pSubMesh.data.allocateData([VE_VEC3('NORMAL')], pNormalsData);
     iPos = pSubMesh.data.allocateData([VE_VEC3('POSITION')], pVerticesData);
 

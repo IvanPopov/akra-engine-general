@@ -3,7 +3,8 @@ Include("geom.js")
 function ShaderDemo() {
     A_CLASS;
     this.pPlane = null;
-    this.pEntry = null;
+    this.pCube = null;
+    this.pTexture0 = null;
     STATIC(fMoveSpeed, 1.);
 }
 ;
@@ -14,6 +15,8 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     'use strict';
     this.notifyOneTimeSceneInit();
     this.showStats(true);
+//    A_TRACER.BEGIN();
+    this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/brick_h.png");
     return true;
 };
 
@@ -24,22 +27,15 @@ ShaderDemo.prototype.restoreDeviceObjects = function () {
 
 
 ShaderDemo.prototype.initDeviceObjects = function () {
-//    A_TRACER.BEGIN();
+//    A_TRACER.END();
+    this.notifyInitDeviceObjects();
     var pManager = this.shaderManager();
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/Plane.afx');
-//    this.shaderManager().loadEffectFile('http://akra/akra-engine-general/media/effects/Simple_effect.fx');
-    var pEffectResource;// = this.displayManager().effectPool().createResource("ABC");
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh.afx');
+
+    var pEffectResource;
     var time;
-//    pMethod.effect = pEffectResource;
-//    pSnapshot.method = pMethod;
-//    pEffectResource.use(this.shaderManager().getComponentByName("akra.system.update_video_buffer"));
-//    pEffectResource.use(this.shaderManager().getComponentByName("akra.base.simple"));
-//    pSnapshot.begin();
-//    pSnapshot.activatePass(0);
-////    pSnapshot.setParameter("size", 0.5);
-//    pSnapshot.renderPass();
-    //console.log(this.pShaderManager);
     time = new Date();
     function addMeshToScene(pEngine, pMesh, pParent) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
@@ -48,38 +44,25 @@ ShaderDemo.prototype.initDeviceObjects = function () {
         return pSceneObject;
     }
 
-//
     this.pPlane = addMeshToScene(this, sceneSurface(this));
-    console.log((new Date() - time));
     this.pPlane.bNoRender = true;
-    var pSnapshot = this.pPlane._pMeshes[0][0]._pActiveSnapshot;
-    var pMap = this.pPlane._pMeshes[0][0]._pRenderData._pMap;
-    pEffectResource = pSnapshot._pRenderMethod._pEffect;
-
+    pEffectResource = this.pPlane._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
     pEffectResource.use(this.shaderManager().getComponentByName("akra.system.plane"));
-//    pSnapshot.begin();
-//    pSnapshot.activatePass(0);
-//    pManager.setViewport(0, 0, this.pCanvas.width, this.pCanvas.height);
-//    pSnapshot.setParameter("model_mat", [
-//        200, 0, 0, 0,
-//        0, 200, 0, 0,
-//        0, 0, 200, 0,
-//        0, 0, 0, 1]);
-//    pSnapshot.setParameter("view_mat",
-//                           [1, 0, 0, 0, 0, 0.9578262567520142, 0.2873478829860687, 0, 0, -0.2873478829860687,
-//                            0.9578262567520142, 0, 0, 2.873478889465332, -20.01856803894043, 1]);
-//    pSnapshot.setParameter("proj_mat",
-//                           [0.8921865820884705, 0, 0, 0, 0, 1.7320507764816284, 0, 0, 0, 0, -1.0000666379928589, -1, 0,
-//                            0, -0.2000066637992859, 0]);
-//    pSnapshot.applyBufferMap(pMap);
-//    var pEntry = pSnapshot.renderPass();
-//    pSnapshot.deactivatePass();
-//    pSnapshot.end();
-//    this.pEntry = pEntry;
-//    pManager.render(pEntry);
-//    time = new Date() - time;
-//    this.pause(true);
-    console.log(this.shaderManager(), time);
+
+    this.pCube = addMeshToScene(this, cube(this));
+    this.pCube.bNoRender = true;
+    pEffectResource = this.pCube._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
+    pEffectResource.use(this.shaderManager().getComponentByName("akra.system.draw_mesh"));
+
+    var pSurface = this.pCube._pMeshes[0][0].surfaceMaterial;
+    var pMat = pSurface.material;
+    pMat.pDiffuse = new a.Color4f(0.1, 0., 0., 1.);
+    pMat.pAmbient = new a.Color4f(0.1, 0., 0., 1.);
+    pMat.pSpecular = new a.Color4f(1., 0.7, 0. ,1);
+    pMat.pShininess = 30.;
+
+    pSurface.setTexture(0,this.pTexture0,1);
+
 //    A_TRACER.END();
 //    this.pause(true);
     this.notifyInitDeviceObjects();
@@ -88,9 +71,15 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 
 ShaderDemo.prototype.directRender = function () {
     'use strict';
+//    A_TRACER.BEGIN();
     var pManager = this.shaderManager();
-    var pSnapshot = this.pPlane._pMeshes[0][0]._pActiveSnapshot;
-    var pMap = this.pPlane._pMeshes[0][0]._pRenderData._pMap;
+    var pSnapshot;
+    var pMap;
+    var pEntry1, pEntry2;
+    //PLANE
+    window['A_TRACER.trace']('before PLANE');
+    pSnapshot = this.pPlane._pMeshes[0][0]._pActiveSnapshot;
+    pMap = this.pPlane._pMeshes[0][0]._pRenderData._pMap;
     pSnapshot.begin();
     pSnapshot.activatePass(0);
     pManager.setViewport(0, 0, this.pCanvas.width, this.pCanvas.height);
@@ -99,18 +88,43 @@ ShaderDemo.prototype.directRender = function () {
         0, 200, 0, 0,
         0, 0, 200, 0,
         0, 0, 0, 1]);
-    pSnapshot.setParameter("view_mat",
-                           [1, 0, 0, 0, 0, 0.9578262567520142, 0.2873478829860687, 0, 0, -0.2873478829860687,
-                            0.9578262567520142, 0, 0, 2.873478889465332, -20.01856803894043, 1]);
-    pSnapshot.setParameter("proj_mat",
-                           [0.8921865820884705, 0, 0, 0, 0, 1.7320507764816284, 0, 0, 0, 0, -1.0000666379928589, -1, 0,
-                            0, -0.2000066637992859, 0]);
     pSnapshot.applyBufferMap(pMap);
-    var pEntry = pSnapshot.renderPass();
+    pEntry1 = pSnapshot.renderPass();
     pSnapshot.deactivatePass();
     pSnapshot.end();
-    pManager.render(pEntry);
-    //A_TRACER.END();
+//    pManager.render(pEntry1);
+    //CUBE
+    window['A_TRACER.trace']('before CUBE');
+    pSnapshot = this.pCube._pMeshes[0][0]._pActiveSnapshot;
+//    trace("CUBE surface:", pSnapshot.surfaceMaterial);
+    pMap = this.pCube._pMeshes[0][0]._pRenderData._pMap;
+    pSnapshot.begin();
+    pSnapshot.activatePass(0);
+    pManager.setViewport(0, 0, this.pCanvas.width, this.pCanvas.height);
+    pSnapshot.setParameter("model_mat", [
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1]);
+    pSnapshot.setParameter("normal_mat", [
+        1, 0, 0,
+        0, 1, 0,
+        0, 0, 1]);
+    pSnapshot.applyBufferMap(pMap);
+    pSnapshot.applySurfaceMaterial();
+    pEntry2 = pSnapshot.renderPass();
+    pSnapshot.deactivatePass();
+    pSnapshot.end();
+//    pManager.render(pEntry2);
+
+    window['A_TRACER.trace']('before RENDER');
+    trace("PLANE: ", pEntry1);
+    trace("CUBE: ", pEntry2);
+    pManager.render(pEntry1);
+    pManager.render(pEntry2);
+
+//    this.pause(true);
+//    A_TRACER.END();
 };
 
 ShaderDemo.prototype.deleteDeviceObjects = function () {
@@ -119,6 +133,19 @@ ShaderDemo.prototype.deleteDeviceObjects = function () {
 };
 
 ShaderDemo.prototype.updateScene = function () {
+    this.updateCamera(1.0, 0.1, null, 30.0, false);
+
+    if (this.pKeymap.isMousePress() && this.pKeymap.isMouseMoved()) {
+        var pCamera = this.getActiveCamera(),
+            fdX = this.pKeymap.mouseShitfX(),
+            fdY = this.pKeymap.mouseShitfY(),
+            pScreen = a.info.screen;
+
+        fdX /= pScreen.width / 10.0;
+        fdY /= pScreen.height / 10.0;
+
+        pCamera.addRelRotation(fdX, fdY, 0);
+    }
     return this.notifyUpdateScene();
 };
 

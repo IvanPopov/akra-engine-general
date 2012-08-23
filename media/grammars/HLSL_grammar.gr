@@ -194,7 +194,7 @@ PassDecl : T_KW_PASS IdOpt AnnotationOpt PassStateBlock --AN
 PassDecl : ImportDecl
 PassDecl : ';'
 
-PassStateBlock : '{' ')' --AN
+PassStateBlock : '{' '}' --AN
 PassStateBlock : '{' PassStates '}'
 PassStates : PassState --NN
 PassStates : PassStates PassState
