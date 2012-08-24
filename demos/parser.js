@@ -33,6 +33,8 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/Plane.afx');
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh.afx');
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2.afx');
+//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2_test.afx');
 
     var pEffectResource;
     var time;
@@ -52,16 +54,17 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     this.pCube = addMeshToScene(this, cube(this));
     this.pCube.bNoRender = true;
     pEffectResource = this.pCube._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
-    pEffectResource.use(this.shaderManager().getComponentByName("akra.system.draw_mesh"));
+    pEffectResource.use(this.shaderManager().getComponentByName("akra.system.mesh_geometry"));
+    pEffectResource.use(this.shaderManager().getComponentByName("akra.system.mesh_texture"));
 
     var pSurface = this.pCube._pMeshes[0][0].surfaceMaterial;
     var pMat = pSurface.material;
     pMat.pDiffuse = new a.Color4f(0.1, 0., 0., 1.);
     pMat.pAmbient = new a.Color4f(0.1, 0., 0., 1.);
-    pMat.pSpecular = new a.Color4f(1., 0.7, 0. ,1);
+    pMat.pSpecular = new a.Color4f(1., 0.7, 0., 1);
     pMat.pShininess = 30.;
 
-    pSurface.setTexture(0,this.pTexture0,1);
+    pSurface.setTexture(0, this.pTexture0, 1);
 
 //    A_TRACER.END();
 //    this.pause(true);
@@ -110,6 +113,10 @@ ShaderDemo.prototype.directRender = function () {
         1, 0, 0,
         0, 1, 0,
         0, 0, 1]);
+//    pSnapshot.setParameter("test_uniform", {a : 1.0, b : {x : 0.5, y : 0.3}});
+//    pSnapshot.setParameter("test_uniform.b.x", 0.1);
+//    pSnapshot.setParameter("UTEST0", {TA : 0.7, TB : {TX : 0.7, TY : 0.8}}, true);
+//    pSnapshot.setParameterBySemantic("UTEST0.TB.TX", 0.4);
     pSnapshot.applyBufferMap(pMap);
     pSnapshot.applySurfaceMaterial();
     pEntry2 = pSnapshot.renderPass();

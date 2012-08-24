@@ -1,28 +1,5 @@
 provide akra.system;
 
-texture tex0:TEXTURE0;
-texture tex1:TEXTURE1;
-texture tex2:TEXTURE2;
-texture tex3:TEXTURE3;
-
-sampler sampler_diffuse:S_DIFFUSE  = sampler_state
-{
-    Texture = <tex0>;
-};
-sampler sampler_ambient:S_AMBIENT  = sampler_state
-{
-    Texture = <tex1>;
-};
-sampler sampler_specular:S_SPECULAR  = sampler_state
-{
-    Texture = <tex2>;
-};
-sampler sampler_emissive:S_EMISSIVE  = sampler_state
-{
-    Texture = <tex3>;
-};
-
-
 struct VS_IN{
     float4 pos:POSITION;
     float4 norm:NORMAL;
@@ -54,6 +31,32 @@ struct VS_OUT{
     float3 tc_emissive: TEXCOORD3;
 };
 
+float4x4 model_mat:MODEL_MATRIX;
+float4x4 view_mat:VIEW_MATRIX;
+float4x4 proj_mat:PROJ_MATRIX;
+float3x3 normal_mat:NORMAL_MATRIX;
+
+texture tex0:TEXTURE0;
+texture tex1:TEXTURE1;
+texture tex2:TEXTURE2;
+texture tex3:TEXTURE3;
+
+sampler sampler_diffuse:S_DIFFUSE  = sampler_state
+{
+    Texture = <tex0>;
+};
+sampler sampler_ambient:S_AMBIENT  = sampler_state
+{
+    Texture = <tex1>;
+};
+sampler sampler_specular:S_SPECULAR  = sampler_state
+{
+    Texture = <tex2>;
+};
+sampler sampler_emissive:S_EMISSIVE  = sampler_state
+{
+    Texture = <tex3>;
+};
 struct Material {
     float4 ambient:AMBIENT;
     float4 diffuse:DIFFUSE;
@@ -61,33 +64,6 @@ struct Material {
     float4 emissive:EMISSIVE;
     float shininess:SHININESS;
 };
-
-float4x4 model_mat:MODEL_MATRIX;
-float4x4 view_mat:VIEW_MATRIX;
-float4x4 proj_mat:PROJ_MATRIX;
-float3x3 normal_mat:NORMAL_MATRIX;
-
-Material defaultMaterial:MATERIAL;
-
-VS_OUT vs_textured_mesh(VS_IN IN) {
-    VS_OUT Out;
-
-	float4 pos = float4(IN.pos.xyz, 1.);
-    float4 vertex;
-
-	vertex = (view_mat * model_mat * pos);
-
-    Out.norm = normalize((normal_mat * IN.norm.xyz));
-    Out.vert = vertex.xyz;
-	Out.pos = proj_mat * vertex;
-
-    Out.tc_diffuse = IN.tex_coord0;
-    Out.tc_ambient = IN.tex_coord1;
-    Out.tc_specular = IN.tex_coord2;
-    Out.tc_emissive = IN.tex_coord3;
-
-	return Out;
-}
 
 struct LIGHTPOINT {
 	float4 position:LIGHT_POSITION;
@@ -99,9 +75,21 @@ struct LIGHTPOINT {
 };
 
 
+VS_OUT vs_mesh_texture(VS_IN IN) {
+    VS_OUT Out;
+
+    Out.tc_diffuse = IN.tex_coord0;
+    Out.tc_ambient = IN.tex_coord1;
+    Out.tc_specular = IN.tex_coord2;
+    Out.tc_emissive = IN.tex_coord3;
+
+	return Out;
+}
+
+Material defaultMaterial:MATERIAL;
 float3 eye_pos:EYE_POSITION;
 
-float4 fs_textured_mesh(VS_OUT IN): COLOR{
+float4 fs_mesh_texture(VS_OUT IN): COLOR{
     float4 color;
 
     LIGHTPOINT light_point;
@@ -128,7 +116,7 @@ float4 fs_textured_mesh(VS_OUT IN): COLOR{
         light_dir_length * light_dir_length);
 
     color = (defaultMaterial.emissive + tex2D(sampler_emissive, float2(IN.tc_emissive)));
-     
+
     // add ambient
     color += (defaultMaterial.ambient + tex2D(sampler_ambient, float2(IN.tc_ambient.xy))) * light_point.ambient * attenuation;
 
@@ -143,14 +131,11 @@ float4 fs_textured_mesh(VS_OUT IN): COLOR{
     return float4(color.xyz, 1.);
 }
 
-technique draw_mesh{
+
+
+technique mesh_texture{
     pass p0 {
-//        if(engine.mesh.hasSkinInfo){
-//            //TODO: add skining mesh
-//        }
-//        else{
-            VertexShader = compile vs_textured_mesh();
-            PixelShader = compile fs_textured_mesh();
-//        }
+        VertexShader = compile vs_mesh_texture();
+        PixelShader = compile fs_mesh_texture();
     }
 }
