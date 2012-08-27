@@ -37,13 +37,27 @@ float4x4 view_mat:VIEW_MATRIX;
 float4x4 proj_mat:PROJ_MATRIX;
 float3x3 normal_mat:NORMAL_MATRIX;
 
+struct test1{
+    float x;
+    float y;
+};
+struct test2{
+    float a;
+    test1 b;
+};
+
+
 VS_OUT vs_mesh_geometry(VS_IN IN) {
     VS_OUT Out;
 
 	float4 pos = float4(IN.pos.xyz, 1.);
     float4 vertex;
+    test2 test_var;
+    float4 pos1[](memof IN.pos);
+    @pos1 = @(IN.pos);
+    pos1.w = 2.;
 
-	vertex = (view_mat * model_mat * pos);
+	vertex = (view_mat * model_mat * (pos + pos1));
 
     Out.norm = normalize((normal_mat * IN.norm.xyz));
     Out.vert = vertex.xyz;
