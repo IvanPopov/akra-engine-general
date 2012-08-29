@@ -1,7 +1,11 @@
 provide akra.system;
 
+struct test_pos{
+    float4 pos[]:S_POSITION;
+};
+
 struct VS_IN{
-    float4 pos:POSITION;
+    test_pos pos[]:POSITION;
     float4 norm:NORMAL;
     float3 tex_coord0: TEXCOORD0;
     float3 tex_coord1: TEXCOORD1;
@@ -50,14 +54,15 @@ struct test2{
 VS_OUT vs_mesh_geometry(VS_IN IN) {
     VS_OUT Out;
 
-	float4 pos = float4(IN.pos.xyz, 1.);
+	float4 pos = float4(IN.pos.pos.xyz, 1.);
     float4 vertex;
     test2 test_var;
-    float4 pos1[](memof IN.pos);
+    float4 pos1[][](memof IN.pos);
+    @@pos1 = @(IN.pos);
     @pos1 = @(IN.pos);
-    pos1.w = 2.;
+    pos1.w = 1.0;
 
-	vertex = (view_mat * model_mat * (pos + pos1));
+	vertex = (view_mat * model_mat * (pos1 + pos));
 
     Out.norm = normalize((normal_mat * IN.norm.xyz));
     Out.vert = vertex.xyz;
