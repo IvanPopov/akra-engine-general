@@ -101,7 +101,7 @@ struct test_Struct_1{
     float y:U_Y;
 };
 struct test_Struct_2{
-    test_Struct_X_2 x:U_X;
+    test_Struct_X_1 x:U_X;
     float z:U_Z;
 };
 ///////////////////////////
@@ -176,7 +176,7 @@ struct LIGHTPOINT {
 VS_OUT_2 vs_mesh_texture(VS_IN_2 IN, uniform test_Struct_2 u1:UTEST) {
     VS_OUT_2 Out;
     float3 norm = float3(IN.norm.norm_x, IN.norm.norm_yzw.x,IN.norm.norm_yzw.y);
-    norm.x += u1.x.c + u1.z;
+    norm.x += u1.x.b + u1.z;
     Out.norm = normalize((normal_mat * norm));
     Out.tc_diffuse = IN.tex_coord0;
     Out.tc_ambient = IN.tex_coord1;
