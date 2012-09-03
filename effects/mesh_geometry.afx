@@ -1,0 +1,49 @@
+provide akra.system;
+
+struct VS_IN_1{
+    float4 pos:POSITION;
+    float4 norm:NORMAL;
+};
+
+struct VS_OUT_1{
+    float4 pos:POSITION;
+    float3 vert:VERTEX;
+    float3 norm:NORMAL;
+};
+
+struct baseGeometry{
+    float4 pos:POSITION;
+    float3 vert:VERTEX;
+    float3 norm:NORMAL;
+};
+
+///////////////////////////
+float4x4 model_mat:MODEL_MATRIX;
+float4x4 view_mat:VIEW_MATRIX;
+float4x4 proj_mat:PROJ_MATRIX;
+float3x3 normal_mat:NORMAL_MATRIX;
+
+global baseGeometry vertex_geometry;
+
+VS_OUT_1 vs_mesh_geometry(VS_IN_1 IN) {
+    VS_OUT_1 Out;
+
+	float4 pos = float4(IN.pos.xyz, 1.);
+    float4 vertex;
+    float3 norm = float3(IN.norm);
+
+	vertex = (view_mat * model_mat * (pos));
+
+    Out.norm = vertex_geometry.norm = normalize((normal_mat * norm));
+    Out.vert = vertex_geometry.vert = vertex.xyz;
+	Out.pos = vertex_geometry.pos = proj_mat * vertex;
+
+    return Out;
+}
+
+technique mesh_geometry{
+    pass p0 {
+        VertexShader = compile vs_mesh_geometry();
+    }
+}
+

@@ -34,8 +34,9 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/Plane.afx');
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh.afx');
-    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2.afx');
-//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2_test.afx');
+//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2.afx');
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_geometry.afx');
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_texture.afx');
 
     var pEffectResource;
     var time;
@@ -51,13 +52,15 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     this.pPlane = addMeshToScene(this, sceneSurface(this));
     this.pPlane.bNoRender = true;
     pEffectResource = this.pPlane._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
+    pEffectResource.create();
     pEffectResource.use(this.shaderManager().getComponentByName("akra.system.plane"));
     this.pCube = new Array(1);
     for (var i = 0; i < this.pCube.length; i++) {
         this.pCube[i] = addMeshToScene(this, cube(this));
         this.pCube[i].bNoRender = true;
         pEffectResource = this.pCube[i]._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
-        pEffectResource.use(this.shaderManager().getComponentByName("akra.system.mesh_geometry"));
+        pEffectResource.create();
+//        pEffectResource.use(this.shaderManager().getComponentByName("akra.system.mesh_geometry"));
         pEffectResource.use(this.shaderManager().getComponentByName("akra.system.mesh_texture"));
 
         pSurface = this.pCube[i]._pMeshes[0][0].surfaceMaterial;
@@ -128,7 +131,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 //    }
 
 //    A_TRACER.END();
-    this.pause(true);
+//    this.pause(true);
     this.notifyInitDeviceObjects();
     return true;
 };
