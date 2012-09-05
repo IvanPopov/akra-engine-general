@@ -80,6 +80,7 @@ void main(void) {
     float weight_ptr;
 
     float weight;
+    //float total_weight = 0.0;
     mat4 bone_matrix;
     mat4 result_mat = mat4(0.);
 
@@ -107,10 +108,19 @@ void main(void) {
         weight = A_extractFloat(A_buffer_0, vb_header, weight_ptr);
 
         result_mat += bone_matrix * weight;
+       // total_weight += weight;
     }
-
+    //result_mat /= total_weight;
+    //if (result_mat[0] == vec4(0) && 
+    //    result_mat[1] == vec4(0) && 
+    //    result_mat[2] == vec4(0) && 
+    //    result_mat[3] == vec4(0)) {
+    //    result_mat = mat4(1);
+    //}
+    
     gl_PointSize = point_size;
     vertex = (view_mat * result_mat * bind_matrix * pos);
+    vertex.w = 1.0;
     norm = normalize((result_mat * normal).xyz);
 #else
 	vertex = (view_mat * model_mat * pos);

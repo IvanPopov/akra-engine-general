@@ -184,9 +184,13 @@ function cube (pEngine, eOptions, sName) {
     return pMesh;
 }
 
-function sceneSurface(pEngine, eOptions) {
-    var nCellW = nCellW || 51;
-    var nCellH = nCellH || 51;
+function sceneSurface(pEngine, n) {
+    n = n || 100;
+    var nCellW = nCellW || (n + 1);
+    var nCellH = nCellH || (n + 1);
+
+    var nScaleX = nCellW - 1;
+    var nScaleY = nCellH - 1;
 
     var pMesh, pSubMesh;
     var iPos;
@@ -198,24 +202,25 @@ function sceneSurface(pEngine, eOptions) {
     var n = 0;
 
     for (var z = 0; z < nCellH; ++ z) {
-        pVerticesData[n]        = -.5;
-        pVerticesData[n + 2]    = z * fStepY -.5;
+        pVerticesData[n]        = (-.5) * nScaleX;
+        pVerticesData[n + 2]    = (z * fStepY -.5) * nScaleY;
         n += 3;
         
-        pVerticesData[n]        = .5;
-        pVerticesData[n + 2]    = z * fStepY -.5;
+        pVerticesData[n]        = (.5) * nScaleX;
+        pVerticesData[n + 2]    = (z * fStepY -.5) * nScaleY;
         n += 3;
     }
 
     for (var x = 0; x < nCellW; ++ x) {
-        pVerticesData[n]        = x * fStepX -.5;
-        pVerticesData[n + 2]    = -.5;
+        pVerticesData[n]        = (x * fStepX -.5)  * nScaleX;
+        pVerticesData[n + 2]    = (-.5) * nScaleY;
         n += 3;
 
-        pVerticesData[n]        = x * fStepX -.5;
-        pVerticesData[n + 2]    = .5;
+        pVerticesData[n]        = (x * fStepX -.5) * nScaleX;
+        pVerticesData[n + 2]    = (.5) * nScaleY;
         n += 3;
     }
+
 
 
     var pVertexIndicesData = new Float32Array((nCellW + nCellH) * 2);
