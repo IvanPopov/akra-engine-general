@@ -38,6 +38,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2.afx');
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_geometry.afx');
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_texture.afx');
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/samplers_array.afx');
 
     var pEffectResource;
     var time;
@@ -82,7 +83,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 //    }
 
 //    A_TRACER.END();
-//    this.pause(true);
+    this.pause(true);
     this.notifyInitDeviceObjects();
     return true;
 };
