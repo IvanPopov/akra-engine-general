@@ -696,6 +696,9 @@
       </node>
       <node id="node-Bip001" name="Bip001">
         <matrix>1.37091e-6 1 0 3.82099e-8 -1 1.37091e-6 0 -0.047173 0 0 1 1.025969 0 0 0 1</matrix>
+        <node id="node-Bip001_Footsteps" name="Bip001_Footsteps">
+          <matrix sid="matrix">-0.5723473 -0.819881 -0.01462119 0.01408216 0.8200113 -0.5722563 -0.01020522 0.009828988 -4.65661e-9 -0.01783047 0.999841 -0.9629806 0 0 0 1</matrix>
+        </node>
         <node id="node-Bip001_Pelvis" name="Bip001_Pelvis" sid="joint36" type="JOINT">
           <matrix>1.92321e-12 1 -1.3868e-6 -0.027872 -1.3868e-6 1.3868e-6 1 5.32907e-15 1 0 1.3868e-6 0 0 0 0 1</matrix>
           <node id="node-Bip001_Spine" name="Bip001_Spine" sid="joint4" type="JOINT">
