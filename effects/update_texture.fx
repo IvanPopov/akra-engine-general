@@ -1,13 +1,30 @@
 texture sourceTexture : TEXTURE;
 
-sampler sourceSampler  = sampler_state
-{
+sampler sourceSampler[3]  = {
+sampler_state {
     texture = <sourceTexture>;
     AddressU  = clamp;
     AddressV  = clamp;
     MIPFILTER = NEAREST;
     MINFILTER = NEAREST;
     MAGFILTER = NEAREST;
+},
+sampler_state {
+    texture = <sourceTexture>;
+    AddressU  = clamp;
+    AddressV  = clamp;
+    MIPFILTER = NEAREST;
+    MINFILTER = NEAREST;
+    MAGFILTER = NEAREST;
+},
+sampler_state {
+    texture = <sourceTexture>;
+    AddressU  = clamp;
+    AddressV  = clamp;
+    MIPFILTER = NEAREST;
+    MINFILTER = NEAREST;
+    MAGFILTER = NEAREST;
+},
 };
 
 struct VS_OUTPUT
@@ -20,7 +37,7 @@ VS_OUTPUT VS(float4 value:VALUE, int index:INDEX, int shift:SHIFT, uniform float
 {
     VS_OUTPUT   o;
     float  serial = float(index);
-    float4 color = tex2D(sourceSampler, float2(mod(serial, size.x) / size.x, floor(serial / size.x) / size.y));
+    float4 color = tex2D(sourceSampler[1], float2(mod(serial, size.x) / size.x, floor(serial / size.x) / size.y));
 
     int from = 0, to = 4;
 

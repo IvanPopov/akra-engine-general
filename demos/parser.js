@@ -83,7 +83,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 //    }
 
 //    A_TRACER.END();
-    this.pause(true);
+//    this.pause(true);
     this.notifyInitDeviceObjects();
     return true;
 };
