@@ -8,7 +8,6 @@ function ShaderDemo() {
     this.pEntry = null;
     STATIC(fMoveSpeed, 1.);
 }
-;
 
 EXTENDS(ShaderDemo, a.Engine);
 
@@ -19,6 +18,14 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     this.showStats(true);
 //    A_TRACER.BEGIN();
     this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
+    var pManager = this.shaderManager();
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/Plane.afx');
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh.afx');
+//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2.afx');
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_geometry.afx');
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_texture.afx');
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/samplers_array.afx');
     return true;
 };
 
@@ -29,16 +36,16 @@ ShaderDemo.prototype.restoreDeviceObjects = function () {
 
 
 ShaderDemo.prototype.initDeviceObjects = function () {
-//    A_TRACER.END();
+//    A_TRACER.BEGIN();
     this.notifyInitDeviceObjects();
     var pManager = this.shaderManager();
-    pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
-    pManager.loadEffectFile('http://akra/akra-engine-general/effects/Plane.afx');
-    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh.afx');
-//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2.afx');
-    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_geometry.afx');
-    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_texture.afx');
-    pManager.loadEffectFile('http://akra/akra-engine-general/effects/samplers_array.afx');
+//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
+//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/Plane.afx');
+//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh.afx');
+////    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2.afx');
+//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_geometry.afx');
+//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_texture.afx');
+//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/samplers_array.afx');
 
     var pEffectResource;
     var time;
@@ -75,6 +82,11 @@ ShaderDemo.prototype.initDeviceObjects = function () {
         pMat.pShininess = 30.;
         pSurface.setTexture(1, this.pTexture0, 2);
     }
+//    this.updateScene();
+//    this.pPlane.render();
+//    this.pCube[0].render();
+//    window['A_TRACER.trace']('Real render of sceneobjects');
+//    this.shaderManager().processRenderQueue();
 
 //    trace("PLANE: ", pEntry1);
 //    trace("CUBE: ", pEntry2);

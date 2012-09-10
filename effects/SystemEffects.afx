@@ -1,6 +1,8 @@
 provide akra.system;
 use strict;
 
+include "http://akra/akra-engine-general/effects/test_include.afx";
+
 struct VS_IN{
     float  index: INDEX;
     float  offset: SHIFT;
@@ -14,19 +16,19 @@ struct VS_OUT{
 texture tex0:TEXTURE0;
 texture tex1:TEXTURE1;
 
-sampler sourceSampler0[3]:SOURCE0  = {
-sampler_state {
-    Texture = <tex0>;
-},
-sampler_state {
-    Texture = <tex1>;
-},
-sampler_state {
-    Texture = <tex0>;
-},};
-//sampler sourceSampler0:SOURCE0 = sampler_state {
+//sampler sourceSampler0[3]:SOURCE0  = {
+//sampler_state {
 //    Texture = <tex0>;
-//};
+//},
+//sampler_state {
+//    Texture = <tex1>;
+//},
+//sampler_state {
+//    Texture = <tex0>;
+//},};
+sampler sourceSampler0:SOURCE0 = sampler_state {
+    Texture = <tex0>;
+};
 
 
 float2 size;
@@ -35,8 +37,8 @@ VS_OUT vs_main_1(VS_IN data){
     VS_OUT Out;
     int offset = int(data.offset);
     if (offset != 0) {
-        Out.col = tex2D(sourceSampler0[1],
-                        float2((mod(data.index, size.x) +.5 ) / size.x, (floor(data.index / size.x) + .5) / size.y));
+        Out.col = tex2D(sourceSampler0,
+                        float2((mod(data.index, size.x) +.5 ) / size.x * test_include_var.x, (floor(data.index / size.x) + .5) / size.y));
         if (offset == 1) {
             Out.col = float4(Out.col.r, data.value.gba);
         }

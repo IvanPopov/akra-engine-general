@@ -13,6 +13,9 @@ Decl : TechniqueDecl
 Decl : UseDecl
 Decl : ImportDecl
 Decl : ProvideDecl
+Decl : IncludeDecl
+
+IncludeDecl : T_KW_INCLUDE String --AN --F includeCode
 
 ImportDecl : T_KW_IMPORT ComplexNameOpt ShiftOpt
 ShiftOpt :
@@ -480,6 +483,7 @@ T_KW_BREAK : "break"
 T_KW_AS : "as"
 T_KW_PTR : "ptr"
 T_KW_SHIFT : "shift"
+T_KW_INCLUDE : "include"
 T_OP_INC : "++"
 T_OP_DEC : "--"
 T_OP_LE : ">="
