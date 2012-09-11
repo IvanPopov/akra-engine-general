@@ -17,15 +17,31 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0.0, 500.0));
     this.showStats(true);
 //    A_TRACER.BEGIN();
-    this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
+
     var pManager = this.shaderManager();
-    pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
+    var pSystemEffect;
+    pSystemEffect = pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/Plane.afx');
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh.afx');
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2.afx');
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_geometry.afx');
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_texture.afx');
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/samplers_array.afx');
+
+    this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
+
+    var me = this;
+    var fnTextureLoad = function (iFlagBit, iResourceFlags, isSetting) {
+        if (this.isResourceLoaded()) {
+            this.delChangesNotifyRoutine(fnTextureLoad);
+            var pPool = me.displayManager().texturePool();
+            for (var iHandleResource in pPool._pNameMap) {
+                pPool.getResource(iHandleResource)._setSystemEffect();
+            }
+        }
+    }
+    pSystemEffect.setChangesNotifyRoutine(fnTextureLoad);
+
     return true;
 };
 
@@ -36,7 +52,7 @@ ShaderDemo.prototype.restoreDeviceObjects = function () {
 
 
 ShaderDemo.prototype.initDeviceObjects = function () {
-//    A_TRACER.BEGIN();
+    A_TRACER.BEGIN();
     this.notifyInitDeviceObjects();
     var pManager = this.shaderManager();
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
@@ -50,6 +66,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     var pEffectResource;
     var time;
     var pSurface, pMat;
+    var me = this;
     time = new Date();
     function addMeshToScene(pEngine, pMesh, pParent) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
@@ -58,12 +75,18 @@ ShaderDemo.prototype.initDeviceObjects = function () {
         return pSceneObject;
     }
 
+
     this.pPlane = addMeshToScene(this, sceneSurface(this));
     this.pPlane.bNoRender = true;
     this.pPlane.setScale(200.0);
     pEffectResource = this.pPlane._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
     pEffectResource.create();
     pEffectResource.use(this.shaderManager().getComponentByName("akra.system.plane"));
+
+    this.pCubeMesh = cube(this);
+    this.appendMesh = function (pMesh, pNode) {
+        return addMeshToScene(me, pMesh, pNode);
+    }
 
     this.pCube = new Array(1);
     for (var i = 0; i < this.pCube.length; i++) {
@@ -95,7 +118,42 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 //    }
 
 //    A_TRACER.END();
-//    this.pause(true);
+    var pDemos = {
+        'CMan'          : '',
+        'astroBoy'      : 'astroBoy_walk_Max.DAE',
+        'hero_model'    : 'demo/mesh_chr.DAE',
+        'hero_anim_run' : 'demo/anim_chr_run.DAE',
+        'hero_anim_idl' : 'demo/anim_chr_idle.DAE'
+    };
+
+    //for (var i = 0; i < 1; i++) {
+    COLLADA(this, {
+        file       : '/akra-engine-general/media/models/' + pDemos['hero_model'],
+        success    : function (pNodes, pMeshes, pAnimations) {
+            COLLADA(this, {
+                file      : '/akra-engine-general/media/models/' + pDemos['hero_anim_run'],
+                animation : true,
+                scene     : false,
+                success   : function (pNodes2, pMeshes2, pAnimations2) {
+                    COLLADA(this, {
+                        file      : '/akra-engine-general/media/models/' + pDemos['hero_anim_idl'],
+                        animation : true,
+                        scene     : false,
+                        success   : function (pNodes3, pMeshes3, pAnimations3) {
+                            me.onColladaLoad(pNodes, pMeshes, pAnimations2.concat(pAnimations2));
+                        }
+                    });
+                }
+            });
+        },
+        animation  : false,
+        wireframe  : true,
+        drawJoints : true
+    });
+    A_TRACER.END();
+
+    this.pause(true);
+
     this.notifyInitDeviceObjects();
     return true;
 };
@@ -192,6 +250,109 @@ ShaderDemo.prototype.updateScene = function () {
         pCamera.addRelRotation(fdX, fdY, 0);
     }
     return this.notifyUpdateScene();
+};
+
+ShaderDemo.prototype.displayAnimation = function (pNodes, pMeshes, pAnimations) {
+    if (pAnimations) {
+
+        var pAnimController = new a.AnimationController(a.Animation.MODE_REPEAT);
+        pAnimController.addAnimation(pAnimations);
+        pAnimController.bind(this.getRootNode());
+
+        //pAnimController.setAnimationPriority(1, a.Animation.PRIORITY_LOW);
+        //pAnimController.setPriorityBlend(.1);
+
+        var pSlider = document.createElement('input');
+        var pTiming = this.displayManager().draw2DText(200, 50, new a.Font2D(20, '#FFF'));
+
+        pSlider.type = "range";
+        pSlider.min = 0;
+        pSlider.max = 100;
+        pSlider.step = 1;
+        pSlider.value = 0;
+
+        var me = this;
+        this.fAngle = 0;
+
+        var fnSliderChange = function () {
+
+            var fTime = this.value / 100.0 * pAnimations[0]._fDuration;
+            pTiming.edit(fTime + ' sec / ' + this.value);
+            pAnimController.time(fTime);
+        };
+
+        this.animStep = function () {
+            pSlider.value++;
+            me.fAngle++;
+
+            if (pSlider.value == 100) {
+                pSlider.value = 0;
+            }
+
+            if (me.fAngle >= 360) {
+                me.fAngle = 0;
+            }
+
+            // for (var i = 0; i < pNodes.length; ++ i) {
+            //     pNodes[i].setPosition(
+            //         Math.cos(me.fAngle / 180 * Math.PI) * 20,
+            //         0,
+            //         Math.sin(me.fAngle / 180 * Math.PI) * 20);
+            //     pNodes[i].setRotation(me.fAngle / 180 * Math.PI, Math.PI/2, 0);
+            // }
+
+            fnSliderChange.call(pSlider);
+        }
+
+        pSlider.onchange = fnSliderChange;
+
+        pSlider.style.position = "absolute";
+        pSlider.style.top = "50px";
+        pSlider.style.zIndex = "100";
+
+        document.getElementById('wrapper').appendChild(pSlider);
+
+        document.body.addEventListener("keypress", function (e) {
+            e = window.event || e;
+            e = e.charCode || e.keyCode;
+
+            if (e == a.KEY.F1) {
+                pSlider.value = Number(pSlider.value) + 1.0;
+                if (pSlider.value > 100) {
+                    pSlider.value = 100;
+                }
+                fnSliderChange.call(pSlider);
+            }
+            else if (e == a.KEY.F2) {
+                pSlider.value -= 1;
+                if (pSlider.value < 0) {
+                    pSlider.value = 0;
+                }
+                fnSliderChange.call(pSlider);
+            }
+        }, false);
+
+        fnSliderChange.call(pSlider);
+    }
+}
+
+ShaderDemo.prototype.onColladaLoad = function (pNodes, pMeshes, pAnimations) {
+    'use strict';
+    trace(pNodes, pMeshes, pAnimations);
+    if (pNodes) {
+        //var v3f = [Math.random() * 100 - 50.0, 0.0, Math.random() * 100 - 50.0];
+        var v3f = [0, 0, 0];
+        for (var i = 0; i < pNodes.length; ++i) {
+            pNodes[i].attachToParent(this.getRootNode());
+            //pNodes[i].addRelRotation(0, -Math.PI/2, 0);
+            pNodes[i].setScale(5);
+            pNodes[i].addRelPosition(v3f.X, v3f.Z, 0.0);
+        }
+    }
+
+    this.displayAnimation(pNodes, pMeshes, pAnimations);
+
+
 };
 
 if (!a.info.support.webgl) {

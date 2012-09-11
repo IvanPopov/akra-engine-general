@@ -9,6 +9,7 @@ struct VS_OUT_1{
     float4 pos:POSITION;
     float3 vert:VERTEX;
     float3 norm:NORMAL;
+    float psize:PSIZE;
 };
 
 struct baseGeometry{
@@ -22,6 +23,8 @@ float4x4 model_mat:MODEL_MATRIX;
 float4x4 view_mat:VIEW_MATRIX;
 float4x4 proj_mat:PROJ_MATRIX;
 float3x3 normal_mat:NORMAL_MATRIX;
+
+float4x4 bind_matrix:BIND_SHAPE_MATRIX;
 
 global baseGeometry vertex_geometry;
 
@@ -41,9 +44,57 @@ VS_OUT_1 vs_mesh_geometry(VS_IN_1 IN) {
     return Out;
 }
 
+VS_OUT_1 vs_mesh_skinning(VS_IN_1 IN) {
+    VS_OUT_1 Out;
+
+    float4 pos = float4(IN.pos.xyz, 1.);
+    float4 vertex;
+
+    float2 meta_data[](memof IN.pos);
+
+    float2 temp[](memof IN.pos);
+    float4x4 bone_matrix[](memof IN.pos);
+    float weight[](memof IN.pos);
+
+    float4x4 result_mat;
+    float point_size = 1.;
+
+    @(meta_data) = IN.pos.w;
+
+    int number_matrix = int(meta_data.x);
+    int bone_inf_ptr = int(meta_data.y);
+
+    for (int i = 0; i < 32; i++) {
+        if(i >= number_matrix) {
+            break;
+        }
+        //get data about matrix and weight
+        @temp = float(bone_inf_ptr + i * 2);
+
+        @bone_matrix = floor(temp.x);
+        @weight = temp.y;
+
+        result_mat += bone_matrix * weight;
+    }
+
+    vertex = (view_mat * result_mat * bind_matrix * pos);
+
+    Out.pos = vertex_geometry.pos = proj_mat * vertex;
+    Out.vert = vertex_geometry.vert = vertex.xyz;
+    Out.norm = vertex_geometry.norm = normalize((result_mat * IN.norm).xyz);
+    Out.psize = point_size;
+
+    return Out;
+}
+
 technique mesh_geometry{
     pass p0 {
-        VertexShader = compile vs_mesh_geometry();
+        if(engine.mesh.isSkinning){
+            VertexShader = compile vs_mesh_skinning();
+        }
+        else {
+            VertexShader = compile vs_mesh_geometry();
+        }
     }
 }
 

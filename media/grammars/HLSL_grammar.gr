@@ -251,6 +251,7 @@ SimpleStmt : T_KW_DISCARD ';'
 SimpleStmt : TypeDecl
 SimpleStmt : VariableDecl
 SimpleStmt : VarStructDecl
+SimpleStmt : T_KW_BREAK ';'
 
 NonIfStmt : SimpleStmt --AN
 NonIfStmt : T_KW_WHILE '(' Expr ')' NonIfStmt
@@ -262,6 +263,7 @@ Stmt : T_KW_WHILE '(' Expr ')' Stmt
 Stmt : For '(' ForInit ForCond ForStep ')' Stmt
 Stmt : T_KW_IF '(' Expr ')' Stmt
 Stmt : T_KW_IF '(' Expr ')' NonIfStmt T_KW_ELSE Stmt
+
 
 For : T_KW_FOR
 ForInit : ';' --AN
