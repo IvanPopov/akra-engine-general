@@ -52,7 +52,7 @@ ShaderDemo.prototype.restoreDeviceObjects = function () {
 
 
 ShaderDemo.prototype.initDeviceObjects = function () {
-    A_TRACER.BEGIN();
+//    A_TRACER.BEGIN();
     this.notifyInitDeviceObjects();
     var pManager = this.shaderManager();
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
@@ -150,8 +150,8 @@ ShaderDemo.prototype.initDeviceObjects = function () {
         wireframe  : true,
         drawJoints : true
     });
-    A_TRACER.END();
-
+//    A_TRACER.END();
+    trace("A_TRACER>.END()__________________________");
     this.pause(true);
 
     this.notifyInitDeviceObjects();

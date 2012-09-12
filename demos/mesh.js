@@ -112,7 +112,7 @@ MeshDemo.prototype.initDeviceObjects = function () {
         },
         animation: false,
         wireframe: true,
-        drawJoints: true 
+        drawJoints: true
     });
     //}
 
