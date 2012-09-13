@@ -7,6 +7,7 @@ function ShaderDemo() {
     this.pTexture0 = null;
     this.pEntry = null;
     this.pModel = null;
+    this.pSprite = null;
     STATIC(fMoveSpeed, 1.);
 }
 
@@ -17,7 +18,7 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     this.notifyOneTimeSceneInit();
     this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0.0, 500.0));
     this.showStats(true);
-//    A_TRACER.BEGIN();
+    A_TRACER.BEGIN();
 
     var pManager = this.shaderManager();
     var pSystemEffect;
@@ -28,10 +29,11 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_geometry.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_texture.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/samplers_array.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/TextureToScreen.afx', true);
 
     this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
     this.pModel = this.displayManager().modelPool().createResource('model');
-    this.pModel.loadResource("/akra-engine-general/media/models/teapot.DAE", {animation: false});
+    this.pModel.loadResource("/akra-engine-general/media/models/skeleton.DAE", {animation : false});
 
 
     this.pResourceManager.monitorInitResources(function (nLoaded, nTotal, pTarget) {
@@ -129,15 +131,47 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 //    }
 
 //    A_TRACER.END();
+    this.pSprite = screenSprite(this);
+    var pSubMesh = this.pSprite[0];
+
     this.pModel.addToScene();
+
+    pEffectResource = pSubMesh._pActiveSnapshot._pRenderMethod._pEffect;
+    pEffectResource.create();
+    pEffectResource.use("akra.system.texture_to_screen");
+
+    this.shaderManager().setViewport(0, 0, this.pCanvas.width, this.pCanvas.height);
+    pSubMesh.startRender();
+    for (k = 0; k < pSubMesh.totalPasses(); k++) {
+        pSubMesh.activatePass(k);
+        pSubMesh.applyRenderData(pSubMesh.data);
+        trace(this.pModel, this.pModel._pMeshList[0][0].data.buffer.buffer);
+        pSubMesh._pActiveSnapshot.applyTextureBySemantic("TEXTURE0", this.pModel._pMeshList[1][1].data.buffer.buffer);
+        pEntry = pSubMesh.renderPass();
+//        trace("SceneModel.prototype.render", this, pSubMesh.renderPass().pUniforms);
+        pSubMesh.deactivatePass();
+    }
+    pSubMesh.finishRender();
+
+    this.shaderManager().processRenderQueue();
+
+
+    trace(this.displayManager().texturePool());
+
+
+
+
+
+
 
     var pCamera = this.getActiveCamera();
 
-   pCamera.addRelRotation(-3.14 / 5, 0, 0);
-   pCamera.addRelPosition(-8.0, 5.0, 11.0);
+    pCamera.addRelRotation(-3.14 / 5, 0, 0);
+    pCamera.addRelPosition(-8.0, 5.0, 11.0);
 
-//    A_TRACER.END();
-   // this.pause(true);
+
+    A_TRACER.END();
+    this.pause(true);
 
 
     return true;

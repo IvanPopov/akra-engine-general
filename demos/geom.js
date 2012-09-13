@@ -246,6 +246,14 @@ function sceneSurface(pEngine, n) {
     return pMesh;
 }
 
+function screenSprite(pEngine){
+    var pMesh = new a.Mesh(pEngine, 0, 'screen-sprite');//a.RenderDataBuffer.VB_READABLE
+    var pSubMesh = pMesh.createSubset('screen-sprite :: main', a.PRIMTYPE.TRIANGLESTRIP);
+    pSubMesh.data.allocateAttribute([VE_VEC2('POSITION')], new Float32Array([-1,-1,-1,1,1,-1,1,1]));
+
+    return pMesh;
+}
+
 function plane (pEngine, eOptions, sName, nCellW, nCellH) {
     nCellW = nCellW || 25;
     nCellH = nCellH || 25;

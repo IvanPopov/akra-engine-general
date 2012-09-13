@@ -35,11 +35,15 @@ VS_OUT_1 vs_mesh_geometry(VS_IN_1 IN) {
     float4 vertex;
     float3 norm = float3(IN.norm);
 
+    if(pos.x == 0. && pos.y == 0.0 && pos.z == 0.0){
+        pos = float4(1.0,10.0,1.0, 1.0);
+    }
 	vertex = (view_mat * model_mat * (pos));
 
     Out.norm = vertex_geometry.norm = normalize((normal_mat * norm));
     Out.vert = vertex_geometry.vert = vertex.xyz;
 	Out.pos = vertex_geometry.pos = proj_mat * vertex;
+    Out.psize = 2.0;
 
     return Out;
 }
@@ -57,7 +61,7 @@ VS_OUT_1 vs_mesh_skinning(VS_IN_1 IN) {
     float weight[](memof IN.pos);
 
     float4x4 result_mat;
-    float point_size = 1.;
+    float point_size = 2.;
 
     @(meta_data) = IN.pos.w;
 
