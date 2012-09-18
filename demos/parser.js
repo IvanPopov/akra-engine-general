@@ -18,7 +18,7 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     this.notifyOneTimeSceneInit();
     this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0.0, 500.0));
     this.showStats(true);
-    A_TRACER.BEGIN();
+//    A_TRACER.BEGIN();
 
     var pManager = this.shaderManager();
     var pSystemEffect;
@@ -33,7 +33,8 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
 
     this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
     this.pModel = this.displayManager().modelPool().createResource('model');
-    this.pModel.loadResource("/akra-engine-general/media/models/skeleton.DAE", {animation : false});
+//    this.pModel.loadResource("/akra-engine-general/media/models/arm.DAE", {animation : false});
+    this.pModel.loadResource("/akra-engine-general/media/models/demo3/mesh_chr/mesh_chr.DAE", {});
 
 
     this.pResourceManager.monitorInitResources(function (nLoaded, nTotal, pTarget) {
@@ -66,6 +67,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 
 //    A_TRACER.BEGIN();
     this.notifyInitDeviceObjects();
+    alert("111111111111111111111111initDeviceObjects111111111111111111111111111111111");
     trace(this.pModel, '<<@@@@@@@@@@@@@@@@@');
     var pManager = this.shaderManager();
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
@@ -76,19 +78,19 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_texture.afx');
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/samplers_array.afx');
 
-    var pEffectResource;
-    var time;
-    var pSurface, pMat;
-    var me = this;
-    time = new Date();
+//    var pEffectResource;
+//    var time;
+//    var pSurface, pMat;
+//    var me = this;
+//    time = new Date();
     function addMeshToScene(pEngine, pMesh, pParent) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
         pSceneObject.create();
         pSceneObject.attachToParent(pParent || pEngine.getRootNode());
         return pSceneObject;
     }
-
-
+//
+//
     this.pPlane = addMeshToScene(this, sceneSurface(this));
 //    this.pPlane.bNoRender = true;
 //    this.pPlane.setScale(200.0);
@@ -131,37 +133,29 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 //    }
 
 //    A_TRACER.END();
-    this.pSprite = screenSprite(this);
-    var pSubMesh = this.pSprite[0];
+//    this.pSprite = screenSprite(this);
+//    var pSubMesh = this.pSprite[0];
 
     this.pModel.addToScene();
 
-    pEffectResource = pSubMesh._pActiveSnapshot._pRenderMethod._pEffect;
-    pEffectResource.create();
-    pEffectResource.use("akra.system.texture_to_screen");
-
-    this.shaderManager().setViewport(0, 0, this.pCanvas.width, this.pCanvas.height);
-    pSubMesh.startRender();
-    for (k = 0; k < pSubMesh.totalPasses(); k++) {
-        pSubMesh.activatePass(k);
-        pSubMesh.applyRenderData(pSubMesh.data);
-        trace(this.pModel, this.pModel._pMeshList[0][0].data.buffer.buffer);
-        pSubMesh._pActiveSnapshot.applyTextureBySemantic("TEXTURE0", this.pModel._pMeshList[1][1].data.buffer.buffer);
-        pEntry = pSubMesh.renderPass();
-//        trace("SceneModel.prototype.render", this, pSubMesh.renderPass().pUniforms);
-        pSubMesh.deactivatePass();
-    }
-    pSubMesh.finishRender();
-
-    this.shaderManager().processRenderQueue();
-
-
-    trace(this.displayManager().texturePool());
-
-
-
-
-
+//    pEffectResource = pSubMesh._pActiveSnapshot._pRenderMethod._pEffect;
+//    pEffectResource.create();
+//    pEffectResource.use("akra.system.texture_to_screen");
+//
+//    this.shaderManager().setViewport(0, 0, this.pCanvas.width, this.pCanvas.height);
+//    pSubMesh.startRender();
+//    for (k = 0; k < pSubMesh.totalPasses(); k++) {
+//        pSubMesh.activatePass(k);
+//        pSubMesh.applyRenderData(pSubMesh.data);
+//        trace(this.pModel, this.pModel._pMeshList[0][0].data.buffer.buffer);
+//        pSubMesh._pActiveSnapshot.applyTextureBySemantic("TEXTURE0", this.pModel._pMeshList[1][1].data.buffer.buffer);
+//        pEntry = pSubMesh.renderPass();
+////        trace("SceneModel.prototype.render", this, pSubMesh.renderPass().pUniforms);
+//        pSubMesh.deactivatePass();
+//    }
+//    pSubMesh.finishRender();
+//
+//    this.shaderManager().processRenderQueue();
 
 
     var pCamera = this.getActiveCamera();
@@ -170,8 +164,10 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     pCamera.addRelPosition(-8.0, 5.0, 11.0);
 
 
-    A_TRACER.END();
-    this.pause(true);
+
+
+//    A_TRACER.END();
+//    this.pause(true);
 
 
     return true;

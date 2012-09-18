@@ -35,15 +35,12 @@ VS_OUT_1 vs_mesh_geometry(VS_IN_1 IN) {
     float4 vertex;
     float3 norm = float3(IN.norm);
 
-    if(pos.x == 0. && pos.y == 0.0 && pos.z == 0.0){
-        pos = float4(1.0,10.0,1.0, 1.0);
-    }
 	vertex = (view_mat * model_mat * (pos));
 
     Out.norm = vertex_geometry.norm = normalize((normal_mat * norm));
     Out.vert = vertex_geometry.vert = vertex.xyz;
 	Out.pos = vertex_geometry.pos = proj_mat * vertex;
-    Out.psize = 2.0;
+//    Out.psize = 2.0;
 
     return Out;
 }
@@ -60,8 +57,8 @@ VS_OUT_1 vs_mesh_skinning(VS_IN_1 IN) {
     float4x4 bone_matrix[](memof IN.pos);
     float weight[](memof IN.pos);
 
-    float4x4 result_mat;
-    float point_size = 2.;
+    float4x4 result_mat = float4x4(0.0);
+    float point_size = 30.;
 
     @(meta_data) = IN.pos.w;
 
@@ -80,9 +77,14 @@ VS_OUT_1 vs_mesh_skinning(VS_IN_1 IN) {
 
         result_mat += bone_matrix * weight;
     }
+    float4 tmp =  result_mat * bind_matrix * pos;
+////    tmp.w = 1.;
+////
+//    if(result_mat == float4x4(0.)){
+//        tmp = float4(5.,5.,5.,1.);
+//    }
 
-    vertex = (view_mat * result_mat * bind_matrix * pos);
-
+    vertex = (view_mat * tmp);
     Out.pos = vertex_geometry.pos = proj_mat * vertex;
     Out.vert = vertex_geometry.vert = vertex.xyz;
     Out.norm = vertex_geometry.norm = normalize((result_mat * IN.norm).xyz);

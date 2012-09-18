@@ -307,7 +307,7 @@ A_3DContextTracer.prototype.stencilOpSeparate = function (eFace, eFail, eZfail, 
 // Framebuffer object
 
 A_3DContextTracer.prototype.bindFramebuffer = function (eTarget, pBuffer) {
-    A_TR_NOTIFY('bindFramebuffer ( ' + A_TR_CONST(eTarget) + ', ' + pBuffer + ' )');
+    A_TR_NOTIFY('bindFramebuffer ( ' + A_TR_CONST(eTarget) + ', ' + pBuffer + ' )' + "#" + (pBuffer ? pBuffer._iSystemId : "Default"));
     return this.pContext.bindFramebuffer(eTarget, pBuffer);
 };
 
@@ -317,12 +317,14 @@ A_3DContextTracer.prototype.checkFramebufferStatus = function (eTarget) {
 };
 
 A_3DContextTracer.prototype.createFramebuffer = function () {
-    A_TR_NOTIFY('createFramebuffer (  )');
-    return this.pContext.createFramebuffer();
+    var pFrameFuffer = this.pContext.createFramebuffer();
+    pFrameFuffer._iSystemId = a.sid();
+    A_TR_NOTIFY('createFramebuffer (  )' + "#" + pFrameFuffer._iSystemId);
+    return pFrameFuffer;
 };
 
 A_3DContextTracer.prototype.deleteFramebuffer = function (pBuffer) {
-    A_TR_NOTIFY('deleteFramebuffer ( ' + pBuffer + ' )');
+    A_TR_NOTIFY('deleteFramebuffer ( ' + pBuffer + ' )' + "#" + pBuffer._iSystemId);
     return this.pContext.deleteFramebuffer(pBuffer);
 };
 

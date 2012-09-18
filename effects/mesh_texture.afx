@@ -86,46 +86,45 @@ float4x4 proj_mat:PROJ_MATRIX;
 float3x3 normal_mat:NORMAL_MATRIX;
 
 float4 fs_mesh_texture(VS_OUT_2 IN): COLOR{
-//    float4 color;
-//
-//    LIGHTPOINT light_point;
-//    light_point.position = float4(10., 20., 10., 1.);
-//    light_point.ambient = float4(1., 1., 1., 1.);
-//    light_point.diffuse = float4(1., 1., 1., 1.);
-//    light_point.specular = float4(1., 1., 1., 1.);
-//    light_point.attenuation = float3(1., 0.00, .000);
-//
-//    float3 light_dir = light_point.position.xyz - IN.vert;
-//    float light_dir_length = length(light_dir);
-//    light_dir = normalize(light_dir);
-//
-//    // direction from vert to observer (ViewDir)
-//    float3 view_dir = normalize((view_mat * model_mat * float4(eye_pos, 1.0)).xyz - IN.vert);
-//
-//    // length from source of light to vert
-//    float3 light_distance = normalize(reflect(-light_dir, IN.norm));
-//
-//    // attenuation
-//    float attenuation = 1.0 / (light_point.attenuation.x +
-//        light_point.attenuation.y *
-//        light_dir_length + light_point.attenuation.z *
-//        light_dir_length * light_dir_length);
-//
-//    color = (defaultMaterial.emissive + tex2D(sampler_emissive, float2(IN.tc_emissive)));
-//
-//    // add ambient
-//    color += (defaultMaterial.ambient + tex2D(sampler_ambient, float2(IN.tc_ambient.xy))) * light_point.ambient * attenuation;
-//
-//    // add diffuse lighting
-//    color += (defaultMaterial.diffuse + tex2D(sampler_diffuse, float2(IN.tc_diffuse.xy))) * light_point.diffuse * max(dot(IN.norm, light_dir), .0) * attenuation;
-//
-//    // add reflect lighting
-//    //float light_distancedotVpow = max(pow(dot(light_distance, view_dir), defaultMaterial.shininess), 0.0);
-//    float light_distancedotVpow = pow(max(dot(light_distance, view_dir), .0), defaultMaterial.shininess);
-//    color += (defaultMaterial.specular + tex2D(sampler_specular, float2(IN.tc_specular.xy))) * light_point.specular * light_distancedotVpow * attenuation;
-//
-//    return float4(color.xyz, 1.);
-    return float4(1.0,0.,0.,1.);
+    float4 color;
+
+    LIGHTPOINT light_point;
+    light_point.position = float4(10., 20., 10., 1.);
+    light_point.ambient = float4(0.3, 0.3, 0.3, 1.);
+    light_point.diffuse = float4(1., 1., 1., 1.);
+    light_point.specular = float4(1., 1., 1., 1.);
+    light_point.attenuation = float3(1., 0.00, .000);
+
+    float3 light_dir = light_point.position.xyz - IN.vert;
+    float light_dir_length = length(light_dir);
+    light_dir = normalize(light_dir);
+
+    // direction from vert to observer (ViewDir)
+    float3 view_dir = normalize((view_mat * model_mat * float4(eye_pos, 1.0)).xyz - IN.vert);
+
+    // length from source of light to vert
+    float3 light_distance = normalize(reflect(-light_dir, IN.norm));
+
+    // attenuation
+    float attenuation = 1.0 / (light_point.attenuation.x +
+        light_point.attenuation.y *
+        light_dir_length + light_point.attenuation.z *
+        light_dir_length * light_dir_length);
+
+    color = (defaultMaterial.emissive + tex2D(sampler_emissive, float2(IN.tc_emissive)));
+
+    // add ambient
+    color += (defaultMaterial.ambient + tex2D(sampler_ambient, float2(IN.tc_ambient.xy))) * light_point.ambient * attenuation;
+
+    // add diffuse lighting
+    color += (defaultMaterial.diffuse + tex2D(sampler_diffuse, float2(IN.tc_diffuse.xy))) * light_point.diffuse * max(dot(IN.norm, light_dir), .0) * attenuation;
+
+    // add reflect lighting
+    //float light_distancedotVpow = max(pow(dot(light_distance, view_dir), defaultMaterial.shininess), 0.0);
+    float light_distancedotVpow = pow(max(dot(light_distance, view_dir), .0), defaultMaterial.shininess);
+    color += (defaultMaterial.specular + tex2D(sampler_specular, float2(IN.tc_specular.xy))) * light_point.specular * light_distancedotVpow * attenuation;
+
+    return float4(color.xyz, 1.);
 }
 
 technique mesh_texture{
