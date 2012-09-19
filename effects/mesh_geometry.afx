@@ -77,14 +77,8 @@ VS_OUT_1 vs_mesh_skinning(VS_IN_1 IN) {
 
         result_mat += bone_matrix * weight;
     }
-    float4 tmp =  result_mat * bind_matrix * pos;
-////    tmp.w = 1.;
-////
-//    if(result_mat == float4x4(0.)){
-//        tmp = float4(5.,5.,5.,1.);
-//    }
 
-    vertex = (view_mat * tmp);
+    vertex = (view_mat * result_mat * bind_matrix * pos);
     Out.pos = vertex_geometry.pos = proj_mat * vertex;
     Out.vert = vertex_geometry.vert = vertex.xyz;
     Out.norm = vertex_geometry.norm = normalize((result_mat * IN.norm).xyz);

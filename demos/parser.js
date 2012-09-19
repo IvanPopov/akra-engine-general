@@ -8,6 +8,7 @@ function ShaderDemo() {
     this.pEntry = null;
     this.pModel = null;
     this.pSprite = null;
+    this.pLightPoint = null;
     STATIC(fMoveSpeed, 1.);
 }
 
@@ -30,6 +31,7 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_texture.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/samplers_array.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/TextureToScreen.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/prepare_shadows.afx', true);
 
     this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
     this.pModel = this.displayManager().modelPool().createResource('model');
@@ -67,34 +69,37 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 
 //    A_TRACER.BEGIN();
     this.notifyInitDeviceObjects();
-    alert("111111111111111111111111initDeviceObjects111111111111111111111111111111111");
     trace(this.pModel, '<<@@@@@@@@@@@@@@@@@');
     var pManager = this.shaderManager();
-//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx');
-//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/Plane.afx');
-//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh.afx');
-////    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2.afx');
-//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_geometry.afx');
-//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_texture.afx');
-//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/samplers_array.afx');
 
-//    var pEffectResource;
-//    var time;
-//    var pSurface, pMat;
-//    var me = this;
-//    time = new Date();
+
+    var pLightPoint = this.pLightPoint = new a.LightPoint(this,false,true,2048);
+    pLightPoint.create();
+    pLightPoint.attachToParent(this.getRootNode());
+
+    var m4fTempView = Mat4.lookAt(Vec3(3,4,0),Vec3(0.,1.,0.),Vec3(0,1,0),Mat4());
+
+    pLightPoint.accessLocalMatrix().set(m4fTempView.inverse());
+    pLightPoint.addRelRotation(Math.PI/4.,0,0);
+
+    if(!pLightPoint.isOmnidirectional) {
+        pLightPoint.camera.setProjParams(Math.PI/5,1,0.01,1000);
+    }
+
+    var pLightParameters = pLightPoint.lightParameters;
+
+    pLightParameters.attenuation.set(0.9, 0.0, .000);
+
     function addMeshToScene(pEngine, pMesh, pParent) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
         pSceneObject.create();
         pSceneObject.attachToParent(pParent || pEngine.getRootNode());
         return pSceneObject;
     }
-//
-//
+
     this.pPlane = addMeshToScene(this, sceneSurface(this));
-//    this.pPlane.bNoRender = true;
-//    this.pPlane.setScale(200.0);
-    pEffectResource = this.pPlane._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
+
+    var pEffectResource = this.pPlane._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
     pEffectResource.create();
     pEffectResource.use(this.shaderManager().getComponentByName("akra.system.plane"));
 
@@ -103,60 +108,8 @@ ShaderDemo.prototype.initDeviceObjects = function () {
         return addMeshToScene(me, pMesh, pNode);
     }
 
-//    this.pCube = new Array(1);
-//    for (var i = 0; i < this.pCube.length; i++) {
-//        this.pCube[i] = addMeshToScene(this, cube(this));
-//        this.pCube[i].bNoRender = true;
-//        pEffectResource = this.pCube[i]._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
-//        pEffectResource.create();
-////        pEffectResource.use(this.shaderManager().getComponentByName("akra.system.mesh_geometry"));
-//        pEffectResource.use(this.shaderManager().getComponentByName("akra.system.mesh_texture"));
-//
-//        pSurface = this.pCube[i]._pMeshes[0][0].surfaceMaterial;
-//        pMat = pSurface.material;
-//        pMat.pDiffuse = new a.Color4f(0.1, 0., 0., 1.);
-//        pMat.pAmbient = new a.Color4f(0.1, 0., 0., 1.);
-//        pMat.pSpecular = new a.Color4f(1., 0.7, 0., 1);
-//        pMat.pShininess = 30.;
-//        pSurface.setTexture(1, this.pTexture0, 2);
-//    }
-//    this.updateScene();
-//    this.pPlane.render();
-//    this.pCube[0].render();
-//    window['A_TRACER.trace']('Real render of sceneobjects');
-//    this.shaderManager().processRenderQueue();
-
-//    trace("PLANE: ", pEntry1);
-//    trace("CUBE: ", pEntry2);
-//    for(var i = 0; i < pEntry.length; i++){
-//        pManager.render(pEntry[i]);
-//    }
-
-//    A_TRACER.END();
-//    this.pSprite = screenSprite(this);
-//    var pSubMesh = this.pSprite[0];
-
     this.pModel.addToScene();
-
-//    pEffectResource = pSubMesh._pActiveSnapshot._pRenderMethod._pEffect;
-//    pEffectResource.create();
-//    pEffectResource.use("akra.system.texture_to_screen");
-//
-//    this.shaderManager().setViewport(0, 0, this.pCanvas.width, this.pCanvas.height);
-//    pSubMesh.startRender();
-//    for (k = 0; k < pSubMesh.totalPasses(); k++) {
-//        pSubMesh.activatePass(k);
-//        pSubMesh.applyRenderData(pSubMesh.data);
-//        trace(this.pModel, this.pModel._pMeshList[0][0].data.buffer.buffer);
-//        pSubMesh._pActiveSnapshot.applyTextureBySemantic("TEXTURE0", this.pModel._pMeshList[1][1].data.buffer.buffer);
-//        pEntry = pSubMesh.renderPass();
-////        trace("SceneModel.prototype.render", this, pSubMesh.renderPass().pUniforms);
-//        pSubMesh.deactivatePass();
-//    }
-//    pSubMesh.finishRender();
-//
-//    this.shaderManager().processRenderQueue();
-
+    this.pModel.applyShadow();
 
     var pCamera = this.getActiveCamera();
 
