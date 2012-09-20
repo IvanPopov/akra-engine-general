@@ -37,6 +37,7 @@ Usage : T_KW_VOLATILE
 Usage : T_KW_INLINE
 Usage : T_KW_SHARED
 Usage : T_KW_GLOBAL
+Usage : T_KW_FOREIGN
 Usage : ConstUsage
 
 ConstUsages : ConstUsage --NN
@@ -421,6 +422,7 @@ T_KW_VOLATILE : "volatile"
 T_KW_INLINE : "inline"
 T_KW_SHARED : "shared"
 T_KW_GLOBAL : "global"
+T_KW_FOREIGN : "foreign"
 T_KW_CONST : "const"
 T_KW_ROW_MAJOR : "row_major"
 T_KW_COLUMN_MAJOR : "column_major"

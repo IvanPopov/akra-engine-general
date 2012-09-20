@@ -73,7 +73,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     var pManager = this.shaderManager();
 
 
-    var pLightPoint = this.pLightPoint = new a.LightPoint(this,false,true,2048);
+    var pLightPoint = this.pLightPoint = new a.LightPoint(this,true,true,2048);
     pLightPoint.create();
     pLightPoint.attachToParent(this.getRootNode());
 

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!-- saved from url=(0206)http://akra/akra-engine-general/demos/playground.php?&root=C:/webservers/home/akra/www/akra-engine-core/src/&home=/akra-engine-core/src/&entry=C:/webservers/home/akra/www/akra-engine-general/demos/parser.js -->
+<html><script>(function main() {
+    // Create enabled event
+    function fireEnabledEvent() {
+        // If gli exists, then we are already present and shouldn't do anything
+        if (!window.gli) {
+            setTimeout(function () {
+                var enabledEvent = document.createEvent("Event");
+                enabledEvent.initEvent("WebGLEnabledEvent", true, true);
+                document.dispatchEvent(enabledEvent);
+            }, 0);
+        } else {
+            //console.log("WebGL Inspector already embedded on the page - disabling extension");
+        }
+    };
+
+    // Grab the path root from the extension
+    document.addEventListener("WebGLInspectorReadyEvent", function (e) {
+        var pathElement = document.getElementById("__webglpathroot");
+        if (window["gliloader"]) {
+            gliloader.pathRoot = pathElement.innerText;
+        } else {
+            // TODO: more?
+            window.gliCssUrl = pathElement.innerText + "gli.all.css";
+        }
+    }, false);
+
+    // Rewrite getContext to snoop for webgl
+    var originalGetContext = HTMLCanvasElement.prototype.getContext;
+    if (!HTMLCanvasElement.prototype.getContextRaw) {
+        HTMLCanvasElement.prototype.getContextRaw = originalGetContext;
+    }
+    HTMLCanvasElement.prototype.getContext = function () {
+        var ignoreCanvas = this.internalInspectorSurface;
+        if (ignoreCanvas) {
+            return originalGetContext.apply(this, arguments);
+        }
+
+        var result = originalGetContext.apply(this, arguments);
+        if (result == null) {
+            return null;
+        }
+
+        var contextNames = ["moz-webgl", "webkit-3d", "experimental-webgl", "webgl", "3d"];
+        var requestingWebGL = contextNames.indexOf(arguments[0]) != -1;
+        if (requestingWebGL) {
+            // Page is requesting a WebGL context!
+            fireEnabledEvent(this);
+
+            // If we are injected, inspect this context
+            if (window.gli) {
+                if (gli.host.inspectContext) {
+                    // TODO: pull options from extension
+                    result = gli.host.inspectContext(this, result);
+                    var hostUI = new gli.host.HostUI(result);
+                    result.hostUI = hostUI; // just so we can access it later for debugging
+                }
+            }
+        }
+
+        return result;
+    };
+})();</script><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Cube / Akra Engine</title>
+</head>
+<body>
+<!-- <script type='text/javascript' src="webgl-debug.js"></script> -->
+
+
+<style type="text/css">
+    body {
+        padding: 0;
+        margin: 0;
+        background-color: #777;
+    }
+
+    #wrapper {
+        margin: 0 auto;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+    }
+</style>
+<div id="wrapper">
+
+
+
+    <canvas id="canvas" width="1600" height="783"></canvas>
+    <script type="text/javascript">
+        (function (pCanvas) {
+            pCanvas.width = window.innerWidth;
+            pCanvas.height = window.innerHeight;
+        })(document.getElementById('canvas'));
+    </script>
+</div>
+<script type="text/javascript" src="./Cube   Akra Engine_files/saved_resource"></script><div id="akra-canvas-overlay" style="width: 1600px; height: 783px; position: absolute; left: 0px; top: 0px; overflow: hidden; white-space: nowrap; z-index: 2;"><span style="position: absolute; left: 2px; top: 0px; font-size: 22px; color: rgb(0, 255, 0); font-family: Arial; font-weight: bold; font-style: normal; -webkit-user-select: none;">64.9 fps (Multisamples 1)</span><span style="position: absolute; left: 2px; top: 20px; font-size: 22px; color: rgb(0, 255, 0); font-family: Arial; font-weight: bold; font-style: normal; -webkit-user-select: none;"></span></div>
+
+
+
+
+
+<div id="sbi_camera_button" class="sbi_search" style="left: 0px; top: 0px; position: absolute; width: 29px; height: 27px; border: none; margin: 0px; padding: 0px; z-index: 2147483647; display: none;"></div></body></html>
