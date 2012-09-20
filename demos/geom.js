@@ -61,7 +61,7 @@ function torus (pEngine, eOptions, sName, rings, sides) {
     var pMaterial;
     var iPos, iNorm;
 
-    pMesh = new a.Mesh(pEngine, eOptions || 0, sName || 'torus');
+    pMesh = new a.Mesh(pEngine, eOptions || a.Mesh.VB_READABLE, sName || 'torus');
     pSubMesh = pMesh.createSubset('torus::main');
 
     var vertnorm = [];
@@ -157,7 +157,7 @@ function cube (pEngine, eOptions, sName) {
 
     var iNorm, iPos, iMap;
 
-    pMesh = new a.Mesh(pEngine, eOptions || 0, sName || 'cube');
+    pMesh = new a.Mesh(pEngine, eOptions || a.Mesh.VB_READABLE, sName || 'cube');
     pSubMesh = pMesh.createSubset('cube::main');
 
     iNorm = pSubMesh.data.allocateData([VE_VEC3('NORMAL')], pNormalsData);
@@ -188,7 +188,7 @@ function basis(pEngine, eOptions) {
     var pMesh, pSubMesh, pMaterial;
     var iPos, iNorm;
 
-    pMesh = new a.Mesh(pEngine, eOptions || 0, 'basis');
+    pMesh = new a.Mesh(pEngine, eOptions || a.Mesh.VB_READABLE, 'basis');
     iNorm   = pMesh.data.allocateData([VE_VEC3('NORMAL')],     new Float32Array([1,0,0]));
     
     function createAxis(sName, pCoords, pColor) {
@@ -231,7 +231,7 @@ function basisSolid(pEngine, eOptions) {
     var pVertexIndicesData = new Float32Array([0,1,0,2,0,3]);
     var pNormalIndicesData = new Float32Array([0,0,0,0,0,0]);
 
-    pMesh = new a.Mesh(pEngine, eOptions || 0, 'basis-solid');
+    pMesh = new a.Mesh(pEngine, eOptions || a.Mesh.VB_READABLE, 'basis-solid');
     pSubMesh = pMesh.createSubset('axis', a.PRIMTYPE.LINELIST);
         
     iPos    = pSubMesh.data.allocateData([VE_VEC3('POSITION')], pVerticesData);
@@ -351,7 +351,7 @@ function plane (pEngine, eOptions, sName, nCellW, nCellH) {
         n += 6;
     };
 
-    pMesh = new a.Mesh(pEngine, eOptions || 0, sName || 'plane');
+    pMesh = new a.Mesh(pEngine, eOptions || a.Mesh.VB_READABLE, sName || 'plane');
     pSubMesh = pMesh.createSubset('plane::main', a.PRIMTYPE.TRIANGLELIST);
     
     iNorm = pSubMesh.data.allocateData([VE_VEC3('NORMAL')], pNormalsData);
