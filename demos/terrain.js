@@ -15,7 +15,6 @@ function TarrainDemo() {
 	this.pBlendMap = null;
 	this.pGrass = null;
 	this.pRock = null;
-	//this.pRockBump = null;
 	this.pDirt = null;
 };
 
@@ -29,15 +28,8 @@ TarrainDemo.prototype.oneTimeSceneInit = function () {
 	this.showStats(true);
 
 	// Загрузка текстур поверхности ландшавта
-	this.pGrass = this.pDisplayManager.texturePool().createResource("grass");
-	this.pRock = this.pDisplayManager.texturePool().createResource("rock");
-	//this.pRockBump = this.pDisplayManager.texturePool().createResource("rock bump");
-	this.pDirt = this.pDisplayManager.texturePool().createResource("dirt");
-
-	this.pGrass.loadResource("/akra-engine-general/media/textures/grass.dds");
-	this.pRock.loadResource("/akra-engine-general/media/textures/rock.dds");
-	//this.pRockBump.loadResource("/media/textures/rock2_bump.dds");
-	this.pDirt.loadResource("/akra-engine-general/media/textures/dirt.dds");
+	this.pGrass = this.pDisplayManager.imagePool().createResource("Plane001HeightMap.png");
+	this.pGrass.loadResource("../media/textures/Plane001HeightMap.png");
 
 
 	return true;
@@ -76,16 +68,19 @@ TarrainDemo.prototype.initDeviceObjects = function () {
 
 	this.pTerrainSystem = new a.Terrain(this);
 	// Генерация рандомной карты высот
-	this.pHeightImage = this.pDisplayManager.imagePool().createResource("height map");
-	this.pHeightImage.create(128, 128, 0x1908,0);
+	//this.pHeightImage = this.pDisplayManager.imagePool().createResource("height map");
+	//this.pHeightImage.create(128, 128, 0x1908,0);
 
 	console.log("Создана карта высот");
-	this.pHeightImage.generatePerlinNoise(0.01, 5, 0.6);
+	//this.pHeightImage.generatePerlinNoise(0.01, 5, 0.6);
+	//this.pHeightImage.generatePerlinNoise(0.01, 5, 0.6);
 	console.log("Шум перлина на крате высот сгенерирован");
 
 	//Cоздание ландшавта по карте высот
-	this.pTerrainSystem.create(this.getRootNode(), this.pHeightImage, this.getWorldExtents(),3);
+	this.pTerrainSystem.create(this.getRootNode(), this.pGrass, this.getWorldExtents(),5,4,4,
+		"/akra-engine-general/media/textures/avstralia.jpg");
 	console.log("Terrain по карте высот создана");
+
 
 
 	//Создание карты смешения для покрытия текстурами ландшавта
@@ -147,8 +142,10 @@ TarrainDemo.prototype.initDeviceObjects = function () {
 
 
 	var pCamera = this.getActiveCamera();
-	pCamera.addRelPosition(0, -750, 1000.0);
-	pCamera.addRelRotation(-3.14/200, 3.14/4, 0);
+	pCamera.addRelPosition(0, -750, 1000);
+	//pCamera.addRelRotation(0, 0, 0);
+	//pCamera.addRelPosition(0, -750, 1000.0);
+	//pCamera.addRelRotation(-3.14/200, 3.14/4, 0);
 
 	return true;
 };
@@ -182,8 +179,16 @@ TarrainDemo.prototype.deleteDeviceObjects = function () {
 	return true;
 };
 
-TarrainDemo.prototype.updateScene = function () {
+var fRatioLimit = 0.03;
+var fErrorScale = 1.33;
+
+TarrainDemo.prototype.updateScene = function ()
+{
 	this.updateCamera(1.0, 0.1, null, 30.0, false);
+
+	this.pTerrainSystem.setTessellationParameters(fErrorScale,fRatioLimit);
+	document.getElementById('setinfo3').innerHTML="zalupa";
+
 
 	if (this.pKeymap.isMousePress() && this.pKeymap.isMouseMoved()) {
 		var pCamera = this.getActiveCamera(),

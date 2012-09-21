@@ -124,23 +124,7 @@
                 console.log((new Date())-time);
             }
 
-            Section.prototype.reset=function()
-            {
-                this._totalIndices=0;
-                this._rootTriangleA.leftChild = null;
-                this._rootTriangleA.rightChild = null;
-                this._rootTriangleB.leftChild = null;
-                this._rootTriangleB.rightChild = null;
 
-                this._rootTriangleA.baseNeighbor = this._rootTriangleB;
-                this._rootTriangleB.baseNeighbor = this._rootTriangleA;
-
-                // link to our neighbors
-                this._rootTriangleA.leftNeighbor = this.leftNeighborOfA;
-                this._rootTriangleA.rightNeighbor = this.rightNeighborOfA;
-                this._rootTriangleB.leftNeighbor = this.leftNeighborOfB;
-                this._rootTriangleB.rightNeighbor = this.rightNeighborOfB;
-            }
 
             Section.prototype.recursiveTessellate=function(pTri, //вершина дерева треугольников
                     distA, distB, distC, //растояния до углов треугольников, центр, лево, право
