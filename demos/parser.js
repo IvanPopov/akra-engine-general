@@ -32,6 +32,7 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/samplers_array.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/TextureToScreen.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/prepare_shadows.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/test_complex_struct.afx', true);
 
     this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
     this.pModel = this.displayManager().modelPool().createResource('model');
@@ -115,6 +116,15 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 
     pCamera.addRelRotation(-3.14 / 5, 0, 0);
     pCamera.addRelPosition(-8.0, 5.0, 11.0);
+
+
+    pEffectResource = this.displayManager().effectPool().createResource(".Test_effect_resource");
+    pEffectResource.create();
+    pEffectResource.use("test_technique");
+    var pComponentBlend = this.shaderManager()._pComponentBlendsId[6];
+    pComponentBlend.finalize();
+
+    trace("RENDERER-------------->", this.shaderManager(), pComponentBlend);
 
 
 
