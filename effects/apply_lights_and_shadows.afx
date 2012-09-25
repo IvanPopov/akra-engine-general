@@ -1,0 +1,193 @@
+foreign int nOmniShadows;
+foreign int nOmni;
+foreign int nProjectShadows;
+foreign int nProject;
+
+texture tex0 : TEXTURE0;
+texture tex1 : TEXTURE1;
+texture tex2 : TEXTURE2;
+texture tex3 : TEXTURE3;
+texture tex4 : TEXTURE4;
+texture tex5 : TEXTURE5;
+texture tex6 : TEXTURE6;
+texture tex7 : TEXTURE7;
+texture tex8 : TEXTURE8;
+texture tex9 : TEXTURE9;
+texture tex10 : TEXTURE10;
+texture tex11 : TEXTURE11;
+texture tex12 : TEXTURE12;
+texture tex13 : TEXTURE13;
+texture tex14 : TEXTURE14;
+texture tex15 : TEXTURE15;
+
+struct light_data {
+    float4 diffuse     : DIFFUSE;
+    float4 ambient     : AMBIENT;
+    float4 specular    : SPECULAR;
+    float3 attenuation : ATTENUATION;
+    float3 position    : POSITION; //in camera space
+};
+
+struct pixel_data{
+    float4 diffuse  : DIFFUSE;
+    float4 ambient  : AMBIENT;
+    float4 specular : SPECULAR;
+    float3 position : POSITION; //in camera space
+    float3 normal   : NORMAL;
+    float shininess : SHININESS;
+};
+
+struct light_omni{
+    light_data ligthData : LIGHT_DATA;
+};
+
+struct light_project{
+    light_data ligthData   : LIGHT_DATA;
+    float4x4 shadow_matrix : SHADOW_MATRIX;
+};
+
+struct light_omni_shadows{
+    light_data ligthData      : LIGHT_DATA;
+    float4x4 shadow_matrix[6] : SHADOW_MATRIX;
+    sampler shadow_sampler[6] : SHADOW_SAMPLER;
+};
+
+struct light_project_shadows{
+    light_data ligthData   : LIGHT_DATA;
+    float4x4 shadow_matrix : SHADOW_MATRIX;
+    sampler shadow_sampler : SHADOW_SAMPLER;
+};
+
+light_omni_shadows points_omni_shadows[nOmniShadows];
+light_omni points_omni[nOmni];
+light_project_shadows points_project_shadows[nProjectShadows];
+light_project points_project[nProject];
+
+float3 eye_position : EYE_POSITION; //in camera space;
+
+global float4 result_color;
+global pixel_data pixelData;
+
+float4 apply_light_omni() : COLOR{
+    for(int i=0;i<nOmni;i++){
+        result_color += calculateLight(pixelData,points_omni[i].lightData,eye_position);
+    }
+    return result_color;
+};
+
+float4 apply_light_project() : COLOR{
+    for(int i=0;i<nProject;i++){
+        float4 v4fTmp = points_project[i].shadow_matrix*vec4(pixelData.position);
+        float3 v3fTest = abs(v4fTmp.xyz/v4fTmp.w);
+        //тест на попадание в область действия источника
+        if(all(lessThanEqual(v3fTest,float3(1.)))){
+            result_color += calculateLight(pixelData,points_project[i].lightData,eye_position);
+        }
+    }
+    return result_color;
+};
+
+float4 apply_light_omni_shadow() : COLOR{
+    for(int i=0;i<nOmniShadows;i++){
+        for(int j=0;j<6;j++){
+            float4 v4fTmp = points_omni_shadows[i].shadow_matrix[j]*vec4(pixelData.position);
+            float3 v3fLightSpacePosition = v4fTmp.xyz/v4fTmp.w
+            float3 v3fTest = abs(v3fLightSpacePosition);
+            //тест на попадание в область действия источника
+            if(all(lessThanEqual(v3fTest,float3(1.)))){
+                
+                float4 tmpColor = calculateLight(pixelData,points_omni_shadows[i].lightData,eye_position);
+
+                float2 v2fShadowTextureCoords = (v3fLightSpacePosition.xy + 1.)/2.;
+
+                float shadowMultiplier = calculateShadowMultiplier(points_omni_shadows[i].shadow_sampler[j],v2fShadowTextureCoords,v3fLightSpacePosition.z);
+
+                result_color += tmpColor * shadowMultiplier;
+
+                break;
+            }
+        }
+    }
+    return result_color;
+};
+
+float4 apply_light_project_shadows() : COLOR{
+    for(int i=0;i<nProjectShadows;i++){
+        float4 v4fTmp = points_project_shadows[i].shadow_matrix*vec4(pixelData.position);
+        float3 v3fLightSpacePosition = v4fTmp.xyz/v4fTmp.w
+        float3 v3fTest = abs(v3fLightSpacePosition);
+        //тест на попадание в область действия источника
+        if(all(lessThanEqual(v3fTest,float3(1.)))){
+            
+            float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData,eye_position);
+
+            float2 v2fShadowTextureCoords = (v3fLightSpacePosition.xy + 1.)/2.;
+
+            float shadowMultiplier = calculateShadowMultiplier(points_project_shadows[i].shadow_sampler,v2fShadowTextureCoords,v3fLightSpacePosition.z);
+
+            result_color += tmpColor * shadowMultiplier;
+        }
+    }
+    return result_color;
+};
+
+float4 calculateLight(pixel_data pixelData, light_data lightData, float3 eyePosition){
+    float3 lightDir = lightData.position - pixelData.position;
+    float light_dir_length = length(light_dir);
+    light_dir = normalize(light_dir);
+
+    // direction from vert to observer (ViewDir)
+    float3 view_dir = normalize(eyePosition - vertex);
+
+    // reflect direction
+    float3 reflect_dir = normalize(reflect(-light_dir, pixelData.normal));
+
+    // attenuation
+    float attenuation = 1.0 / (lightData.attenuation.x +
+        lightData.attenuation.y *
+        light_dir_length + lightData.attenuation.z *
+        light_dir_length * light_dir_length);
+
+    float light_distancedotVpow = pow(max(dot(reflect_dir, view_dir), .0), pixelData.shininess);
+
+    float4 color = float4(0.);
+    //add ambient
+    color += pixelData.ambient * lightData.ambient * attenuation;
+    //add diffuse
+    color += pixelData.diffuse * lightData.diffuse * max(dot(IN.norm, light_dir), .0) * attenuation;
+    // add reflect lighting
+    color += pixelData.specular * lightData.specular * light_distancedotVpow * attenuation;
+
+    return color;
+};
+
+float fMinShadow = 0.2 : MIN_SHADOW_VALUE;
+
+float calculateShadowMultiplier(sampler shadowSampler, float2 v2fShadowTextureCoords, float depth){
+    float lightDepth = tex2D(shadowSampler,v2fShadowTextureCoords).x*2. - 1.;
+    fShadowMultiplier = clamp(exp(c*(1e-4 + lightDepth - depth)),fMinShadow,1.);
+}
+
+technique omniLighting{
+    pass applyOmniLighting{
+        PixelShader = compile apply_light_omni();
+    };
+};
+
+technique projectLighting{
+    pass applyProjectLighting{
+        PixelShader = compile apply_light_project();
+    };
+};
+
+technique omniShadowsLighting{
+    pass applyOmniShadowsLighting{
+        PixelShader = compile apply_light_omni_shadow();
+    };   
+};
+
+technique projectShadowsLighting{
+    pass applyProjectShadowsLighting{
+        PixelShader = compile apply_light_project_shadows();
+    };   
+};

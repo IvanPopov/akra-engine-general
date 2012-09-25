@@ -85,6 +85,21 @@ float4x4 view_mat:VIEW_MATRIX;
 float4x4 proj_mat:PROJ_MATRIX;
 float3x3 normal_mat:NORMAL_MATRIX;
 
+struct test_sub_struct{
+    float f2[3] : FLOAT_VAR;
+    sampler s2[1] : SAMPLER;
+};
+
+struct test_struct{
+    float f1 : FLOAT_VAR1;
+    sampler s1[2] : SAMPLER;
+    test_sub_struct c1[2] : SUB_STRUCT;
+};
+foreign float test_foreign;
+foreign int test_length;
+
+test_struct u1[test_length]:COMPLEX_UNIFORM;
+
 float4 fs_mesh_texture(VS_OUT_2 IN): COLOR{
     float4 color;
 
@@ -98,6 +113,10 @@ float4 fs_mesh_texture(VS_OUT_2 IN): COLOR{
     float3 light_dir = light_point.position.xyz - IN.vert;
     float light_dir_length = length(light_dir);
     light_dir = normalize(light_dir);
+
+    float test_arr[test_length];
+    test_arr[0] = test_foreign;
+    light_point.ambient.x = test_arr[0];
 
     // direction from vert to observer (ViewDir)
     float3 view_dir = normalize((view_mat * model_mat * float4(eye_pos, 1.0)).xyz - IN.vert);
@@ -123,6 +142,9 @@ float4 fs_mesh_texture(VS_OUT_2 IN): COLOR{
     //float light_distancedotVpow = max(pow(dot(light_distance, view_dir), defaultMaterial.shininess), 0.0);
     float light_distancedotVpow = pow(max(dot(light_distance, view_dir), .0), defaultMaterial.shininess);
     color += (defaultMaterial.specular + tex2D(sampler_specular, float2(IN.tc_specular.xy))) * light_point.specular * light_distancedotVpow * attenuation;
+
+    color += tex2D(u1[1].s1[0], float2(0.2, 0.3 + u1[0].f1));
+    color += tex2D(u1[1].c1[1].s2[0], float2(0.2, 0.3 + u1[0].c1[0].f2[1]));
 
     return float4(color.xyz, 1.);
 }

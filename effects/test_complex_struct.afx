@@ -16,7 +16,7 @@ test_struct_1 test_var0[2]:VAR0;
 test_struct_2 test_var1[2]:VAR1;
 
 
-float4 vs_main_test() : POSITION{
+float4 vs_main_test() : POSITION {
     return float4(0.0,0.0,0.0,1.0);
 }
 
