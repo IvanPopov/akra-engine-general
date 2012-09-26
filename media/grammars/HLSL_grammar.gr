@@ -17,10 +17,13 @@ Decl : IncludeDecl
 
 IncludeDecl : T_KW_INCLUDE String --AN --F includeCode
 
-ImportDecl : T_KW_IMPORT ComplexNameOpt ShiftOpt
+ImportDecl : T_KW_IMPORT ComplexNameOpt ShiftOpt ExtOpt
 ShiftOpt :
 ShiftOpt : T_KW_SHIFT Uint
 ShiftOpt : T_KW_SHIFT '-' Uint
+
+ExtOpt :
+ExtOpt : T_KW_TO T_KW_ALL_PASSES
 
 ProvideDecl : T_KW_PROVIDE ComplexNameOpt
 ProvideDecl : T_KW_PROVIDE ComplexNameOpt T_KW_AS ComplexNameOpt
@@ -207,6 +210,7 @@ PassState : Id StateIndex StateExprBegin StateExpr StateExprEnd --AN
 PassState : StateIf
 PassState : StateSwitch
 
+StateIf : T_KW_IF '(' Expr ')' PassStateBlock
 StateIf : T_KW_IF '(' Expr ')' PassStateBlock T_KW_ELSE PassStateBlock
 StateIf : T_KW_IF '(' Expr ')' PassStateBlock T_KW_ELSE StateIf
 StateSwitch : T_KW_SWITCH '(' Expr ')' CaseBlock
@@ -488,6 +492,8 @@ T_KW_AS : "as"
 T_KW_PTR : "ptr"
 T_KW_SHIFT : "shift"
 T_KW_INCLUDE : "include"
+T_KW_TO : "to"
+T_KW_ALL_PASSES : "ALL_PASSES"
 T_OP_INC : "++"
 T_OP_DEC : "--"
 T_OP_LE : ">="

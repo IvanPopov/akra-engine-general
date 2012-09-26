@@ -1,6 +1,12 @@
-#include "floatSpecialFunctions.afx"
+provide akra.system;
+
+include "http://akra/akra-engine-general/effects/floatSpecialFunctions.afx";
 
 texture tex0 : DEFERRED_TEXTURE0;
+texture tex1 : DEFERRED_TEXTURE1;
+texture tex2 : DEFERRED_TEXTURE2;
+texture tex3 : DEFERRED_TEXTURE3;
+texture tex4 : SCENE_DEPTH_TEXTURE;
 
 sampler deferredTexture0 : SAMPLER_TEXTURE0 = sampler_state
 {
@@ -9,16 +15,12 @@ sampler deferredTexture0 : SAMPLER_TEXTURE0 = sampler_state
 	MagFilter = NEAREST;
 };
 
-texture tex1 : DEFERRED_TEXTURE1;
-
 sampler deferredTexture1 : SAMPLER_TEXTURE1 = sampler_state
 {
 	Texture = <tex1>;
 	MinFilter = NEAREST;
 	MagFilter = NEAREST;
 };
-
-texture tex2 : DEFERRED_TEXTURE2;
 
 sampler deferredTexture2 : SAMPLER_TEXTURE2 = sampler_state
 {
@@ -27,16 +29,12 @@ sampler deferredTexture2 : SAMPLER_TEXTURE2 = sampler_state
 	MagFilter = NEAREST;
 };
 
-texture tex3 : DEFERRED_TEXTURE3;
-
 sampler deferredTexture3 : SAMPLER_TEXTURE3 = sampler_state
 {
 	Texture = <tex3>;
 	MinFilter = NEAREST;
 	MagFilter = NEAREST;
 };
-
-texture tex4 : SCENE_DEPTH_TEXTURE;
 
 sampler sceneDepthTexture : SAMPLER_SCENE_DEPTH = sampler_state
 {
@@ -45,7 +43,16 @@ sampler sceneDepthTexture : SAMPLER_SCENE_DEPTH = sampler_state
 	MagFilter = LINEAR;
 };
 
-float2 textureScreenRatio : TEXTURE_SCREEN_RATIO;
+struct pixel_data{
+    float4 diffuse  : DIFFUSE;
+    float4 ambient  : AMBIENT;
+    float4 specular : SPECULAR;
+    float3 position : POSITION; //in camera space
+    float3 normal   : NORMAL;
+    float shininess : SHININESS;
+};
+
+float2 screenTextureRatio : SCREEN_TEXTURE_RATIO;
 
 struct VS_IN{
 	float2 position : POSITION;
@@ -54,14 +61,15 @@ struct VS_IN{
 struct VS_OUT{
 	float4 position : POSITION;
 	float2 screenPosition : SCREEN_POSITION;
-	float2 textureCoords : TEXCOORD0; 
-};
+	float2 textureCoords : TEXCOORD0;
+};;
 
 VS_OUT vs_deferred_shading(VS_IN IN){
 	VS_OUT Out;
 
-	float texCoodrX = (IN.position.x + 1.)/2. * textureScreenRatio.x;
-	float texCoordY = 1. - (1. - (IN.position.y + 1.)/2.) * textureScreenRatio.y;
+	float texCoodrX = (IN.position.x + 1.)/2. * screenTextureRatio.x;
+	//float texCoordY = 1. - (1. - (IN.position.y + 1.)/2.) * screenTextureRatio.y;
+	float texCoordY = (IN.position.y + 1.)/2. * screenTextureRatio.y;
 
 	Out.position = float4(IN.position,0.,1.);
 	Out.screenPosition = IN.position;
@@ -70,16 +78,6 @@ VS_OUT vs_deferred_shading(VS_IN IN){
 	return Out;
 };
 
-struct LIGHTPOINT {
-	float4 position:LIGHT_POSITION;
- 	float4 ambient:LIGHT_AMBIENT;
-	float4 diffuse:LIGHT_DIFFUSE;
-	float4 specular:LIGHT_SPECULAR;
-	float4 emissive:LIGHT_EMISSIVE;
-	float3 attenuation:LIGHT_ATTENUATION;
-};
-
-float3 eye_pos:EYE_POSITION;
 float4x4 projMat : PROJ_MATRIX;
 
 float3 unproj(float4x4 projMat,float3 screenCoords){
@@ -87,77 +85,49 @@ float3 unproj(float4x4 projMat,float3 screenCoords){
 	//mat4[i] - i-й столбец матрицы 
 	//не строка, а именно столбец
   
-    float z = -projMat[4][3]/(projMat[3][3] + screenCoords.z);
-    float y = -(screenCoords.y * z + projMat[3][2] * z)/projMat[2][2];
-    float x = -(screenCoords.x * z + projMat[3][1] * z)/projMat[1][1];
+    float z = -projMat[3][2]/(projMat[2][2] + screenCoords.z);
+    float y = -(screenCoords.y * z + projMat[2][1] * z)/projMat[1][1];
+    float x = -(screenCoords.x * z + projMat[2][0] * z)/projMat[0][0];
   
     return float3(x,y,z);
 };
 
 float unprojZ(float4x4 projMat, float screenZ){
-	return -projMat[4][3]/(projMat[3][3] + screenCoords.z);
+	return -projMat[3][2]/(projMat[2][2] + screenZ);
 };
 
-float4 fs_deferred_shading(VS_OUT IN) : COLOR{
-	float4 textureCoords = IN.textureCoords;
+global pixel_data pixelData;
+global float4 result_color;
 
-	LIGHTPOINT light_point;
-    light_point.position = float4(10., 20., 10., 1.);
-    light_point.ambient = float4(1., 1., 1., 1.);
-    light_point.diffuse = float4(1., 1., 1., 1.);
-    light_point.specular = float4(1., 1., 1., 1.);
-    light_point.attenuation = float3(1., 0.00, .000);
+float4 fs_deferred_shading(VS_OUT IN) : COLOR{
+	float2 textureCoords = IN.textureCoords;
 
     float depth = tex2D(sceneDepthTexture,textureCoords).x*2.-1.;
     float4 data0 = tex2D(deferredTexture0,textureCoords);
     float4 data1 = tex2D(deferredTexture1,textureCoords);
 
-    float3 vertex = unproj(projMat,float3(IN.screenPosition.xy,depth));
+    pixelData.position = unproj(projMat, float3(IN.screenPosition.xy,depth));
 
     float3 temp;
 
-    temp = floatTofloat3(data0.x);
+    temp = floatToFloat3(data0.x);
 
-    float3 normal = float3(temp.xy,sqrt(1. - dot(temp.xy,temp.xy)));
-    float shininess = temp.z * 255.;
+    pixelData.normal = float3(temp.xy,sqrt(1. - dot(temp.xy,temp.xy)));
+    pixelData.shininess = temp.z * 255.;
 
-    float4 emissive = float4(floatTofloat3(data0.y),1.);
-    float4 diffuse = float4(floatTofloat3(data0.z),1.);
-    float4 ambient = float4(floatTofloat3(data0.w),1.);
+    float4 emissive = float4(floatToFloat3(data0.y),1.);
+    pixelData.diffuse = float4(floatToFloat3(data0.z),1.);
+    pixelData.ambient = float4(floatToFloat3(data0.w),1.);
+    pixelData.specular = float4(floatToFloat3(data1.x),1.);
 
-    float4 specular = float4(floatTofloat3(data1.x),1.);
+    result_color = emissive;
+    result_color = pixelData.diffuse;
 
-    float3 lightDir = light_point.position.xyz - vertex;
-    float light_dir_length = length(light_dir);
-    light_dir = normalize(light_dir);
-
-    // direction from vert to observer (ViewDir)
-    float3 view_dir = normalize(eye_pos - vertex);
-
-    // reflect direction
-    float3 reflect_dir = normalize(reflect(-light_dir, normal));
-
-    // attenuation
-    float attenuation = 1.0 / (light_point.attenuation.x +
-        light_point.attenuation.y *
-        light_dir_length + light_point.attenuation.z *
-        light_dir_length * light_dir_length);
-
-    float light_distancedotVpow = pow(max(dot(reflect_dir, view_dir), .0), shininess);
-
-    float4 color = emissive;
-    //add ambient
-    color += ambient * light_point.ambient * attenuation;
-    //add diffuse
-    color += diffuse * light_point.diffuse * max(dot(IN.norm, light_dir), .0) * attenuation;
-    // add reflect lighting
-    color += specular * light_point.specular * light_distancedotVpow * attenuation;
-
-    return float4(color.xyz,1.);
+    return result_color;
 };	
 
 technique deferredShading{
-	pass applyLighting{
+	pass applyDeferredShading{
 		VertexShader = compile vs_deferred_shading();
 		PixelShader = compile fs_deferred_shading();
 	};

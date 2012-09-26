@@ -1,5 +1,6 @@
 provide akra.system;
-include "floatSpecialFuntions.afx"
+
+include "http://akra/akra-engine-general/effects/floatSpecialFunctions.afx";
 
 struct base_material{
     float4 diffuse:DIFFUSE;
@@ -16,7 +17,7 @@ float4 prepareForDeferredShadingPass1() : COLOR {
 	float4 data;
 
 	data.x = float3ToFloat(Fragment_material.emissive.xyz);
-	data.y = float3ToFloat(Normal.xy, Fragment_material.shininess);
+	data.y = float3ToFloat(float3(Normal.xy, Fragment_material.shininess));
 	data.z = float3ToFloat(Fragment_material.diffuse.xyz);
 	data.w = float3ToFloat(Fragment_material.ambient.xyz);
 
@@ -31,13 +32,13 @@ float4 prepareForDeferredShadingPass2() : COLOR {
 	return data;
 };
 
-float4 simplePrepareForDeferredShadingPass1() : COLOR {
-    float4 data;
-
-    data.x = float3ToFloat(Fragment_material.emissive.xyz);
-
-    return data;
-};
+//float4 simplePrepareForDeferredShadingPass1() : COLOR {
+//    float4 data;
+//
+//    data.x = float3ToFloat(Fragment_material.emissive.xyz);
+//
+//    return data;
+//};
 
 technique prepareForDeferredShading{
 	pass pass1{
@@ -48,8 +49,8 @@ technique prepareForDeferredShading{
 	};
 };
 
-technique simplePrepareForDeferredShading{
-    pass pass1{
-        PixelShader = compile simplePrepareForDeferredShadingPass1();
-    };
-};
+//technique simplePrepareForDeferredShading{
+//    pass pass1{
+//        PixelShader = compile simplePrepareForDeferredShadingPass1();
+//    };
+//};

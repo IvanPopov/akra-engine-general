@@ -49,6 +49,18 @@ sampler sampler_emissive:S_EMISSIVE  = sampler_state
 {
     Texture = <tex3>;
 };
+
+struct base_material{
+    float4 diffuse:DIFFUSE;
+    float4 ambient:AMBIENT;
+    float4 emissive:EMISSIVE;
+    float4 specular:SPECULAR;
+    float shininess:SHININESS;
+};
+
+global float3 Normal;
+global base_material Fragment_material;
+
 struct Material {
     float4 ambient:AMBIENT;
     float4 diffuse:DIFFUSE;
@@ -56,16 +68,6 @@ struct Material {
     float4 emissive:EMISSIVE;
     float shininess:SHININESS;
 };
-
-struct LIGHTPOINT {
-	float4 position:LIGHT_POSITION;
- 	float4 ambient:LIGHT_AMBIENT;
-	float4 diffuse:LIGHT_DIFFUSE;
-	float4 specular:LIGHT_SPECULAR;
-	float4 emissive:LIGHT_EMISSIVE;
-	float3 attenuation:LIGHT_ATTENUATION;
-};
-
 
 VS_OUT_2 vs_mesh_texture(VS_IN_2 IN) {
     VS_OUT_2 Out;
@@ -79,80 +81,31 @@ VS_OUT_2 vs_mesh_texture(VS_IN_2 IN) {
 }
 
 Material defaultMaterial:MATERIAL;
-float3 eye_pos:EYE_POSITION;
-float4x4 model_mat:MODEL_MATRIX;
-float4x4 view_mat:VIEW_MATRIX;
-float4x4 proj_mat:PROJ_MATRIX;
-float3x3 normal_mat:NORMAL_MATRIX;
 
-struct test_sub_struct{
-    float f2[3] : FLOAT_VAR;
-    sampler s2[1] : SAMPLER;
-};
+float4 fs_mesh_texture_pass_1(VS_OUT_2 IN) : COLOR {
+    Normal = normalize(IN.norm);
+    Fragment_material.emissive = defaultMaterial.emissive + tex2D(sampler_emissive, float2(IN.tc_emissive.xy));
+    Fragment_material.diffuse = defaultMaterial.diffuse + tex2D(sampler_diffuse, float2(IN.tc_diffuse.xy));
+    Fragment_material.ambient = defaultMaterial.ambient + tex2D(sampler_ambient, float2(IN.tc_ambient.xy));
+    Fragment_material.shininess = defaultMaterial.shininess;
 
-struct test_struct{
-    float f1 : FLOAT_VAR1;
-    sampler s1[2] : SAMPLER;
-    test_sub_struct c1[2] : SUB_STRUCT;
-};
-foreign float test_foreign;
-foreign int test_length;
+    return float4(0.0,0.0,0.0,0.5);
+}
 
-test_struct u1[test_length]:COMPLEX_UNIFORM;
-
-float4 fs_mesh_texture(VS_OUT_2 IN): COLOR{
-    float4 color;
-
-    LIGHTPOINT light_point;
-    light_point.position = float4(10., 20., 10., 1.);
-    light_point.ambient = float4(0.3, 0.3, 0.3, 1.);
-    light_point.diffuse = float4(1., 1., 1., 1.);
-    light_point.specular = float4(1., 1., 1., 1.);
-    light_point.attenuation = float3(1., 0.00, .000);
-
-    float3 light_dir = light_point.position.xyz - IN.vert;
-    float light_dir_length = length(light_dir);
-    light_dir = normalize(light_dir);
-
-    float test_arr[test_length];
-    test_arr[0] = test_foreign;
-    light_point.ambient.x = test_arr[0];
-
-    // direction from vert to observer (ViewDir)
-    float3 view_dir = normalize((view_mat * model_mat * float4(eye_pos, 1.0)).xyz - IN.vert);
-
-    // length from source of light to vert
-    float3 light_distance = normalize(reflect(-light_dir, IN.norm));
-
-    // attenuation
-    float attenuation = 1.0 / (light_point.attenuation.x +
-        light_point.attenuation.y *
-        light_dir_length + light_point.attenuation.z *
-        light_dir_length * light_dir_length);
-
-    color = (defaultMaterial.emissive + tex2D(sampler_emissive, float2(IN.tc_emissive)));
-
-    // add ambient
-    color += (defaultMaterial.ambient + tex2D(sampler_ambient, float2(IN.tc_ambient.xy))) * light_point.ambient * attenuation;
-
-    // add diffuse lighting
-    color += (defaultMaterial.diffuse + tex2D(sampler_diffuse, float2(IN.tc_diffuse.xy))) * light_point.diffuse * max(dot(IN.norm, light_dir), .0) * attenuation;
-
-    // add reflect lighting
-    //float light_distancedotVpow = max(pow(dot(light_distance, view_dir), defaultMaterial.shininess), 0.0);
-    float light_distancedotVpow = pow(max(dot(light_distance, view_dir), .0), defaultMaterial.shininess);
-    color += (defaultMaterial.specular + tex2D(sampler_specular, float2(IN.tc_specular.xy))) * light_point.specular * light_distancedotVpow * attenuation;
-
-    color += tex2D(u1[1].s1[0], float2(0.2, 0.3 + u1[0].f1));
-    color += tex2D(u1[1].c1[1].s2[0], float2(0.2, 0.3 + u1[0].c1[0].f2[1]));
-
-    return float4(color.xyz, 1.);
+float4 fs_mesh_texture_pass_2(VS_OUT_2 IN) : COLOR {
+    Fragment_material.specular = defaultMaterial.specular + tex2D(sampler_specular, float2(IN.tc_specular.xy));
+    return float4(1.0,1.0,1.0,0.3);
 }
 
 technique mesh_texture{
-    import akra.system.mesh_geometry;
+    import akra.system.mesh_geometry shift 0;
+    import akra.system.mesh_geometry shift 1;
     pass p0 {
         VertexShader = compile vs_mesh_texture();
-        PixelShader = compile fs_mesh_texture();
+        PixelShader = compile fs_mesh_texture_pass_1();
+    }
+    pass p1 {
+         VertexShader = compile vs_mesh_texture();
+         PixelShader = compile fs_mesh_texture_pass_2();
     }
 }
