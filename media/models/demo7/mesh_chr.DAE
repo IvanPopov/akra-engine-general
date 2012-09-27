@@ -6,8 +6,8 @@
       <authoring_tool>OpenCOLLADA for 3ds Max;  Version: 1.3.1;  Revision: 847M;  Platform: x64;  Configuration: Release_Max2012_static</authoring_tool>
       <source_data>file:///D:/_Work/webgl/models/man/wpnprepared7.max</source_data>
     </contributor>
-    <created>2012-09-26T19:25:23</created>
-    <modified>2012-09-26T19:25:23</modified>
+    <created>2012-09-27T10:04:03</created>
+    <modified>2012-09-27T10:04:03</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -1184,7 +1184,7 @@
         </node>
       </node>
       <node id="node-wpn_machete" name="wpn_machete">
-        <matrix>1 0 0 0 0 1.19249e-8 1 0 0 -1 1.19249e-8 -0.01 0 0 0 1</matrix>
+        <matrix>0.1202418 -0.1904281 -0.9743095 0.1738549 0.2290872 -0.9496193 0.2138746 -0.112327 -0.9659508 -0.2489185 -0.07055929 1.023765 0 0 0 1</matrix>
         <instance_geometry url="#geom-wpn_machete">
           <bind_material>
             <technique_common>
@@ -1194,7 +1194,7 @@
         </instance_geometry>
       </node>
       <node id="node-wpn_knife" name="wpn_knife">
-        <matrix>1 -1.19209e-7 -2.98023e-8 0 2.98023e-8 -1.62921e-7 1 0 -1.19209e-7 -1 -1.62921e-7 -0.01 0 0 0 1</matrix>
+        <matrix>0.2121022 0.007054329 -0.977222 -0.2185577 0.0392951 -0.9992268 0.001315668 -0.008975115 -0.9764571 -0.03867909 -0.2122154 0.4224041 0 0 0 1</matrix>
         <instance_geometry url="#geom-wpn_knife">
           <bind_material>
             <technique_common>
@@ -1224,7 +1224,7 @@
         </instance_controller>
       </node>
       <node id="node-wpn_harpoon" name="wpn_harpoon">
-        <matrix>1 -7.01121e-7 -1.09765e-10 0 1.0823e-10 -2.18948e-6 1 0 -7.01121e-7 -1 -2.18948e-6 -0.01 0 0 0 1</matrix>
+        <matrix>1 -5.31161e-6 7.01125e-7 -0.09789946 5.31161e-6 1 -7.48769e-7 0.2702562 -7.01121e-7 7.48772e-7 1 1.47453 0 0 0 1</matrix>
         <instance_geometry url="#geom-wpn_harpoon">
           <bind_material>
             <technique_common>
@@ -1233,7 +1233,7 @@
           </bind_material>
         </instance_geometry>
         <node id="node-bone_harpoon_02" name="bone_harpoon_02">
-          <matrix>1 0 0 -0.6 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+          <matrix>1 -7.02326e-14 0 -0.2 -7.02326e-14 1 0 0 0 0 1 0 0 0 0 1</matrix>
           <instance_geometry url="#geom-bone_harpoon_02">
             <bind_material>
               <technique_common>
@@ -1243,7 +1243,7 @@
           </instance_geometry>
         </node>
         <node id="node-bone_harpoon_01" name="bone_harpoon_01">
-          <matrix>1 0 0 0.6 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+          <matrix>1 -7.02326e-14 0 0.2 -7.02326e-14 1 0 2.98023e-8 0 0 1 0 0 0 0 1</matrix>
           <instance_geometry url="#geom-bone_harpoon_01">
             <bind_material>
               <technique_common>
@@ -1254,7 +1254,7 @@
         </node>
       </node>
       <node id="node-wpn_gun" name="wpn_gun">
-        <matrix>1 0 0 0 0 -4.37114e-8 1 0 0 -1 -4.37114e-8 -0.01 0 0 0 1</matrix>
+        <matrix>-0.141304 0.9841571 0.1070884 -0.1936053 0.2378823 0.1387595 -0.9613314 -0.06162445 -0.9609606 -0.1103655 -0.2537208 1.025802 0 0 0 1</matrix>
         <instance_geometry url="#geom-wpn_gun">
           <bind_material>
             <technique_common>
@@ -1263,7 +1263,7 @@
           </bind_material>
         </instance_geometry>
         <node id="node-wpn_gun02" name="wpn_gun02">
-          <matrix>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+          <matrix>1 -7.45058e-9 -4.47035e-8 0 -7.45058e-9 1 -3.72529e-9 0 -4.47035e-8 -3.72529e-9 1 0 0 0 0 1</matrix>
           <instance_geometry url="#geom-wpn_gun02">
             <bind_material>
               <technique_common>
