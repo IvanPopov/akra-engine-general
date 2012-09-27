@@ -37,7 +37,8 @@ VS_OUT_1 vs_mesh_geometry(VS_IN_1 IN) {
 
 	vertex = (view_mat * model_mat * (pos));
 
-    Out.norm = vertex_geometry.norm = normalize((normal_mat * norm));
+    //Out.norm = vertex_geometry.norm = normalize((normal_mat * norm));
+    Out.norm = vertex_geometry.norm = normalize((view_mat * model_mat * float4(norm,0.)).xyz);
     Out.vert = vertex_geometry.vert = vertex.xyz;
 	Out.pos = vertex_geometry.pos = proj_mat * vertex;
 //    Out.psize = 2.0;
@@ -81,7 +82,7 @@ VS_OUT_1 vs_mesh_skinning(VS_IN_1 IN) {
     vertex = (view_mat * result_mat * bind_matrix * pos);
     Out.pos = vertex_geometry.pos = proj_mat * vertex;
     Out.vert = vertex_geometry.vert = vertex.xyz;
-    Out.norm = vertex_geometry.norm = normalize((result_mat * IN.norm).xyz);
+    Out.norm = vertex_geometry.norm = normalize((view_mat*result_mat * float4(IN.norm.xyz,0.)).xyz);
     Out.psize = point_size;
 
     return Out;

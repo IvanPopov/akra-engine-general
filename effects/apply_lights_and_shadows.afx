@@ -1,3 +1,5 @@
+provide akra.system;
+
 foreign int nOmniShadows;
 foreign int nOmni;
 foreign int nProjectShadows;

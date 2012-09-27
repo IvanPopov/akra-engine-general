@@ -85,10 +85,16 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 
     pLightPoint.accessLocalMatrix().set(m4fTempView.inverse());
     pLightPoint.addRelRotation(Math.PI/4.,0,0);
-
+    pLightPoint.isActive = false;
     if(!pLightPoint.isOmnidirectional) {
         pLightPoint.camera.setProjParams(Math.PI/5,1,0.01,1000);
     }
+
+    var pLightOmni = this.pLightPoint = new a.LightPoint(this);
+    pLightOmni.create();
+    pLightOmni.attachToParent(this.getRootNode());
+    pLightOmni.addPosition(Vec3(0.,3.,5.));
+    pLightOmni.isActive = true;
 
     var pLightParameters = pLightPoint.lightParameters;
 
@@ -117,8 +123,8 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 
     var pCamera = this.getActiveCamera();
 
-    pCamera.addRelRotation(-3.14 / 5, 0, 0);
-    pCamera.addRelPosition(-8.0, 5.0, 11.0);
+    pCamera.addRelRotation(0, -Math.PI/6, 0);
+    pCamera.addPosition(0.0, 3.0, 3.0);
 
 
 //    pEffectResource = this.displayManager().effectPool().createResource(".Test_effect_resource");
@@ -146,7 +152,7 @@ ShaderDemo.prototype.deleteDeviceObjects = function () {
 };
 
 ShaderDemo.prototype.updateScene = function () {
-    this.updateCamera(1.0, 0.1, null, 30.0, false);
+    this.updateCamera(0.25, 0.1, null, 30.0, false);
 
     if (this.pKeymap.isMousePress() && this.pKeymap.isMouseMoved()) {
         var pCamera = this.getActiveCamera(),
@@ -157,7 +163,7 @@ ShaderDemo.prototype.updateScene = function () {
         fdX /= pScreen.width / 10.0;
         fdY /= pScreen.height / 10.0;
 
-        pCamera.addRelRotation(fdX, fdY, 0);
+        pCamera.addRelRotation(-fdX, -fdY, 0);
     }
     return this.notifyUpdateScene();
 };

@@ -17,7 +17,7 @@ float4 prepareForDeferredShadingPass1() : COLOR {
 	float4 data;
 
 	data.x = float3ToFloat(Fragment_material.emissive.xyz);
-	data.y = float3ToFloat(float3(Normal.xy, Fragment_material.shininess));
+	data.y = float3ToFloat(float3((Normal.xy+1.)/2.,Fragment_material.shininess/255.));
 	data.z = float3ToFloat(Fragment_material.diffuse.xyz);
 	data.w = float3ToFloat(Fragment_material.ambient.xyz);
 

@@ -7,7 +7,7 @@ float4 floatToFloat4(float value){
     if(signedZeroTest < 0.){
       result.x = 128.;
     }
-    return result;
+    return result/255.;
   }
 
   if(data < 0.){
@@ -71,7 +71,7 @@ float3 floatToFloat3(float value){
     if(signedZeroTest < 0.){
       result.x = 128.;
     }
-    return result;
+    return result/255.;
   }
 
   if(data < 0.){
@@ -172,6 +172,16 @@ float float3ToFloat(float3 value){
 
   if(data.x == 127. || data.x == 255.){
     data.x--;
+    //обходим исключительный случай float (+/- Infinity и Nan), то есть максимальное значение показателя экспоненты
+  }
+
+  if(data.y == 127. || data.y == 255.){
+    data.y--;
+    //обходим исключительный случай float (+/- Infinity и Nan), то есть максимальное значение показателя экспоненты
+  }
+
+  if(data.z == 127. || data.z == 255.){
+    data.z--;
     //обходим исключительный случай float (+/- Infinity и Nan), то есть максимальное значение показателя экспоненты
   }
 
