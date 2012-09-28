@@ -77,28 +77,44 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     var pManager = this.shaderManager();
 
 
-    var pLightPoint = this.pLightPoint = new a.LightPoint(this,true,true,2048);
-    pLightPoint.create();
-    pLightPoint.attachToParent(this.getRootNode());
+    var pLightOmniShadow = this.pLightPoint = new a.LightPoint(this,true,true,2048);
+    pLightOmniShadow.create();
+    pLightOmniShadow.attachToParent(this.getRootNode());
 
-    var m4fTempView = Mat4.lookAt(Vec3(3,4,0),Vec3(0.,1.,0.),Vec3(0,1,0),Mat4());
+    var m4fLook = Mat4.lookAt(Vec3(3,5,4),Vec3(0.,1.,0.),Vec3(0,1,0),Mat4());
 
-    pLightPoint.accessLocalMatrix().set(m4fTempView.inverse());
-    pLightPoint.addRelRotation(Math.PI/4.,0,0);
-    pLightPoint.isActive = false;
-    if(!pLightPoint.isOmnidirectional) {
-        pLightPoint.camera.setProjParams(Math.PI/5,1,0.01,1000);
-    }
+    pLightOmniShadow.accessLocalMatrix().set(m4fLook.inverse());
+    pLightOmniShadow.isActive = true;
 
-    var pLightOmni = this.pLightPoint = new a.LightPoint(this);
+    var pLightOmni = new a.LightPoint(this);
     pLightOmni.create();
     pLightOmni.attachToParent(this.getRootNode());
-    pLightOmni.addPosition(Vec3(0.,3.,5.));
+    pLightOmni.addPosition(Vec3(0.,0.,5.));
     pLightOmni.isActive = true;
 
-    var pLightParameters = pLightPoint.lightParameters;
+    var pLightParameters = pLightOmni.lightParameters;
+    pLightParameters.diffuse.set(0.1);
+    pLightParameters.specular.set(0.1);
 
-    pLightParameters.attenuation.set(0.9, 0.0, .000);
+    var pLightProject = new a.LightPoint(this,false,true,2048);
+    pLightProject.create();
+    pLightProject.attachToParent(this.getRootNode());
+
+    m4fLook = Mat4.lookAt(Vec3(-25,4,0),Vec3(0.,1.,0.),Vec3(0,1,0),Mat4());
+    pLightProject.accessLocalMatrix().set(m4fLook.inverse());
+    pLightProject.camera.setProjParams(Math.PI/5,1,0.01,1000);
+
+    pLightProject.isActive = true;
+
+    var pLightProjectShadow = new a.LightPoint(this,false,true,2048);
+    pLightProjectShadow.create();
+    pLightProjectShadow.attachToParent(this.getRootNode());
+
+    m4fLook = Mat4.lookAt(Vec3(-15,4,-15),Vec3(0.,1.,0.),Vec3(0,1,0),Mat4());
+    pLightProjectShadow.accessLocalMatrix().set(m4fLook.inverse());
+    pLightProjectShadow.camera.setProjParams(Math.PI/5,1,0.01,1000);
+
+    pLightProjectShadow.isActive = true;
 
     function addMeshToScene(pEngine, pMesh, pParent) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
@@ -112,11 +128,32 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     var pEffectResource = this.pPlane._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
     pEffectResource.create();
     pEffectResource.use(this.shaderManager().getComponentByName("akra.system.plane"));
+    pEffectResource.use("akra.system.prepareForDeferredShading");
 
     this.pCubeMesh = cube(this);
+    var me = this;
     this.appendMesh = function (pMesh, pNode) {
         return addMeshToScene(me, pMesh, pNode);
     }
+
+    var pCube = this.appendMesh(this.pCubeMesh);
+    pCube.addPosition(Vec3(-3.,1.,5.));
+    pCube.setShadow();
+
+    pEffectResource = pCube._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
+    pEffectResource.create();
+    pEffectResource.use("akra.system.mesh_texture");
+    pEffectResource.use("akra.system.prepareForDeferredShading");
+
+    var pQuad = this.appendMesh(quad(this));
+    pQuad.addPosition(Vec3(0.,-0.1,0.0));
+    pEffectResource = pQuad._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
+    pEffectResource.create();
+    pEffectResource.use("akra.system.mesh_texture");
+    pEffectResource.use("akra.system.prepareForDeferredShading");
+
+    pQuad.accessLocalBounds().set(1000,0,1000);
+    this.pQuad = pQuad;
 
     this.pModel.addToScene();
     this.pModel.applyShadow();

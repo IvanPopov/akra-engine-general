@@ -71,6 +71,7 @@ global float4 result_color;
 global pixel_data pixelData;
 
 float4 apply_light_omni() : COLOR{
+    //result_color += points_omni[0].lightData.ambient;
     for(int i=0;i<nOmni;i++){
         result_color += calculateLight(pixelData,points_omni[i].lightData,eye_position);
     }
@@ -79,7 +80,7 @@ float4 apply_light_omni() : COLOR{
 
 float4 apply_light_project() : COLOR{
     for(int i=0;i<nProject;i++){
-        float4 v4fTmp = points_project[i].shadow_matrix*float4(pixelData.position);
+        float4 v4fTmp = points_project[i].shadow_matrix*float4(pixelData.position, 1.);
         float3 v3fTest = abs(v4fTmp.xyz/v4fTmp.w);
         //тест на попадание в область действия источника
         if(all(lessThanEqual(v3fTest,float3(1.)))){
@@ -92,7 +93,7 @@ float4 apply_light_project() : COLOR{
 float4 apply_light_omni_shadow() : COLOR{
     for(int i=0;i<nOmniShadows;i++){
         for(int j=0;j<6;j++){
-            float4 v4fTmp = points_omni_shadows[i].shadow_matrix[j]*float4(pixelData.position);
+            float4 v4fTmp = points_omni_shadows[i].shadow_matrix[j]*float4(pixelData.position, 1.);
             float3 v3fLightSpacePosition = v4fTmp.xyz/v4fTmp.w;
             float3 v3fTest = abs(v3fLightSpacePosition);
             //тест на попадание в область действия источника
@@ -115,7 +116,7 @@ float4 apply_light_omni_shadow() : COLOR{
 
 float4 apply_light_project_shadows() : COLOR{
     for(int i=0;i<nProjectShadows;i++){
-        float4 v4fTmp = points_project_shadows[i].shadow_matrix*float4(pixelData.position);
+        float4 v4fTmp = points_project_shadows[i].shadow_matrix*float4(pixelData.position, 1.);
         float3 v3fLightSpacePosition = v4fTmp.xyz/v4fTmp.w;
         float3 v3fTest = abs(v3fLightSpacePosition);
         //тест на попадание в область действия источника
@@ -158,7 +159,7 @@ float4 calculateLight(pixel_data pixelData, light_data lightData, float3 eyePosi
     //add diffuse
     color += pixelData.diffuse * lightData.diffuse * max(dot(pixelData.normal, light_dir), .0) * attenuation;
     // add reflect lighting
-    color += pixelData.specular * lightData.specular * light_distancedotVpow * attenuation;
+    //color += pixelData.specular * lightData.specular * light_distancedotVpow * attenuation;
 
     return color;
 };
