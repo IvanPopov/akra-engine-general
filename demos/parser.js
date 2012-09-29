@@ -37,10 +37,10 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/apply_lights_and_shadows.afx', true);
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/test_complex_struct.afx', true);
 
-    this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
-    this.pModel = this.displayManager().modelPool().createResource('model');
-//    this.pModel.loadResource("/akra-engine-general/media/models/arm.DAE", {animation : false});
-    this.pModel.loadResource("/akra-engine-general/media/models/demo3/mesh_chr/mesh_chr.DAE", {});
+//     this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
+//     this.pModel = this.displayManager().modelPool().createResource('model');
+// //    this.pModel.loadResource("/akra-engine-general/media/models/arm.DAE", {animation : false});
+//     this.pModel.loadResource("/akra-engine-general/media/models/demo3/mesh_chr/mesh_chr.DAE", {});
 
 
     this.pResourceManager.monitorInitResources(function (nLoaded, nTotal, pTarget) {
@@ -77,7 +77,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     var pManager = this.shaderManager();
 
 
-    var pLightOmniShadow = this.pLightPoint = new a.LightPoint(this,true,true,2048);
+    var pLightOmniShadow = this.pLightPoint = new a.LightPoint(this,true,true,2048/4);
     pLightOmniShadow.create();
     pLightOmniShadow.attachToParent(this.getRootNode());
 
@@ -96,7 +96,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     pLightParameters.diffuse.set(0.1);
     pLightParameters.specular.set(0.1);
 
-    var pLightProject = new a.LightPoint(this,false,true,2048);
+    var pLightProject = new a.LightPoint(this,false,true,2048/4);
     pLightProject.create();
     pLightProject.attachToParent(this.getRootNode());
 
@@ -106,7 +106,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 
     pLightProject.isActive = true;
 
-    var pLightProjectShadow = new a.LightPoint(this,false,true,2048);
+    var pLightProjectShadow = new a.LightPoint(this,false,true,2048/4);
     pLightProjectShadow.create();
     pLightProjectShadow.attachToParent(this.getRootNode());
 
@@ -155,8 +155,8 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     pQuad.accessLocalBounds().set(1000,0,1000);
     this.pQuad = pQuad;
 
-    this.pModel.addToScene();
-    this.pModel.applyShadow();
+    // this.pModel.addToScene();
+    // this.pModel.applyShadow();
 
     var pCamera = this.getActiveCamera();
 
@@ -176,7 +176,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 
 
 //    A_TRACER.END();
-//    this.pause(true);
+   // this.pause(true);
 
 
     return true;
