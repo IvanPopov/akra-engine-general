@@ -91,7 +91,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     pLightOmni.create();
     pLightOmni.attachToParent(this.getRootNode());
     pLightOmni.addPosition(Vec3(-5.,3.,5.));
-    pLightOmni.isActive = false;
+    pLightOmni.isActive = true;
 
     var pLightParameters = pLightOmni.lightParameters;
     pLightParameters.diffuse.set(1.);

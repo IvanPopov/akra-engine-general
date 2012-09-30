@@ -123,6 +123,7 @@ float4 apply_light_project_shadows() : COLOR{
         float3 v3fTest = abs(v3fLightSpacePosition);
         //тест на попадание в область действия источника
         //if(all(lessThanEqual(v3fTest,float3(1.)))){
+            //float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData);
             //float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData,eye_position)
         if(length(v3fTest) < sqrt(3.) && v3fTest.z <= 1.){//более приятно выглядит
             float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData);
@@ -155,7 +156,11 @@ float4 calculateLight(pixel_data pixelData, light_data lightData){
         light_dir_length + lightData.attenuation.z *
         light_dir_length * light_dir_length);
 
-    float light_distancedotVpow = pow(max(dot(reflect_dir, view_dir), .0), pixelData.shininess);
+    float light_distancedotVpow = 0.;
+
+    if(pixelData.shininess != 0.){
+        light_distancedotVpow = pow(max(dot(reflect_dir, view_dir), 0.0), pixelData.shininess);
+    }
 
     float4 color = float4(0.);
     //add ambient
