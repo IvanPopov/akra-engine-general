@@ -35,6 +35,7 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/prepareDeferredShading.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/deferredShading.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/apply_lights_and_shadows.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/fxaa.afx', true);
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/test_complex_struct.afx', true);
 
 //     this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
@@ -84,7 +85,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     var m4fLook = Mat4.lookAt(Vec3(3,5,4),Vec3(0.,1.,0.),Vec3(0,1,0),Mat4());
 
     pLightOmniShadow.accessLocalMatrix().set(m4fLook.inverse());
-    pLightOmniShadow.isActive = true;
+    pLightOmniShadow.isActive = false;
 
     var pLightOmni = new a.LightPoint(this);
     pLightOmni.create();
