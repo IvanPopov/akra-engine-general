@@ -124,6 +124,7 @@ float4 apply_light_project_shadows() : COLOR{
         //тест на попадание в область действия источника
         //if(all(lessThanEqual(v3fTest,float3(1.)))){
             //float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData);
+            //float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData,eye_position)
         if(length(v3fTest) < sqrt(3.) && v3fTest.z <= 1.){//более приятно выглядит
             float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData);
 
