@@ -117,7 +117,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 
     pLightProjectShadow.lightParameters.specular.set(0.);
 
-    pLightProjectShadow.isActive = true;
+    pLightProjectShadow.isActive = false;
 
     function addMeshToScene(pEngine, pMesh, pParent) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);

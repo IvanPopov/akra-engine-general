@@ -82,7 +82,7 @@ float4 apply_light_project() : COLOR{
         float3 v3fTest = abs(v4fTmp.xyz/v4fTmp.w);
         //тест на попадание в область действия источника
         //if(all(lessThanEqual(v3fTest,float3(1.)))){
-        if(length(v3fTest) < sqrt(3.)){ //более приятно выглядит
+        if(length(v3fTest) < sqrt(3.) && v3fTest.z <= 1.){ //более приятно выглядит
             result_color += calculateLight(pixelData,points_project[i].lightData);
 
         }
@@ -123,8 +123,8 @@ float4 apply_light_project_shadows() : COLOR{
         float3 v3fTest = abs(v3fLightSpacePosition);
         //тест на попадание в область действия источника
         //if(all(lessThanEqual(v3fTest,float3(1.)))){
-            //float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData,eye_position)
-        if(length(v3fTest) < sqrt(3.)){//более приятно выглядит
+            //float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData);
+        if(length(v3fTest) < sqrt(3.) && v3fTest.z <= 1.){//более приятно выглядит
             float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData);
 
             float2 v2fShadowTextureCoords = (v3fLightSpacePosition.xy + 1.)/2.;
