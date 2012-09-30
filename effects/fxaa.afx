@@ -14,7 +14,7 @@ struct VS_OUT{
 };;
 
 
-float2 screenTextureRatio : SCREEN_TEXTURE_RATIO;
+//float2 screenTextureRatio : SCREEN_TEXTURE_RATIO;
 
 VS_OUT vs_fxaa_shading(float2 pos: POSITION){
 	VS_OUT Out;
@@ -22,7 +22,7 @@ VS_OUT vs_fxaa_shading(float2 pos: POSITION){
 	Out.position = float4(pos,0.,1.);
     Out.screenPosition = pos;
 	//Out.textureCoords = float2(texCoodrX,texCoordY);
-    Out.textureCoords = (pos + 1.)/2. * screenTextureRatio;
+    Out.textureCoords = (pos + 1.)/2.;// * screenTextureRatio;
 	
 	return Out;
 };
