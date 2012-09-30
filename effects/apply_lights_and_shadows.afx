@@ -159,7 +159,7 @@ float4 calculateLight(pixel_data pixelData, light_data lightData, float3 eyePosi
     //add diffuse
     color += pixelData.diffuse * lightData.diffuse * max(dot(pixelData.normal, light_dir), .0) * attenuation;
     // add reflect lighting
-    //color += pixelData.specular * lightData.specular * light_distancedotVpow * attenuation;
+    color += pixelData.specular * lightData.specular * light_distancedotVpow * attenuation;
 
     return color;
 };
