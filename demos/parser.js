@@ -91,7 +91,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     pLightOmni.create();
     pLightOmni.attachToParent(this.getRootNode());
     pLightOmni.addPosition(Vec3(-5.,3.,5.));
-    pLightOmni.isActive = false;
+    pLightOmni.isActive = true;
 
     var pLightParameters = pLightOmni.lightParameters;
     pLightParameters.diffuse.set(1.);
@@ -117,7 +117,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 
     pLightProjectShadow.lightParameters.specular.set(0.);
 
-    pLightProjectShadow.isActive = false;
+    pLightProjectShadow.isActive = true;
 
     function addMeshToScene(pEngine, pMesh, pParent) {
         var pSceneObject = new a.SceneModel(pEngine, pMesh);
