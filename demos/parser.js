@@ -40,7 +40,7 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
 //     this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
     this.pModel = this.displayManager().modelPool().createResource('model');
 //    this.pModel.loadResource("/akra-engine-general/media/models/arm.DAE", {animation : false});
-    this.pModel.loadResource("/akra-engine-general/media/models/demo3/mesh_chr/mesh_chr.DAE", {});
+    this.pModel.loadResource("/akra-engine-general/media/models/demo7/mesh_chr.DAE", {});
 
 
     this.pResourceManager.monitorInitResources(function (nLoaded, nTotal, pTarget) {
@@ -123,14 +123,16 @@ ShaderDemo.prototype.initDeviceObjects = function () {
         return pSceneObject;
     }
 
-    this.pPlane = addMeshToScene(this, sceneSurface(this));
+    this.pPlaneMesh = a.geom.sceneSurface(this);
+    this.pPlane = addMeshToScene(this, this.pPlaneMesh);
+
 
     var pEffectResource = this.pPlane._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
     pEffectResource.create();
     pEffectResource.use(this.shaderManager().getComponentByName("akra.system.plane"));
     pEffectResource.use("akra.system.prepareForDeferredShading");
 
-    this.pCubeMesh = cube(this);
+    this.pCubeMesh = a.geom.cube(this);
     var me = this;
     this.appendMesh = function (pMesh, pNode) {
         return addMeshToScene(me, pMesh, pNode);
@@ -139,20 +141,20 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     var pCube = this.appendMesh(this.pCubeMesh);
     pCube.addPosition(Vec3(-3.,1.,5.));
     pCube.setShadow();
+    this.pCubeMesh.showBoundingBox();
 
     pEffectResource = pCube._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
     pEffectResource.create();
     pEffectResource.use("akra.system.mesh_texture");
     pEffectResource.use("akra.system.prepareForDeferredShading");
 
-    var pQuad = this.appendMesh(quad(this));
+    var pQuad = this.appendMesh(a.geom.quad(this));
     pQuad.addPosition(Vec3(0.,-0.1,0.0));
     pEffectResource = pQuad._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
     pEffectResource.create();
     pEffectResource.use("akra.system.mesh_texture");
     pEffectResource.use("akra.system.prepareForDeferredShading");
 
-    pQuad.accessLocalBounds().set(1000,0,1000);
     this.pQuad = pQuad;
 
     this.pModel.addToScene();
@@ -178,6 +180,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
 //    A_TRACER.END();
    // this.pause(true);
 
+   // trace(this.getRootNode().toString(true));
 
     return true;
 };
