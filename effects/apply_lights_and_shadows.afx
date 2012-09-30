@@ -65,15 +65,13 @@ light_omni points_omni[nOmni];
 light_project_shadows points_project_shadows[nProjectShadows];
 light_project points_project[nProject];
 
-float3 eye_position : EYE_POSITION; //in camera space;
-
 global float4 result_color;
 global pixel_data pixelData;
 
 float4 apply_light_omni() : COLOR{
     //result_color += points_omni[0].lightData.ambient;
     for(int i=0;i<nOmni;i++){
-        result_color += calculateLight(pixelData,points_omni[i].lightData,eye_position);
+        result_color += calculateLight(pixelData,points_omni[i].lightData);
     }
     return result_color;
 };
@@ -83,9 +81,12 @@ float4 apply_light_project() : COLOR{
         float4 v4fTmp = points_project[i].shadow_matrix*float4(pixelData.position, 1.);
         float3 v3fTest = abs(v4fTmp.xyz/v4fTmp.w);
         //тест на попадание в область действия источника
-        if(all(lessThanEqual(v3fTest,float3(1.)))){
-            result_color += calculateLight(pixelData,points_project[i].lightData,eye_position);
+        //if(all(lessThanEqual(v3fTest,float3(1.)))){
+        if(length(v3fTest) < sqrt(3.)){ //более приятно выглядит
+            result_color += calculateLight(pixelData,points_project[i].lightData);
+
         }
+
     }
     return result_color;
 };
@@ -97,9 +98,10 @@ float4 apply_light_omni_shadow() : COLOR{
             float3 v3fLightSpacePosition = v4fTmp.xyz/v4fTmp.w;
             float3 v3fTest = abs(v3fLightSpacePosition);
             //тест на попадание в область действия источника
+            //так как здесь происходит считывание из текстуру другой тест не корректен
             if(all(lessThanEqual(v3fTest,float3(1.)))){
                 
-                float4 tmpColor = calculateLight(pixelData,points_omni_shadows[i].lightData,eye_position);
+                float4 tmpColor = calculateLight(pixelData,points_omni_shadows[i].lightData);
 
                 float2 v2fShadowTextureCoords = (v3fLightSpacePosition.xy + 1.)/2.;
 
@@ -120,9 +122,10 @@ float4 apply_light_project_shadows() : COLOR{
         float3 v3fLightSpacePosition = v4fTmp.xyz/v4fTmp.w;
         float3 v3fTest = abs(v3fLightSpacePosition);
         //тест на попадание в область действия источника
-        if(all(lessThanEqual(v3fTest,float3(1.)))){
-            
-            float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData,eye_position);
+        //if(all(lessThanEqual(v3fTest,float3(1.)))){
+            //float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData,eye_position)
+        if(length(v3fTest) < sqrt(3.)){//более приятно выглядит
+            float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData);
 
             float2 v2fShadowTextureCoords = (v3fLightSpacePosition.xy + 1.)/2.;
 
@@ -134,13 +137,14 @@ float4 apply_light_project_shadows() : COLOR{
     return result_color;
 };
 
-float4 calculateLight(pixel_data pixelData, light_data lightData, float3 eyePosition){
+float4 calculateLight(pixel_data pixelData, light_data lightData){
     float3 light_dir = lightData.position - pixelData.position;
     float light_dir_length = length(light_dir);
     light_dir = normalize(light_dir);
 
-    // direction from vert to observer (ViewDir)
-    float3 view_dir = normalize(eyePosition - pixelData.position);
+    // direction from vert to observer (ViewDir) 
+    //observer is (0,0,0) in camera space
+    float3 view_dir = normalize(-pixelData.position);
 
     // reflect direction
     float3 reflect_dir = normalize(reflect(-light_dir, pixelData.normal));
