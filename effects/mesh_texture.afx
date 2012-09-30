@@ -82,19 +82,17 @@ VS_OUT_2 vs_mesh_texture(VS_IN_2 IN) {
 
 Material defaultMaterial:MATERIAL;
 
-float4 fs_mesh_texture_pass_1(VS_OUT_2 IN) : COLOR {
+void fs_mesh_texture_pass_1(VS_OUT_2 IN){
     Normal = normalize(IN.norm);
     Fragment_material.emissive = defaultMaterial.emissive + tex2D(sampler_emissive, float2(IN.tc_emissive.xy));
     Fragment_material.diffuse = defaultMaterial.diffuse + tex2D(sampler_diffuse, float2(IN.tc_diffuse.xy));
     Fragment_material.ambient = defaultMaterial.ambient + tex2D(sampler_ambient, float2(IN.tc_ambient.xy));
     Fragment_material.shininess = defaultMaterial.shininess;
 
-    return float4(0.0,0.0,0.0,0.5);
 }
 
-float4 fs_mesh_texture_pass_2(VS_OUT_2 IN) : COLOR {
+void fs_mesh_texture_pass_2(VS_OUT_2 IN){
     Fragment_material.specular = defaultMaterial.specular + tex2D(sampler_specular, float2(IN.tc_specular.xy));
-    return float4(1.0,1.0,1.0,0.3);
 }
 
 technique mesh_texture{

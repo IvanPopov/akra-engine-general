@@ -117,9 +117,9 @@ float4 fs_deferred_shading(VS_OUT IN) : COLOR{
     float4 emissive = float4(floatToFloat3(data0.x),1.);
 
     float3 temp = floatToFloat3(data0.y);
-    temp.xy = temp.xy*2. - 1.;
+    temp.xy = (temp.xy*2. - 1.)*0.95;//fix me
 
-    pixelData.normal = float3(temp.xy,sqrt(1. - dot(temp.xy,temp.xy)));
+    pixelData.normal = normalize(float3(temp.xy,sqrt(1. - dot(temp.xy,temp.xy))));
     pixelData.shininess = temp.z * 255.;
 
     pixelData.diffuse = float4(floatToFloat3(data0.z),1.);
@@ -128,10 +128,9 @@ float4 fs_deferred_shading(VS_OUT IN) : COLOR{
 
     result_color = emissive;
 
-    //result_color = float4(pixelData.normal,1.);
 
     //result_color = pixelData.shininess;
-    //result_color = float4(float3(temp.z),1.);
+    //result_color = float4(float3(pixelData.shininess),1.);
     //result_color = pixelData.diffuse;
 
     return result_color;

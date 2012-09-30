@@ -90,18 +90,18 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     var pLightOmni = new a.LightPoint(this);
     pLightOmni.create();
     pLightOmni.attachToParent(this.getRootNode());
-    pLightOmni.addPosition(Vec3(0.,0.,5.));
+    pLightOmni.addPosition(Vec3(-5.,3.,5.));
     pLightOmni.isActive = true;
 
     var pLightParameters = pLightOmni.lightParameters;
-    pLightParameters.diffuse.set(0.1);
+    pLightParameters.diffuse.set(1.);
     pLightParameters.specular.set(0.1);
 
     var pLightProject = new a.LightPoint(this,false,true,2048/1);
     pLightProject.create();
     pLightProject.attachToParent(this.getRootNode());
 
-    m4fLook = Mat4.lookAt(Vec3(-25,4,0),Vec3(0.,1.,0.),Vec3(0,1,0),Mat4());
+    m4fLook = Mat4.lookAt(Vec3(-4,4,4),Vec3(0.,1.,0.),Vec3(0,1,0),Mat4());
     pLightProject.accessLocalMatrix().set(m4fLook.inverse());
     pLightProject.camera.setProjParams(Math.PI/5,1,0.01,1000);
 
@@ -111,9 +111,11 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     pLightProjectShadow.create();
     pLightProjectShadow.attachToParent(this.getRootNode());
 
-    m4fLook = Mat4.lookAt(Vec3(-15,4,-15),Vec3(0.,1.,0.),Vec3(0,1,0),Mat4());
+    m4fLook = Mat4.lookAt(Vec3(4,4,4),Vec3(0.,1.,0.),Vec3(0,1,0),Mat4());
     pLightProjectShadow.accessLocalMatrix().set(m4fLook.inverse());
     pLightProjectShadow.camera.setProjParams(Math.PI/5,1,0.01,1000);
+
+    pLightProjectShadow.lightParameters.specular.set(0.);
 
     pLightProjectShadow.isActive = true;
 
@@ -140,9 +142,9 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     }
 
     var pCube = this.appendMesh(this.pCubeMesh);
-    pCube.addPosition(Vec3(-3.,1.,5.));
+    pCube.addPosition(Vec3(-5,1,-5));
     pCube.setShadow();
-    this.pCubeMesh.showBoundingBox();
+    //this.pCubeMesh.showBoundingBox();
 
     pEffectResource = pCube._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
     pEffectResource.create();
@@ -150,7 +152,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     pEffectResource.use("akra.system.prepareForDeferredShading");
 
     var pQuad = this.appendMesh(a.geom.quad(this));
-    pQuad.addPosition(Vec3(0.,-0.1,0.0));
+    pQuad.addPosition(Vec3(0.,0.,0.0));
     pEffectResource = pQuad._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
     pEffectResource.create();
     pEffectResource.use("akra.system.mesh_texture");
