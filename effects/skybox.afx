@@ -36,14 +36,37 @@ struct VS_OUT{
 	float4 position : POSITION;
 	float2 texCoords : TEXCOORD0;
 	float2 texCoordsDeferred : TEXCOORD1;
+	float3 texCoordsSkybox : TEXCOORD2;
 };;
+
+float4x4 projMat : PROJ_MATRIX;
+float4x4 invView : INV_VIEW_CAMERA_MAT;
+float3 cameraPos : CAMERA_POSITION;
+
+float3 unproj(float4x4 projMat,float3 screenCoords){
+	
+	//mat4[i] - i-й столбец матрицы 
+	//не строка, а именно столбец
+  
+    float z = -projMat[3][2]/(projMat[2][2] + screenCoords.z);
+    float y = -(screenCoords.y * z + projMat[2][1] * z)/projMat[1][1];
+    float x = -(screenCoords.x * z + projMat[2][0] * z)/projMat[0][0];
+  
+    return float3(x,y,z);
+};
 
 VS_OUT vs_skybox(VS_IN IN){
 	VS_OUT Out;
 
+	float3 cubeVertex = float3(IN.position,1.);
+    float3 cubeVertexInCameraSpace = unproj(projMat,cubeVertex);
+    float3 cubeVertexInRealSpace = (invView * float4(cubeVertexInCameraSpace,1.)).xyz;
+    float3 skyboxVector = cubeVertexInRealSpace - cameraPos;
+
 	Out.position = float4(IN.position,0.,1.);
 	Out.texCoords = (IN.position+1.)/2.;
     Out.texCoordsDeferred = (IN.position + 1.)/2. * screenTextureRatio;
+    Out.texCoordsSkybox = skyboxVector;
 	
 	return Out;
 };
@@ -56,9 +79,7 @@ float4 fs_skybox(VS_OUT IN) : COLOR{
         return tex2D(sceneTexture,textureCoords);
     }
     else{
-    	//return texCUBE(sky_container.skyboxSampler,float3(textureCoords.x*2.-1.,textureCoords.y*2.-1.,1.));
-    	//FIXME: почему странное выражение?
-    	return texCUBE(sky_container.skyboxSampler,float3(float2(textureCoords*2.-1.),1.));
+    	return texCUBE(sky_container.skyboxSampler,IN.texCoordsSkybox);
     }
 };	
 
