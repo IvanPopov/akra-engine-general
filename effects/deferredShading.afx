@@ -93,10 +93,6 @@ float3 unproj(float4x4 projMat,float3 screenCoords){
     return float3(x,y,z);
 };
 
-float unprojZ(float4x4 projMat, float screenZ){
-	return -projMat[3][2]/(projMat[2][2] + screenZ);
-};
-
 global pixel_data pixelData;
 global float4 result_color;
 
