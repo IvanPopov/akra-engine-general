@@ -86,8 +86,10 @@ float4 apply_light_project() : COLOR{
         float3 v3fTest = abs(v4fTmp.xyz/v4fTmp.w);
         //тест на попадание в область действия источника
         //if(all(lessThanEqual(v3fTest,float3(1.)))){
-        if(length(v3fTest) < sqrt(3.) && v3fTest.z <= 1.){ //более приятно выглядит
-            result_color += calculateLight(pixelData,points_project[i].lightData);
+        if(length(v3fTest) <= sqrt(3.) && v4fTmp.w >= 0.){ //более приятно выглядит
+            float alpha = 0.05;
+            float lightAttenuation = (exp(-alpha*dot(v3fTest,v3fTest)) - exp(-alpha*3.))/(1. - exp(-alpha*3.));
+            result_color += calculateLight(pixelData,points_project[i].lightData) * lightAttenuation;
         }
 
     }
@@ -99,9 +101,9 @@ float4 apply_light_omni_shadow() : COLOR{
         float4 tmpColor = calculateLight(pixelData,points_omni_shadows[i].lightData);
         float shadowMultiplier = 1.;
         for(int j=0;j<6;j++){
-            float4 v4fToLightSpace = points_omni_shadows[i].toLightSpace[j]*float4(pixelData.position, 1.);
+            float4 v4fLightSpace = points_omni_shadows[i].toLightSpace[j]*float4(pixelData.position, 1.);
 
-            float4 v4fTmp = points_omni_shadows[i].optimized_projection_matrix[j] * v4fToLightSpace;
+            float4 v4fTmp = points_omni_shadows[i].optimized_projection_matrix[j] * v4fLightSpace;
             float3 v3fOptimizedLightSpacePosition = v4fTmp.xyz/v4fTmp.w;
 
             float3 v3fTest = abs(v3fOptimizedLightSpacePosition.xyz);
@@ -118,7 +120,7 @@ float4 apply_light_omni_shadow() : COLOR{
                 float2 v2fShadowTextureCoords = (v3fOptimizedLightSpacePosition.xy + 1.)/2.;
  
                 shadowMultiplier = calculateShadowMultiplier(omni_shadow_sampler[i*6+j],v2fShadowTextureCoords,
-                                                            points_omni_shadows[i].optimized_projection_matrix[j], v4fTmp.z);
+                                                            points_omni_shadows[i].optimized_projection_matrix[j], v4fLightSpace.z);
 
                 break;
             }
@@ -141,8 +143,10 @@ float4 apply_light_project_shadows() : COLOR{
         //тест на попадание в область действия источника
         //if(all(lessThanEqual(v3fTest,float3(1.)))){
             //float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData);
-        if(length(v3fTest) < sqrt(3.) && v3fTest.z <= 1.){//более приятно выглядит
-            float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData);
+        if(length(v3fTest) <= sqrt(3.) && v4fTmp.w >= 0.){//более приятно выглядит
+            float alpha = 0.05;
+            float lightAttenuation = (exp(-alpha*dot(v3fTest,v3fTest)) - exp(-alpha*3.))/(1. - exp(-alpha*3.));
+            float4 tmpColor = calculateLight(pixelData,points_project_shadows[i].lightData)*lightAttenuation;
 
             float shadowMultiplier = 1.;
 
@@ -154,7 +158,7 @@ float4 apply_light_project_shadows() : COLOR{
             if(all(lessThanEqual(float2(v3fTest.xy),float2(1.))) && v3fOptimizedLightSpacePosition.z >= -1. && v4fTmp.w >= 0.){
                 float2 v2fShadowTextureCoords = (v3fOptimizedLightSpacePosition.xy + 1.)/2.;
                 shadowMultiplier = calculateShadowMultiplier(project_shadow_sampler[i],v2fShadowTextureCoords,
-                                                                points_project_shadows[i].optimized_projection_matrix, v4fTmp.z);
+                                                                points_project_shadows[i].optimized_projection_matrix, v4fLightSpace.z);
             }
 
             result_color += tmpColor * shadowMultiplier;
@@ -203,19 +207,40 @@ float unprojZ(float4x4 projMat, float screenZ){
 };
 
 float fMinShadow : MIN_SHADOW_VALUE = 0.5;
-float shadowConstant = 5.e+4;
+float shadowConstant = 5.e+2;
 
 float calculateShadowMultiplier(sampler shadowSampler, float2 v2fShadowTextureCoords, float4x4 projMat, float realDepth){
     float lightDepth = tex2D(shadowSampler,v2fShadowTextureCoords).x*2. - 1.;
+    //float lightDepth = blur(shadowSampler,v2fShadowTextureCoords,float2(1./512.)).x*2. - 1.;
     if(lightDepth == 1.){
         return 1.;
     }
 
-    float lightRealDepth = unprojZ(projMat,lightDepth);
+    float lightRealDepth = unprojZ(projMat,lightDepth); //negative
 
-    float fShadowMultiplier = clamp(exp(shadowConstant*(1.e-4 + lightRealDepth - realDepth)),fMinShadow,1.);
+    float fShadowMultiplier = clamp(exp(shadowConstant*(1.e-2 - lightRealDepth + realDepth)),fMinShadow,1.);
     return fShadowMultiplier;
 };
+
+float alpha = 1.;
+
+float4 blur(sampler Sampler,float2 texCoords, float2 invTexSize){
+    const int blurX = 3;
+    const int blurY = 3;
+
+    float4 value = float4(0.);
+    float totalWeight = 0.;
+    for(int i=-blurX;i<=blurX;i++){
+        for(int j=-blurY;j<=blurY;j++){
+            float fX = float(i);
+            float fY = float(j);
+            float weight = exp(-alpha*(fX*fX + fY*fY));
+            totalWeight += weight;
+            value += weight * tex2D(Sampler,texCoords + invTexSize*float2(fX,fY));
+        }
+    }
+    return value/totalWeight;
+}
 
 technique omniLighting{
     pass applyOmniLighting{
