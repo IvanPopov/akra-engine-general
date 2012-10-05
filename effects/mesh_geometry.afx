@@ -9,6 +9,7 @@ struct VS_OUT_1{
     float4 pos:POSITION;
     float3 vert:VERTEX;
     float3 norm:NORMAL;
+//    float4x4 normal_mat:NORMAL_MAT;
     float psize:PSIZE;
 };
 
@@ -22,7 +23,7 @@ struct baseGeometry{
 float4x4 model_mat:MODEL_MATRIX;
 float4x4 view_mat:VIEW_MATRIX;
 float4x4 proj_mat:PROJ_MATRIX;
-float3x3 normal_mat:NORMAL_MATRIX;
+//float3x3 normal_mat:NORMAL_MATRIX;
 
 float4x4 bind_matrix:BIND_SHAPE_MATRIX;
 
@@ -39,6 +40,8 @@ VS_OUT_1 vs_mesh_geometry(VS_IN_1 IN) {
 
     //Out.norm = vertex_geometry.norm = normalize((normal_mat * norm));
     Out.norm = vertex_geometry.norm = normalize((view_mat * model_mat * float4(norm,0.)).xyz);
+//    Out.norm = vertex_geometry.norm = norm;
+//    Out.normal_mat = view_mat * model_mat;
     Out.vert = vertex_geometry.vert = vertex.xyz;
 	Out.pos = vertex_geometry.pos = proj_mat * vertex;
 //    Out.psize = 2.0;
@@ -83,6 +86,8 @@ VS_OUT_1 vs_mesh_skinning(VS_IN_1 IN) {
     Out.pos = vertex_geometry.pos = proj_mat * vertex;
     Out.vert = vertex_geometry.vert = vertex.xyz;
     Out.norm = vertex_geometry.norm = normalize((view_mat*result_mat * float4(IN.norm.xyz,0.)).xyz);
+//    Out.norm = vertex_geometry.norm = IN.norm.xyz;
+//    Out.normal_mat = view_mat*result_mat;
     Out.psize = point_size;
 
     return Out;

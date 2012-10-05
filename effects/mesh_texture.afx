@@ -22,16 +22,19 @@ struct VS_IN_2{
 struct VS_OUT_2{
     float3 vert:VERTEX;
     float3 norm:NORMAL;
+//    float4x4 normal_mat:NORMAL_MAT;
     float3 tc_diffuse: TEXCOORD0;
     float3 tc_ambient: TEXCOORD1;
     float3 tc_specular: TEXCOORD2;
     float3 tc_emissive: TEXCOORD3;
+    float3 tc_normal: TEXCOORD4;
 };
 
 texture tex0:TEXTURE0;
 texture tex1:TEXTURE1;
 texture tex2:TEXTURE2;
 texture tex3:TEXTURE3;
+texture tex4:TEXTURE4;
 
 sampler sampler_diffuse:S_DIFFUSE  = sampler_state
 {
@@ -48,6 +51,10 @@ sampler sampler_specular:S_SPECULAR  = sampler_state
 sampler sampler_emissive:S_EMISSIVE  = sampler_state
 {
     Texture = <tex3>;
+};
+sampler sampler_normal:S_NORMAL  = sampler_state
+{
+    Texture = <tex4>;
 };
 
 struct base_material{
@@ -76,14 +83,32 @@ VS_OUT_2 vs_mesh_texture(VS_IN_2 IN) {
     Out.tc_ambient = IN.tex_coord1;
     Out.tc_specular = IN.tex_coord2;
     Out.tc_emissive = IN.tex_coord3;
+    Out.tc_normal = IN.tex_coord4;
 
 	return Out;
 }
 
 Material defaultMaterial:MATERIAL;
 
+float4x4 model_mat:MODEL_MATRIX;
+float4x4 view_mat:VIEW_MATRIX;
+
 void fs_mesh_texture_pass_1(VS_OUT_2 IN){
-    Normal = normalize(IN.norm);
+//    float4x4 normal_mat = IN.normal_mat;
+    float3 texNormal = tex2D(sampler_normal, float2(IN.tc_normal.xy)).xyz;
+    float4 norm;
+    if(texNormal == float3(0.)){
+        norm = float4(IN.norm.xyz, 0.);
+    }
+    else {
+        norm = float4(IN.norm.xyz, 0.);
+//        texNormal.z *= 2.;
+//        texNormal.xy = (texNormal.xy - 0.5) * 2.;
+//        norm = float4(texNormal.xyz, 0.);
+//        normal_mat = view_mat * model_mat;
+    }
+    Normal = norm.xyz;
+//    Normal = normalize(float3(normalize(IN.norm) + tex2D(sampler_normal, float2(IN.tc_normal.xy)).xyz));
     Fragment_material.emissive = defaultMaterial.emissive + tex2D(sampler_emissive, float2(IN.tc_emissive.xy));
     Fragment_material.diffuse = defaultMaterial.diffuse + tex2D(sampler_diffuse, float2(IN.tc_diffuse.xy));
     Fragment_material.ambient = defaultMaterial.ambient + tex2D(sampler_ambient, float2(IN.tc_ambient.xy));

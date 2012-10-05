@@ -45,7 +45,7 @@
               <texture texture="file1-sampler" texcoord="TEX0"/>
             </diffuse>
             <specular>
-              <color>0.1 0.1 0.1 1</color>
+              <color>0.05 0.05 0.05 1</color>
             </specular>
             <shininess>
               <float>9.999999</float>
