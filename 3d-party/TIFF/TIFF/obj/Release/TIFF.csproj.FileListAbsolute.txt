@@ -1,0 +1,5 @@
+c:\users\vantuzz\documents\visual studio 2012\Projects\TIFF\TIFF\bin\TIFF.dll
+c:\users\vantuzz\documents\visual studio 2012\Projects\TIFF\TIFF\bin\TIFF.pdb
+c:\users\vantuzz\documents\visual studio 2012\Projects\TIFF\TIFF\obj\Release\TIFF.csprojResolveAssemblyReference.cache
+c:\users\vantuzz\documents\visual studio 2012\Projects\TIFF\TIFF\obj\Release\TIFF.dll
+c:\users\vantuzz\documents\visual studio 2012\Projects\TIFF\TIFF\obj\Release\TIFF.pdb

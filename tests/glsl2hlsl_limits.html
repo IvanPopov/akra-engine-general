@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+<head></head>
+<body>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+    #ifdef GL_ES
+			precision highp float;
+			#endif
+			struct pixel_data{vec4 DIFFUSE;vec4 AMBIENT;vec4 SPECULAR;vec3 POSITION;vec3 NORMAL;float SHININESS;};struct VS_OUT_0_9{vec4 POSITION;vec2 SCREEN_POSITION;vec2 TEXCOORD0;};struct light_data_0_10{vec4 DIFFUSE;vec4 AMBIENT;vec4 SPECULAR;vec3 ATTENUATION;vec3 POSITION;};struct light_omni_0_10{light_data_0_10 LIGHT_DATA;};struct light_omni_shadows_0_10{light_data_0_10 LIGHT_DATA;mat4 SHADOW_MATRIX[6];sampler2D SHADOW_SAMPLER[6];};struct light_project_shadows_0_10{light_data_0_10 LIGHT_DATA;mat4 SHADOW_MATRIX;sampler2D SHADOW_SAMPLER;};pixel_data pixelData;vec4 result_color;vec3 unproj_9(mat4,vec3);vec3 floatToFloat3_9(float);vec4 calculateLight_10(pixel_data,light_data_0_10);float calculateShadowMultiplier_10(sampler2D,vec2,float);uniform sampler2D A_s_0;uniform sampler2D A_s_1;uniform sampler2D A_s_2;uniform mat4 PROJ_MATRIX;uniform light_omni_0_10 points_omni_0_10[1];uniform light_omni_shadows_0_10 points_omni_shadows_0_10[1];uniform float shadowConstant_0_10;uniform float MIN_SHADOW_VALUE;uniform light_project_shadows_0_10 points_project_shadows_0_10[2];varying vec2 SCREEN_POSITION_VAR;varying vec2 TEXCOORD0_VAR;vec3 unproj_9(mat4 projMat_45_9,vec3 screenCoords_45_9){{float z_46_9=-projMat_45_9[3][2] / (projMat_45_9[2][2] + screenCoords_45_9.z);float y_46_9=-(screenCoords_45_9.y * z_46_9 + projMat_45_9[2][1] * z_46_9) / projMat_45_9[1][1];float x_46_9=-(screenCoords_45_9.x * z_46_9 + projMat_45_9[2][0] * z_46_9) / projMat_45_9[0][0];return vec3(x_46_9,y_46_9,z_46_9);}}
+			vec3 floatToFloat3_9(float value_14_9){{float data_15_9=value_14_9;vec3 result_15_9=vec3(0.);if(data_15_9 == 0.){float signedZeroTest_16_9=1. / value_14_9;if(signedZeroTest_16_9 < 0.){result_15_9.x=128.;}return result_15_9 / 255.;}if(data_15_9 < 0.){result_15_9.x=128.;data_15_9=-data_15_9;}float power_15_9=0.;for(int i_19_9=0;i_19_9 > -1;i_19_9++){if(data_15_9 >= 2.){data_15_9=data_15_9 / 2.;power_15_9++;}else if(data_15_9 < 1.){data_15_9=data_15_9 * 2.;power_15_9--;if(power_15_9 == -62.){break;}}else {break;}}if(power_15_9 == -62. && data_15_9 < 1.){power_15_9=0.;}else {power_15_9=power_15_9 + 63.;data_15_9=data_15_9 - 1.;}result_15_9.x+=power_15_9;data_15_9*=256.;result_15_9.y=floor((data_15_9));data_15_9-=floor((data_15_9));data_15_9*=256.;result_15_9.z=floor((data_15_9));return result_15_9 / 255.;}}
+			vec4 calculateLight_10(pixel_data pixelData_39_10,light_data_0_10 lightData_39_10){{vec3 light_dir_40_10=lightData_39_10.POSITION - pixelData_39_10.POSITION;float light_dir_length_40_10=length((light_dir_40_10));light_dir_40_10=normalize((light_dir_40_10));vec3 view_dir_40_10=normalize((-pixelData_39_10.POSITION));vec3 reflect_dir_40_10=normalize((reflect((-light_dir_40_10),(pixelData_39_10.NORMAL))));float attenuation_40_10=1.0 / (lightData_39_10.ATTENUATION.x + lightData_39_10.ATTENUATION.y * light_dir_length_40_10 + lightData_39_10.ATTENUATION.z * light_dir_length_40_10 * light_dir_length_40_10);float light_distancedotVpow_40_10=0.;if(pixelData_39_10.SHININESS != 0.){light_distancedotVpow_40_10=pow((max((dot((reflect_dir_40_10),(view_dir_40_10))),(0.0))),(pixelData_39_10.SHININESS));}vec4 color_40_10=vec4(0.);color_40_10+=pixelData_39_10.AMBIENT * lightData_39_10.AMBIENT * attenuation_40_10;color_40_10+=pixelData_39_10.DIFFUSE * lightData_39_10.DIFFUSE * max((dot((pixelData_39_10.NORMAL),(light_dir_40_10))),(0.0)) * attenuation_40_10;color_40_10+=pixelData_39_10.SPECULAR * lightData_39_10.SPECULAR * light_distancedotVpow_40_10 * attenuation_40_10;return color_40_10;}}
+			float calculateShadowMultiplier_10(sampler2D shadowSampler_42_10,vec2 v2fShadowTextureCoords_42_10,float depth_42_10){{float lightDepth_43_10=texture2D((shadowSampler_42_10),(v2fShadowTextureCoords_42_10)).x * 2. - 1.;float fShadowMultiplier_43_10=clamp((exp((shadowConstant_0_10 * (1.e-4 + lightDepth_43_10 - depth_42_10)))),(MIN_SHADOW_VALUE),(1.));return fShadowMultiplier_43_10;}}
+			void fragment_main_3_9(){{vec2 textureCoords_52_9=TEXCOORD0_VAR;float depth_52_9=texture2D((A_s_0),(textureCoords_52_9)).x * 2. - 1.;vec4 data0_52_9=texture2D((A_s_1),(textureCoords_52_9));vec4 data1_52_9=texture2D((A_s_2),(textureCoords_52_9));pixelData.POSITION=unproj_9(PROJ_MATRIX,vec3(SCREEN_POSITION_VAR.xy,depth_52_9));if(data1_52_9.w == 0.){discard;}vec4 emissive_52_9=vec4(floatToFloat3_9(data0_52_9.x),1.);vec3 temp_52_9=floatToFloat3_9(data0_52_9.y);temp_52_9.xy=(temp_52_9.xy * 2. - 1.) * 0.95;pixelData.NORMAL=normalize((vec3(temp_52_9.xy,sqrt((1. - dot((temp_52_9.xy),(temp_52_9.xy)))))));pixelData.SHININESS=temp_52_9.z * 255.;pixelData.DIFFUSE=vec4(floatToFloat3_9(data0_52_9.z),1.);pixelData.AMBIENT=vec4(floatToFloat3_9(data0_52_9.w),1.);pixelData.SPECULAR=vec4(floatToFloat3_9(data1_52_9.x),1.);result_color=emissive_52_9;gl_FragColor=(result_color);return;}}
+			void fragment_main_4_10(){{for(int i_6_10=0;i_6_10 < 1;i_6_10++){result_color+=calculateLight_10(pixelData,points_omni_0_10[i_6_10].LIGHT_DATA);}gl_FragColor=(result_color);return;}}
+			void fragment_main_6_10(){{for(int i_25_10=0;i_25_10 < 1;i_25_10++){for(int j_27_10=0;j_27_10 < 6;j_27_10++){vec4 v4fTmp_28_10=points_omni_shadows_0_10[i_25_10].SHADOW_MATRIX[j_27_10] * vec4(pixelData.POSITION,1.);vec3 v3fLightSpacePosition_28_10=v4fTmp_28_10.xyz / v4fTmp_28_10.w;vec3 v3fTest_28_10=abs((v3fLightSpacePosition_28_10));if(all((lessThanEqual((v3fTest_28_10),(vec3(1.)))))){vec4 tmpColor_29_10=calculateLight_10(pixelData,points_omni_shadows_0_10[i_25_10].LIGHT_DATA);vec2 v2fShadowTextureCoords_29_10=(v3fLightSpacePosition_28_10.xy + 1.) / 2.;float shadowMultiplier_29_10=calculateShadowMultiplier_10(points_omni_shadows_0_10[i_25_10].SHADOW_SAMPLER[j_27_10],v2fShadowTextureCoords_29_10,v3fLightSpacePosition_28_10.z);result_color+=tmpColor_29_10 * shadowMultiplier_29_10;break;}}}gl_FragColor=(result_color);return;}}
+			void fragment_main_7_10(){{for(int i_36_10=0;i_36_10 < 2;i_36_10++){vec4 v4fTmp_37_10=points_project_shadows_0_10[i_36_10].SHADOW_MATRIX * vec4(pixelData.POSITION,1.);vec3 v3fLightSpacePosition_37_10=v4fTmp_37_10.xyz / v4fTmp_37_10.w;vec3 v3fTest_37_10=abs((v3fLightSpacePosition_37_10));if(length((v3fTest_37_10)) < sqrt((3.)) && v3fTest_37_10.z <= 1.){vec4 tmpColor_38_10=calculateLight_10(pixelData,points_project_shadows_0_10[i_36_10].LIGHT_DATA);vec2 v2fShadowTextureCoords_38_10=(v3fLightSpacePosition_37_10.xy + 1.) / 2.;float shadowMultiplier_38_10=calculateShadowMultiplier_10(points_project_shadows_0_10[i_36_10].SHADOW_SAMPLER,v2fShadowTextureCoords_38_10,v3fLightSpacePosition_37_10.z);result_color+=tmpColor_38_10 * shadowMultiplier_38_10;}}gl_FragColor=(result_color);return;}}
+			void main(){fragment_main_3_9();fragment_main_4_10();fragment_main_6_10();fragment_main_7_10();}
+</script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+   #ifdef GL_FRAGMENT_PRECISION_HIGH
+			//#define texture2D(sampler, ) texture2D
+			#else
+			#define texture2D(A, B) texture2DLod(A, B, 0.)
+			#endif
+			#ifndef A_VB_COMPONENT3
+			#define A_VB_COMPONENT4
+			#endif
+			#ifdef A_VB_COMPONENT4
+			#define A_VB_ELEMENT_SIZE 4.
+			#endif
+			#ifdef A_VB_COMPONENT3
+			#define A_VB_ELEMENT_SIZE 3.
+			#endif
+			#define A_tex2D(S, H, X, Y) texture2D(S, vec2(H.stepX * X , H.stepY * Y))
+			#define A_tex2Dv(S, H, V) texture2D(S, V)
+			struct A_TextureHeader {
+			float width; float height; float stepX; float stepY; };
+			float A_extractFloat(const sampler2D sampler, const A_TextureHeader header, const float offset) {float pixelNumber = floor(offset / A_VB_ELEMENT_SIZE); float y = floor(pixelNumber / header.width) + .5; float x = mod(pixelNumber, header.width) + .5; int shift = int(mod(offset, A_VB_ELEMENT_SIZE)); 
+			#ifdef A_VB_COMPONENT4
+			if(shift == 0) return A_tex2D(sampler, header, x, y).r; else if(shift == 1) return A_tex2D(sampler, header, x, y).g; else if(shift == 2) return A_tex2D(sampler, header, x, y).b; else if(shift == 3) return A_tex2D(sampler, header, x, y).a; 
+			#endif
+			return 0.;}
+			vec2 A_extractVec2(const sampler2D sampler, const A_TextureHeader header, const float offset){float pixelNumber = floor(offset / A_VB_ELEMENT_SIZE); float y = floor(pixelNumber / header.width) + .5; float x = mod(pixelNumber, header.width) + .5; int shift = int(mod(offset, A_VB_ELEMENT_SIZE)); 
+			#ifdef A_VB_COMPONENT4
+			if(shift == 0) return A_tex2D(sampler, header, x, y).rg; else if(shift == 1) return A_tex2D(sampler, header, x, y).gb; else if(shift == 2) return A_tex2D(sampler, header, x, y).ba; else if(shift == 3) { if(int(x) == int(header.width - 1.)) return vec2(A_tex2D(sampler, header, x, y).a, A_tex2D(sampler, header, 0., (y + 1.)).r); else return vec2(A_tex2D(sampler, header, x, y).a, A_tex2D(sampler, header, (x + 1.), y).r); } 
+			#endif
+			return vec2(0.); }
+			struct VS_IN_0_9{vec2 POSITION;};struct VS_OUT_0_9{vec4 POSITION;vec2 SCREEN_POSITION;vec2 TEXCOORD0;};uniform vec2 SCREEN_TEXTURE_RATIO;varying vec2 SCREEN_POSITION_VAR;varying vec2 TEXCOORD0_VAR;attribute vec2 A_a_0;vec2 POSITION;struct { vec4 POSITION; float PSIZE;vec2 SCREEN_POSITION;vec2 TEXCOORD0;} Out;void vertex_main_2_9(){{Out.POSITION=vec4(POSITION,0.,1.);Out.SCREEN_POSITION=POSITION;Out.TEXCOORD0=(POSITION + 1.) / 2. * SCREEN_TEXTURE_RATIO;return;}}
+			void main(){POSITION=A_a_0;vertex_main_2_9();SCREEN_POSITION_VAR=Out.SCREEN_POSITION;TEXCOORD0_VAR=Out.TEXCOORD0;gl_Position=Out.POSITION;gl_PointSize=Out.PSIZE;}
+</script>
+
+	<script type="text/javascript">
+		function getShader(id) {
+	        var shaderScript = document.getElementById(id);
+	        if (!shaderScript) {
+	            return null;
+	        }
+
+	        var str = "";
+	        var k = shaderScript.firstChild;
+	        while (k) {
+	            if (k.nodeType == 3) {
+	                str += k.textContent;
+	            }
+	            k = k.nextSibling;
+	        }
+
+	        return str;
+	    }
+
+
+		function checkLimitations () {
+
+			var pProgram = this.createProgram();
+			var pVertex = this.createShader(this.VERTEX_SHADER);
+			var pPixel = this.createShader(this.FRAGMENT_SHADER);
+
+		    this.shaderSource(pVertex, getShader('shader-vs'));
+		    this.compileShader(pVertex);
+
+
+		    console.assert(this.getShaderParameter(pVertex, this.COMPILE_STATUS), this.getShaderInfoLog(pVertex));
+
+
+		    this.shaderSource(pPixel, getShader('shader-fs'));
+		    this.compileShader(pPixel);
+
+		    console.assert(this.getShaderParameter(pVertex, this.COMPILE_STATUS), this.getShaderInfoLog(pVertex));
+
+		    this.attachShader(pProgram, pVertex);
+		    this.attachShader(pProgram, pPixel);
+
+		    this.linkProgram(pProgram);
+
+		    console.assert(this.getProgramParameter(pProgram, this.LINK_STATUS), this.getProgramInfoLog(pProgram));
+
+		    this.validateProgram(pProgram);
+
+		    console.assert(this.getProgramParameter(pProgram, this.VALIDATE_STATUS), this.getProgramInfoLog(pProgram));
+
+		    console.log('[TEST PASSED]');
+
+		}
+
+		var canvas = document.createElement('canvas'); 
+		var webgl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+		if (webgl) {
+			checkLimitations.call(webgl);
+		}
+	</script>
+</body>
+</html>
