@@ -54,6 +54,14 @@ PopArray.prototype.pop = function () {
     return this._pData[--this._nCount];
 };
 
+PopArray.prototype.shift = function () {
+
+};
+
+PopArray.prototype.unshift = function () {
+
+};
+
 PopArray.prototype.setElement = function (index, pValue) {
     if (index >= this._nCount) {
         return false;
@@ -70,24 +78,24 @@ PopArray.prototype.element = function (index) {
 
 
 function Map() {
-    this.pKeys = new a.PopArray();
-    this.pValues = new a.PopArray();
+    this._pKeys = new a.PopArray();
+    this._pValues = new a.PopArray();
     this._pMap = {};
     this._pAllocator = null;
 }
 A_NAMESPACE(Map);
 
 Map.prototype.release = function (isStrong) {
-    this.pKeys.release(isStrong);
-    this.pValues.release(isStrong);
+    this._pKeys.release(isStrong);
+    this._pValues.release(isStrong);
     if (this._pAllocator !== null) {
         this._pAllocator._releaseElement(this);
     }
 };
 
 Map.prototype.addElement = function (sKey, pValue) {
-    var pKeys = this.pKeys;
-    var pValues = this.pValues;
+    var pKeys = this._pKeys;
+    var pValues = this._pValues;
     var pMap = this._pMap;
     var index = pMap[sKey];
     var iSize = pKeys._nCount;
@@ -105,12 +113,62 @@ Map.prototype.addElement = function (sKey, pValue) {
 
 Map.prototype.hasElement = function (sKey) {
     var index = this._pMap[sKey];
-    return (index !== undefined && this.pKeys.element(index) === sKey);
+    return (index !== undefined && this._pKeys.element(index) === sKey);
 };
 
 Map.prototype.element = function (sKey) {
     var index = this._pMap[sKey];
-    return (index !== undefined && this.pKeys.element(index) === sKey) ? this.pValues[index] : null;
+    return (index !== undefined && this._pKeys.element(index) === sKey) ? this._pValues._pData[index] : null;
+};
+
+
+function Map2() {
+    this._pKeys = new a.PopArray();
+    this._pMap = {};
+    this._pAllocator = null;
+}
+A_NAMESPACE(Map2);
+
+PROPERTY(Map2, "length", function () {
+    return this._pKeys._nCount;
+});
+
+PROPERTY(Map2, "keys", function () {
+    return this._pKeys._pData;
+});
+
+Map2.prototype.release = function (isStrong) {
+    var pKeys = this._pKeys;
+    var iLength = pKeys._nCount;
+    var pMap = this._pMap;
+    for (var i = 0; i < iLength; i++) {
+        pMap[pKeys[i]] = undefined;
+    }
+    pKeys.release(isStrong);
+    if (this._pAllocator !== null) {
+        this._pAllocator._releaseElement(this);
+    }
+};
+
+Map2.prototype.addElement = function (sKey, pValue) {
+    var pKeys = this._pKeys;
+    var pMap = this._pMap;
+    if (pMap[sKey] === undefined) {
+        pKeys.push(sKey);
+    }
+    pMap[sKey] = pValue;
+};
+
+Map2.prototype.hasElement = function (sKey) {
+    return !(this._pMap[sKey] === undefined);
+};
+
+Map2.prototype.element = function (sKey) {
+    return this._pMap[sKey];
+};
+
+Map2.prototype.key = function (index) {
+    return this._pKeys.element(index);
 };
 
 //function MapAllocator(nCount, iIncrement) {
@@ -160,7 +218,10 @@ Allocator.prototype._releaseElement = function (pElement) {
     this._pElements[--this._nCount] = pElement;
 };
 
+A_NAMESPACE(Allocator);
+
 a._pMapAllocator = new Allocator(a.Map, 1000, 100);
+a._pMap2Allocator = new Allocator(a.Map2, 1000, 100);
 a._pArrayAllocator = new Allocator(a.PopArray, 1000, 100);
 
 function PopArrayStorage() {
@@ -171,50 +232,67 @@ function MapStorage() {
     return a._pMapAllocator.getElement();
 }
 
+function Map2Storage() {
+    return a._pMap2Allocator.getElement();
+}
+
 var pObj, pObj1, pObj2, pObj3, pObj4;
 var pMap, pMap1, pMap2, pMap3, pMap4;
 function test1() {
-    pObj = new Object();
-//    pObj1 = new Object();
-//    pObj2 = new Object();
-//    pObj3 = new Object();
-//    pObj4 = new Object();
-    for (var i = 0; i < 1000; i++) {
-        pObj["Prop_" + i] = i * i + 1;
-//        pObj1["Prope_" + i] = i * i + 1;
-//        pObj2["Proper_" + i] = i * i + 1;
-//        pObj3["Propert_" + i] = i * i + 1;
-//        pObj4["Property_" + i] = i * i + 1;
+    pObj = {};
+    var sName, pValue;
+    for (var i = 0; i < 20; i++) {
+        sName = "Prop_" + i;
+        pValue = i * i + 1;
+        pObj[sName] = pValue;
     }
-//    var pKeys = Object.keys(pObj);
-//    var sKey;
-//    for(var i = 0; i < pKeys.length; i++){
-//        sKey = pKeys[i];
-//        pObj[sKey] = pObj[sKey]*(pObj[sKey]-1);
-//    }
-
-    for (var i in pObj) {
-        pObj[i] = pObj[i] * (pObj[i] - 1);
+    var pKeys = Object.keys(pObj);
+    var iLength = pKeys.length;
+    for (var i = 0; i < iLength; i++) {
+        pObj[pKeys[i]] *= 2; // pObj[pKeys[i]] * 2;
     }
 }
 function test2() {
     pMap = new MapStorage();
-//    pMap1 = new MapStorage();
-//    pMap2 = new MapStorage();
-//    pMap3 = new MapStorage();
-//    pMap4 = new MapStorage();
-    for (var i = 0; i < 1000; i++) {
-        pMap.addElement("Prop_" + i, i * i + 1);
-//        pMap1.addElement("Prope_" + i, i * i + 1);
-//        pMap2.addElement("Proper_" + i, i * i + 1);
-//        pMap3.addElement("Propert_" + i, i * i + 1);
-//        pMap4.addElement("Property_" + i, i * i + 1);
+    var sName, pValue;
+    for (var i = 0; i < 20; i++) {
+        sName = "Prop_" + i;
+        pValue = i * i + 1;
+        pMap.addElement(sName, pValue);
     }
-    var pValues = pMap.pValues;
-    var iLength = pMap.pValues.length;
+    var iLength = pMap._pKeys._nCount;
+    var pKeys = pMap._pKeys._pData;
+    var pValue;
     for (var i = 0; i < iLength; i++) {
-        pValues._pData[i] = pValues._pData[i] * (pValues._pData[i] - 1);
+        pValue = pMap.element(pKeys[i]);
+        pMap.addElement(pKeys[i], pValue * 2);
     }
+    pMap.release();
+}
+
+function test3() {
+    pMap2 = new Map2Storage();
+    var sName, pValue;
+    for (var i = 0; i < 20; i++) {
+        sName = "Prop_" + i;
+        pValue = i * i + 1;
+        pMap2.addElement(sName, pValue);
+    }
+//    var iLength = pMap2.length;
+//    var pKeys = pMap2.keys;
+//    var pValue;
+//    for (var i = 0; i < iLength; i++) {
+//        pValue = pMap2.element(pKeys[i]);
+//        pMap2.addElement(pKeys[i], pValue * 2);
+//    }
+    var iLength = pMap2.length;
+    var pKeys = pMap2.keys;
+    var pValue;
+    for (var i = 0; i < iLength; i++) {
+        pValue = pMap2.element(pKeys[i]);
+        pMap2.addElement(pKeys[i], pValue * 2);
+    }
+    pMap2.release();
 }
 
 function timeWrapper(pFunc, nTimes, arg1) {
@@ -223,13 +301,17 @@ function timeWrapper(pFunc, nTimes, arg1) {
     return new Date() - time;
 }
 
-trace("1: ", timeWrapper(test1, 100));
-trace("2: ", timeWrapper(test2, 100));
+trace("1: ", timeWrapper(test1, 1000));
+trace("2: ", timeWrapper(test2, 1000));
+trace("3: ", timeWrapper(test3, 1000));
 
-trace(a._pMapAllocator);
+//trace(a._pMapAllocator);
+//trace(a._pMap2Allocator);
+trace("-----------------");
 
-trace("1: ", timeWrapper(test1, 100));
-trace("2: ", timeWrapper(test2, 100));
+trace("1: ", timeWrapper(test1, 1000));
+trace("2: ", timeWrapper(test2, 1000));
+trace("3: ", timeWrapper(test3, 1000));
 
 
 //
