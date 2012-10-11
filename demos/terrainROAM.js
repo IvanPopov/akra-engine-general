@@ -4,10 +4,10 @@ function TarrainDemo() {
 	A_CLASS;
 
 
-	//Р›Р°РЅРґС€Р°С„С‚Р°
+	//Ландшафта
 	this.pTerrainSystem = null;
 
-	//РСЃРїРѕР»СЊР·СѓРµРјС‹Рµ РєСЂР°С‚С‹ РґР»СЏ Р»Р°РЅРґС€Р°С„С‚Р°
+	//Используемые краты для ландшафта
 	this.pTerrainMap = [];
 };
 
@@ -20,7 +20,7 @@ TarrainDemo.prototype.oneTimeSceneInit = function () {
 	this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0, 500.0));
 	this.showStats(true);
 
-	// Р—Р°РіСЂСѓР·РєР° С‚РµРєСЃС‚СѓСЂ РїРѕРІРµСЂС…РЅРѕСЃС‚Рё Р»Р°РЅРґС€Р°РІС‚Р°
+	// Загрузка текстур поверхности ландшавта
 	this.pTerrainMap["height"] = this.pDisplayManager.imagePool().createResource("terrain1_heightmap.dds");
 	this.pTerrainMap["height"].loadResource("/akra-engine-general/media/textures/terrain1_heightmap.dds");
 	this.pTerrainMap["normal"] = this.pDisplayManager.imagePool().createResource("terrain1_normal.jpeg");
@@ -61,19 +61,19 @@ TarrainDemo.prototype.initDeviceObjects = function () {
 
 
 	this.pTerrainSystem = new a.TerrainROAM(this);
-	// Р“РµРЅРµСЂР°С†РёСЏ СЂР°РЅРґРѕРјРЅРѕР№ РєР°СЂС‚С‹ РІС‹СЃРѕС‚
+	// Генерация рандомной карты высот
 	//this.pHeightImage = this.pDisplayManager.imagePool().createResource("height map");
 	//this.pHeightImage.create(128, 128, 0x1908,0);
 
-	console.log("РЎРѕР·РґР°РЅР° РєР°СЂС‚Р° РІС‹СЃРѕС‚");
+	console.log("Создана карта высот");
 	//this.pHeightImage.generatePerlinNoise(0.01, 5, 0.6);
 	//this.pHeightImage.generatePerlinNoise(0.01, 5, 0.6);
-	console.log("РЁСѓРј РїРµСЂР»РёРЅР° РЅР° РєСЂР°С‚Рµ РІС‹СЃРѕС‚ СЃРіРµРЅРµСЂРёСЂРѕРІР°РЅ");
+	console.log("Шум перлина на крате высот сгенерирован");
 
-	//CРѕР·РґР°РЅРёРµ Р»Р°РЅРґС€Р°РІС‚Р° РїРѕ РєР°СЂС‚Рµ РІС‹СЃРѕС‚
+	//Cоздание ландшавта по карте высот
 	this.pTerrainSystem.create(this.getRootNode(), this.pTerrainMap, this.getWorldExtents(),5,4,4,
 		"terrain1");
-	console.log("Terrain РїРѕ РєР°СЂС‚Рµ РІС‹СЃРѕС‚ СЃРѕР·РґР°РЅР°");
+	console.log("Terrain по карте высот создана");
 
 	var pCamera = this.getActiveCamera();
 	pCamera.addRelPosition(0, -750, 1000);

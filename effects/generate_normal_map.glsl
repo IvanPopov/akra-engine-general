@@ -15,7 +15,7 @@ precision highp float;
 uniform vec2 fSteps; //iverse texture size
 uniform float fScale; //height boost
 uniform sampler2D heightTexture;
-uniform int iChannel; //�����, �� �������� ���������� ����� ������
+uniform int iChannel; //канал, из которого необходимо брать высоту
 
 varying vec2 texturePosition;
 
@@ -30,7 +30,7 @@ void main(void){
         fHeight0 = (texture2D(heightTexture,texturePosition)).r;
         fHeight1 = (texture2D(heightTexture,texturePosition + vec2(fSteps.x,0.))).r;
         fHeight2 = (texture2D(heightTexture,texturePosition + vec2(fSteps.x,fSteps.y))).r;
-        fHeight3 = (texture2D(heightTexture,texturePosition + vec2(0.,fSteps.y))).r;
+        fHeight3 = (texture2D(heightTexture,texturePosition + vec2(0.,fSteps.x))).r;
         fHeight4 = (texture2D(heightTexture,texturePosition + vec2(-fSteps.x,fSteps.y))).r;
         fHeight5 = (texture2D(heightTexture,texturePosition + vec2(-fSteps.x,0.))).r;
         fHeight6 = (texture2D(heightTexture,texturePosition + vec2(-fSteps.x,-fSteps.y))).r;
@@ -41,7 +41,7 @@ void main(void){
         fHeight0 = (texture2D(heightTexture,texturePosition)).g;
         fHeight1 = (texture2D(heightTexture,texturePosition + vec2(fSteps.x,0.))).g;
         fHeight2 = (texture2D(heightTexture,texturePosition + vec2(fSteps.x,fSteps.y))).g;
-        fHeight3 = (texture2D(heightTexture,texturePosition + vec2(0.,fSteps.y))).g;
+        fHeight3 = (texture2D(heightTexture,texturePosition + vec2(0.,fSteps.x))).g;
         fHeight4 = (texture2D(heightTexture,texturePosition + vec2(-fSteps.x,fSteps.y))).g;
         fHeight5 = (texture2D(heightTexture,texturePosition + vec2(-fSteps.x,0.))).g;
         fHeight6 = (texture2D(heightTexture,texturePosition + vec2(-fSteps.x,-fSteps.y))).g;
@@ -52,7 +52,7 @@ void main(void){
         fHeight0 = (texture2D(heightTexture,texturePosition)).b;
         fHeight1 = (texture2D(heightTexture,texturePosition + vec2(fSteps.x,0.))).b;
         fHeight2 = (texture2D(heightTexture,texturePosition + vec2(fSteps.x,fSteps.y))).b;
-        fHeight3 = (texture2D(heightTexture,texturePosition + vec2(0.,fSteps.y))).b;
+        fHeight3 = (texture2D(heightTexture,texturePosition + vec2(0.,fSteps.x))).b;
         fHeight4 = (texture2D(heightTexture,texturePosition + vec2(-fSteps.x,fSteps.y))).b;
         fHeight5 = (texture2D(heightTexture,texturePosition + vec2(-fSteps.x,0.))).b;
         fHeight6 = (texture2D(heightTexture,texturePosition + vec2(-fSteps.x,-fSteps.y))).b;
@@ -63,7 +63,7 @@ void main(void){
         fHeight0 = (texture2D(heightTexture,texturePosition)).a;
         fHeight1 = (texture2D(heightTexture,texturePosition + vec2(fSteps.x,0.))).a;
         fHeight2 = (texture2D(heightTexture,texturePosition + vec2(fSteps.x,fSteps.y))).a;
-        fHeight3 = (texture2D(heightTexture,texturePosition + vec2(0.,fSteps.y))).a;
+        fHeight3 = (texture2D(heightTexture,texturePosition + vec2(0.,fSteps.x))).a;
         fHeight4 = (texture2D(heightTexture,texturePosition + vec2(-fSteps.x,fSteps.y))).a;
         fHeight5 = (texture2D(heightTexture,texturePosition + vec2(-fSteps.x,0.))).a;
         fHeight6 = (texture2D(heightTexture,texturePosition + vec2(-fSteps.x,-fSteps.y))).a;
@@ -72,7 +72,7 @@ void main(void){
     }
 
 
-    //��������� ��� ����� ���������
+    //формально так более правильно
     fHeight0 = fHeight0*2. - 1.;
     fHeight1 = fHeight1*2. - 1.;
     fHeight2 = fHeight2*2. - 1.;
@@ -103,13 +103,6 @@ void main(void){
 
     vec3 normal = normalize(normal1 + normal2 + normal3 + normal4
             + normal5 + normal6 + normal7 + normal8);
-    if(fHeight0<0.6)
-    {
-        gl_FragColor = vec4(0.,0.,1.,1.);
-        //gl_FragColor = vec4(normal/2. + vec3(0.5),1.);
-    }
-    else
-    {
-        gl_FragColor = vec4(0.,0.,0.,1.);
-    }
+
+    gl_FragColor = vec4(normal/2. + vec3(0.5),1.);
 }
