@@ -4,10 +4,10 @@ function TarrainDemo() {
 	A_CLASS;
 
 
-	//Ландшафта
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	this.pTerrainSystem = null;
 
-	//Используемые краты для ландшафта
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	this.pTerrainMap = [];
 };
 
@@ -22,7 +22,7 @@ TarrainDemo.prototype.oneTimeSceneInit = function () {
 	
 	this.initShaders();
 
-	// Загрузка текстур поверхности ландшавта
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	this.pTerrainMap["height"] = this.pDisplayManager.imagePool().createResource("terrain1_heightmap.dds");
 	this.pTerrainMap["height"].loadResource("/akra-engine-general/media/textures/terrain1_heightmap.dds");
 	this.pTerrainMap["normal"] = this.pDisplayManager.imagePool().createResource("terrain1_normal.jpeg");
@@ -35,6 +35,7 @@ TarrainDemo.prototype.initShaders = function () {
 	var pManager = this.shaderManager();
 	
 	pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/resize_texture.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/Plane.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh.afx', true);
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2.afx');
@@ -84,19 +85,19 @@ TarrainDemo.prototype.initDeviceObjects = function () {
 
 
 	this.pTerrainSystem = new a.TerrainROAM(this);
-	// Генерация рандомной карты высот
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 	//this.pHeightImage = this.pDisplayManager.imagePool().createResource("height map");
 	//this.pHeightImage.create(128, 128, 0x1908,0);
 
-	console.log("Создана карта высот");
+	console.log("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
 	//this.pHeightImage.generatePerlinNoise(0.01, 5, 0.6);
 	//this.pHeightImage.generatePerlinNoise(0.01, 5, 0.6);
-	console.log("Шум перлина на крате высот сгенерирован");
+	console.log("пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 
-	//Cоздание ландшавта по карте высот
+	//CпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 	this.pTerrainSystem.create(this.getRootNode(), this.pTerrainMap, this.getWorldExtents(),5,4,4,
 		"terrain1");
-	console.log("Terrain по карте высот создана");
+	console.log("Terrain пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 
 	var pCamera = this.getActiveCamera();
 	pCamera.addRelPosition(0, -750, 1000);

@@ -91,7 +91,7 @@ technique update_video_buffer{
     }
 }
 
-technique texture_repack{
+technique repack_texture{
     pass P0{
         VertexShader = compile vs_main_texture_repack();
         PixelShader = compile fs_main();
