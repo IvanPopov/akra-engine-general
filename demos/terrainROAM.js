@@ -19,6 +19,8 @@ TarrainDemo.prototype.oneTimeSceneInit = function () {
 	this.notifyOneTimeSceneInit();
 	this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0, 500.0));
 	this.showStats(true);
+	
+	this.initShaders();
 
 	// Загрузка текстур поверхности ландшавта
 	this.pTerrainMap["height"] = this.pDisplayManager.imagePool().createResource("terrain1_heightmap.dds");
@@ -27,6 +29,27 @@ TarrainDemo.prototype.oneTimeSceneInit = function () {
 	this.pTerrainMap["normal"].loadResource("/akra-engine-general/media/textures/terrain1_normal.jpeg");
 
 	return true;
+};
+
+TarrainDemo.prototype.initShaders = function () {
+	var pManager = this.shaderManager();
+	
+	pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/Plane.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh.afx', true);
+//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2.afx');
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_geometry.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh_texture.afx', true);
+//    pManager.loadEffectFile('http://akra/akra-engine-general/effects/samplers_array.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/TextureToScreen.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/prepare_shadows.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/prepareDeferredShading.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/deferredShading.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/apply_lights_and_shadows.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/fxaa.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/skybox.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/terrain.afx', true);
+	
 };
 
 TarrainDemo.prototype.restoreDeviceObjects = function () {
@@ -56,8 +79,8 @@ TarrainDemo.prototype.initDeviceObjects = function () {
 	//this.pPlane.bNoRender = true;
 	//this.pPlane.setScale(200.0);
 
-	this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
-	this.pDrawTerrainProgram = a.loadProgram(this, '../effects/terrainROAM.glsl');
+	//this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
+	//this.pDrawTerrainProgram = a.loadProgram(this, '../effects/terrainROAM.glsl');
 
 
 	this.pTerrainSystem = new a.TerrainROAM(this);
