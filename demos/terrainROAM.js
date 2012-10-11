@@ -21,10 +21,11 @@ TarrainDemo.prototype.oneTimeSceneInit = function () {
 	this.showStats(true);
 
 	// Загрузка текстур поверхности ландшавта
-	this.pTerrainMap["height"] = this.pDisplayManager.imagePool().createResource("supermap.png");
-	this.pTerrainMap["height"].loadResource("../media/textures/supermap.png");
-	this.pTerrainMap["normal"] = this.pDisplayManager.imagePool().createResource("supermap_normal.png");
-	this.pTerrainMap["normal"].loadResource("../media/textures/supermap_normal.png");
+	this.pTerrainMap["height"] = this.pDisplayManager.imagePool().createResource("terrain1_heightmap.dds");
+	this.pTerrainMap["height"].loadResource("/akra-engine-general/media/textures/terrain1_heightmap.dds");
+	this.pTerrainMap["normal"] = this.pDisplayManager.imagePool().createResource("terrain1_normal.jpeg");
+	this.pTerrainMap["normal"].loadResource("/akra-engine-general/media/textures/terrain1_normal.jpeg");
+
 	return true;
 };
 
@@ -71,7 +72,7 @@ TarrainDemo.prototype.initDeviceObjects = function () {
 
 	//Cоздание ландшавта по карте высот
 	this.pTerrainSystem.create(this.getRootNode(), this.pTerrainMap, this.getWorldExtents(),5,4,4,
-		"/akra-engine-general/media/textures/avstralia.jpg");
+		"terrain1");
 	console.log("Terrain по карте высот создана");
 
 	var pCamera = this.getActiveCamera();

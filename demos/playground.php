@@ -41,10 +41,12 @@
 
 
 
-    <canvas id="canvas" width=600 height=600 style="float: left"></canvas>
+    <canvas id="canvas" width=1280 height=960 style="float: left"></canvas>
+    <!--
     <canvas id="canvasLOD" width=600 height=600 style="float: left"></canvas>
+    -->
 
-    <!--<div>
+    <div>
     <div style="float: left">
         <canvas id="canvas0" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
         <canvas id="canvas1" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
@@ -85,7 +87,6 @@
         <canvas id="canvas2_6" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
     </div>
     </div>
-    -->
 
     <div style="float: left">
         <div id="setinfo0">0!!!!!</div>
