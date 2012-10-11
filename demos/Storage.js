@@ -54,14 +54,6 @@ PopArray.prototype.pop = function () {
     return this._pData[--this._nCount];
 };
 
-PopArray.prototype.shift = function () {
-
-};
-
-PopArray.prototype.unshift = function () {
-
-};
-
 PopArray.prototype.setElement = function (index, pValue) {
     if (index >= this._nCount) {
         return false;
@@ -71,7 +63,7 @@ PopArray.prototype.setElement = function (index, pValue) {
 
 PopArray.prototype.element = function (index) {
     if (index === undefined || index >= this._nCount) {
-        return null;
+        return;
     }
     return this._pData[index];
 };
@@ -101,14 +93,14 @@ Map.prototype.addElement = function (sKey, pValue) {
     var iSize = pKeys._nCount;
     var sOldKey;
     sOldKey = pKeys.element(index);
-    if (!sOldKey || sOldKey !== sKey) {
+    if (sOldKey === undefined || sOldKey !== sKey) {
         pKeys.push(sKey);
         pValues.push(pValue);
         pMap[sKey] = iSize;
     }
-//    else if (sOldKey === sKey) {
-    pValues.setElement(index, pValue);
-//    }
+    else if (sOldKey === sKey) {
+        pValues.setElement(index, pValue);
+    }
 };
 
 Map.prototype.hasElement = function (sKey) {
@@ -118,7 +110,7 @@ Map.prototype.hasElement = function (sKey) {
 
 Map.prototype.element = function (sKey) {
     var index = this._pMap[sKey];
-    return (index !== undefined && this._pKeys.element(index) === sKey) ? this._pValues._pData[index] : null;
+    return (index !== undefined && this._pKeys.element(index) === sKey) ? this._pValues._pData[index] : undefined;
 };
 
 
@@ -139,12 +131,16 @@ PROPERTY(Map2, "keys", function () {
 
 Map2.prototype.release = function (isStrong) {
     var pKeys = this._pKeys;
+    var pData = pKeys._pData;
     var iLength = pKeys._nCount;
     var pMap = this._pMap;
+
     for (var i = 0; i < iLength; i++) {
-        pMap[pKeys[i]] = undefined;
+        pMap[pData[i]] = undefined;
     }
+
     pKeys.release(isStrong);
+
     if (this._pAllocator !== null) {
         this._pAllocator._releaseElement(this);
     }
@@ -170,6 +166,7 @@ Map2.prototype.element = function (sKey) {
 Map2.prototype.key = function (index) {
     return this._pKeys.element(index);
 };
+
 
 //function MapAllocator(nCount, iIncrement) {
 //    this._pElements = new Array(nCount || 100);
@@ -223,6 +220,21 @@ A_NAMESPACE(Allocator);
 a._pMapAllocator = new Allocator(a.Map, 1000, 100);
 a._pMap2Allocator = new Allocator(a.Map2, 1000, 100);
 a._pArrayAllocator = new Allocator(a.PopArray, 1000, 100);
+
+
+function ObjectAllocator(){
+    this._pObjects = new Array(10000);
+    this._nCount = 0;
+    for(var i = 0; i < 10000; i++){
+        this._pObjects[i] = {};
+    }
+}
+
+ObjectAllocator.prototype.getElement = function(){
+    return this._pObjects[this._nCount++];
+}
+
+a._pObjectAllocator = new ObjectAllocator();
 
 function PopArrayStorage() {
     return a._pArrayAllocator.getElement();
@@ -278,13 +290,6 @@ function test3() {
         pValue = i * i + 1;
         pMap2.addElement(sName, pValue);
     }
-//    var iLength = pMap2.length;
-//    var pKeys = pMap2.keys;
-//    var pValue;
-//    for (var i = 0; i < iLength; i++) {
-//        pValue = pMap2.element(pKeys[i]);
-//        pMap2.addElement(pKeys[i], pValue * 2);
-//    }
     var iLength = pMap2.length;
     var pKeys = pMap2.keys;
     var pValue;
@@ -293,6 +298,21 @@ function test3() {
         pMap2.addElement(pKeys[i], pValue * 2);
     }
     pMap2.release();
+}
+
+function test4() {
+    pObj2 = a._pObjectAllocator.getElement();
+    var sName, pValue;
+    for (var i = 0; i < 20; i++) {
+        sName = "Prop_" + i;
+        pValue = i * i + 1;
+        pObj[sName] = pValue;
+    }
+    var pKeys = Object.keys(pObj);
+    var iLength = pKeys.length;
+    for (var i = 0; i < iLength; i++) {
+        pObj[pKeys[i]] *= 2; // pObj[pKeys[i]] * 2;
+    }
 }
 
 function timeWrapper(pFunc, nTimes, arg1) {
@@ -304,14 +324,16 @@ function timeWrapper(pFunc, nTimes, arg1) {
 trace("1: ", timeWrapper(test1, 1000));
 trace("2: ", timeWrapper(test2, 1000));
 trace("3: ", timeWrapper(test3, 1000));
+trace("4: ", timeWrapper(test4, 1000));
 
-//trace(a._pMapAllocator);
-//trace(a._pMap2Allocator);
+trace(a._pMapAllocator);
+trace(a._pMap2Allocator);
 trace("-----------------");
 
 trace("1: ", timeWrapper(test1, 1000));
 trace("2: ", timeWrapper(test2, 1000));
 trace("3: ", timeWrapper(test3, 1000));
+trace("4: ", timeWrapper(test4, 1000));
 
 
 //

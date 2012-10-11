@@ -9,6 +9,7 @@ function ShaderDemo() {
     this.pModel = null;
     this.pSprite = null;
     this.pLightPoint = null;
+    this.isFXAA = true;
     STATIC(fMoveSpeed, 1.);
 }
 
@@ -36,12 +37,17 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/deferredShading.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/apply_lights_and_shadows.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/fxaa.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/skybox.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/terrain.afx', true);
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/test_complex_struct.afx', true);
 
 //     this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
     this.pModel = this.displayManager().modelPool().createResource('model');
 //    this.pModel.loadResource("/akra-engine-general/media/models/arm.DAE", {animation : false});
     this.pModel.loadResource("/akra-engine-general/media/models/demo7/mesh_chr.DAE", {});
+
+    this.pSkyMap = this.pDisplayManager.texturePool().createResource("sky box texture");
+    this.pSkyMap.loadResource("/akra-engine-general/media/textures/sky_box1-1.dds");
 
 
     this.pResourceManager.monitorInitResources(function (nLoaded, nTotal, pTarget) {
@@ -81,7 +87,6 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     var pLightOmniShadow = this.pLightPoint = new a.LightPoint(this,true,true,2048/1);
     pLightOmniShadow.create();
     pLightOmniShadow.attachToParent(this.getRootNode());
-
     var m4fLook = Mat4.lookAt(Vec3(3,5,4),Vec3(0.,1.,0.),Vec3(0,1,0),Mat4());
 
     pLightOmniShadow.accessLocalMatrix().set(m4fLook.inverse());

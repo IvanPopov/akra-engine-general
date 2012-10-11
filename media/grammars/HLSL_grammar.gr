@@ -57,7 +57,7 @@ UsageStructDecl : Usages StructDecl
 
 TypeDecl : T_KW_TYPEDEF ConstType TypeDefs ';' --AN
 TypeDecl : T_KW_TYPEDEF ConstStructDecl TypeDefs ';'
-TypeDecl : StructDecl ';' --F addType
+TypeDecl : StructDecl --F addType ';'
 TypeDefs : VariableDim
 TypeDefs : VariableDim ',' TypeDefs
 

@@ -63,10 +63,11 @@ struct base_material{
     float4 emissive:EMISSIVE;
     float4 specular:SPECULAR;
     float shininess:SHININESS;
-};
+};;
 
-global float3 Normal;
 global base_material Fragment_material;
+global float3 Normal;
+
 
 struct Material {
     float4 ambient:AMBIENT;
