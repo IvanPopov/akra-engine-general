@@ -22,6 +22,9 @@ TarrainDemo.prototype.oneTimeSceneInit = function () {
 	
 	this.initShaders();
 
+    this.pSkyMap = this.pDisplayManager.texturePool().createResource("sky box texture");
+    this.pSkyMap.loadResource("/akra-engine-general/media/textures/sky_box1-1.dds");
+
 	// �������� ������� ����������� ���������
 	this.pTerrainMap["height"] = this.pDisplayManager.imagePool().createResource("terrain1_heightmap.dds");
 	this.pTerrainMap["height"].loadResource("/akra-engine-general/media/textures/terrain1_heightmap.dds");
@@ -63,6 +66,10 @@ TarrainDemo.prototype.initDeviceObjects = function () {
 	'use strict';
 
 	this.notifyInitDeviceObjects();
+
+    this.setupLighting();
+
+
 
 	var me = this;
 
@@ -111,6 +118,68 @@ TarrainDemo.prototype.initDeviceObjects = function () {
 TarrainDemo.prototype.deleteDeviceObjects = function () {
 	this.notifyDeleteDeviceObjects();
 	return true;
+};
+
+TarrainDemo.prototype.setupLighting = function () {
+    var pLightOmniShadow = this.pLightPoint = new a.LightPoint(this, true, true, 2048 / 1);
+    pLightOmniShadow.create();
+    pLightOmniShadow.attachToParent(this.getRootNode());
+    pLightOmniShadow.name = "omni_shadow";
+
+//    var pMesh = this.visualizeNode(pLightOmniShadow, a.geom.cube(this));
+//    pMesh[0].material.emissive = new a.Color4f(1., 1., 1., 1.);
+
+    var m4fLook = Mat4.lookAt(Vec3(3, 5, 4), Vec3(0., 1., 0.), Vec3(0, 1, 0), Mat4());
+
+    pLightOmniShadow.accessLocalMatrix().set(m4fLook.inverse());
+    pLightOmniShadow.isActive = false;
+
+    var pLightOmni = new a.LightPoint(this);
+    pLightOmni.create();
+    pLightOmni.attachToParent(this.getRootNode());
+    pLightOmni.addPosition(Vec3(0., 0., 5.));
+    pLightOmni.lightParameters.attenuation.set(0.6, 0., 0);
+    pLightOmni.isActive = true;
+    pLightOmni.name = "omni";
+
+//    var pMesh = this.visualizeNode(pLightOmni, a.geom.frustum(this));
+//    pMesh[0].material.emissive = new a.Color4f(1., 1., 1., 1.);
+
+    var pLightParameters = pLightOmni.lightParameters;
+    pLightParameters.diffuse.set(0.1);
+    pLightParameters.specular.set(0.1);
+
+    var pLightProject = new a.LightPoint(this, false, true, 2048 / 1);
+    pLightProject.create();
+    pLightProject.attachToParent(this.getRootNode());
+
+//    pMesh = this.visualizeNode(pLightProject, a.geom.frustum(this));
+//    pMesh[0].material.emissive = new a.Color4f(1., 1., 1., 1.);
+
+    m4fLook = Mat4.lookAt(Vec3(-10, 4, 0), Vec3(0., 1., 0.), Vec3(0, 1, 0), Mat4());
+    pLightProject.accessLocalMatrix().set(m4fLook.inverse());
+    pLightProject.camera.setProjParams(Math.PI / 5, 1, 0.01, 1000);
+    //pLightProject.lightParameters.attenuation.set(0.3,0.,0.);
+
+    pLightProject.isActive = false;
+
+    pLightProject.name = "project";
+
+    var pLightProjectShadow = new a.LightPoint(this, false, true, 2048 / 1);
+    pLightProjectShadow.create();
+    pLightProjectShadow.attachToParent(this.getRootNode());
+
+//    pMesh = this.visualizeNode(pLightProjectShadow, a.geom.frustum(this));
+//    pMesh[0].material.emissive = new a.Color4f(1., 1., 1., 1.);
+
+    m4fLook = Mat4.lookAt(Vec3(-15, 4, -15), Vec3(0., 1., 0.), Vec3(0, 1, 0), Mat4());
+    pLightProjectShadow.accessLocalMatrix().set(m4fLook.inverse());
+    pLightProjectShadow.camera.setProjParams(Math.PI / 5, 1, 0.01, 1000);
+
+    pLightProjectShadow.isActive = false;
+    pLightProjectShadow.name = "project_shadow";
+
+//    this.pLightProjects = [pLightProject, pLightProjectShadow];
 };
 
 

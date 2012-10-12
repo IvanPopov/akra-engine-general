@@ -126,8 +126,9 @@ float4 fs_deferred_shading(VS_OUT IN) : COLOR{
 
     //result_color = pixelData.shininess;
 //    result_color = float4(float3(pixelData.normal),1.);
-    //result_color = pixelData.diffuse;
+//    result_color = float4(pixelData.diffuse.xyz, 1.);
 
+//    result_color = float4(1.,0.5,0.5,1.);
     return result_color;
     //return emissive;
 };	

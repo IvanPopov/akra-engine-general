@@ -6,7 +6,7 @@ struct pos_tex{
 };
 
 struct VS_IN{
-    pos_tex data[]:DATA;
+    pos_tex data[][]:INDEX0;
 };
 
 struct VS_OUT{
