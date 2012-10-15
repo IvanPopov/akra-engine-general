@@ -25,6 +25,7 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     var pManager = this.shaderManager();
     var pSystemEffect;
     pSystemEffect = pManager.loadEffectFile('http://akra/akra-engine-general/effects/SystemEffects.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/resize_texture.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/Plane.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh.afx', true);
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/mesh2.afx');
