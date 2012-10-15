@@ -148,6 +148,8 @@ void fs_terrain(VS_OUT IN){
     }
 
     normal = tex2D(ptNormal, IN.texcoord).rgb;
+
+    normal = (view_mat * model_mat * float4(normal, 0.)).xyz;
     normal.xy -= 0.5;
     normal = normalize(normal);
 

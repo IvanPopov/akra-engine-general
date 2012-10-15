@@ -102,6 +102,13 @@ TarrainDemo.prototype.initDeviceObjects = function () {
 	console.log("��� ������� �� ����� ����� ������������");
 
 	//C������� ��������� �� ����� �����
+    var pTerrainNode = new a.SceneNode(this);
+    pTerrainNode.create();
+    pTerrainNode.attachToParent(this.getRootNode());
+    pTerrainNode.addRelRotation(Math.PI/2, Math.PI/2, Math.PI/2);
+    pTerrainNode.update();
+
+
 	this.pTerrainSystem.create(this.getRootNode(), this.pTerrainMap, this.getWorldExtents(),5,4,4,
 		"terrain1");
 	console.log("Terrain �� ����� ����� �������");
@@ -137,8 +144,8 @@ TarrainDemo.prototype.setupLighting = function () {
     var pLightOmni = new a.LightPoint(this);
     pLightOmni.create();
     pLightOmni.attachToParent(this.getRootNode());
-    pLightOmni.addPosition(Vec3(0., 0., 5.));
-    pLightOmni.lightParameters.attenuation.set(0.6, 0., 0);
+    pLightOmni.addPosition(Vec3(0., 750., 1000.));
+    pLightOmni.lightParameters.attenuation.set(0.1, 0., 0);
     pLightOmni.isActive = true;
     pLightOmni.name = "omni";
 
