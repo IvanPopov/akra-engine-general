@@ -40,10 +40,14 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/fxaa.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/skybox.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/terrain.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/generateTangent.afx', true);
+
+
+    this.pModel = this.displayManager().modelPool().createResource('model');
 //    pManager.loadEffectFile('http://akra/akra-engine-general/effects/test_complex_struct.afx', true);
 
 //     this.pTexture0 = this.displayManager().texturePool().loadResource("/akra-engine-general/media/textures/lion.png");
-    this.pModel = this.displayManager().modelPool().createResource('model');
+
 //    this.pModel.loadResource("/akra-engine-general/media/models/arm.DAE", {animation : false});
     this.pModel.loadResource("/akra-engine-general/media/models/demo7/mesh_chr.DAE", {});
 
@@ -135,6 +139,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     this.pPlaneMesh = a.geom.sceneSurface(this);
     this.pPlane = addMeshToScene(this, this.pPlaneMesh);
 
+    this.pPlane.addPosition(0.0,0.01,0.0);
 
     var pEffectResource = this.pPlane._pMeshes[0][0]._pActiveSnapshot._pRenderMethod._pEffect;
     pEffectResource.create();
