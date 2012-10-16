@@ -9,6 +9,7 @@ function TarrainDemo() {
 
 	//������������ ����� ��� ���������
 	this.pTerrainMap = [];
+    this.isFXAA = true;
 };
 
 EXTENDS(TarrainDemo, a.Engine);
