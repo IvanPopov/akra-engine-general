@@ -41,6 +41,7 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/skybox.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/terrain.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/generateTangent.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/sprite.afx', true);
 
 
     this.pModel = this.displayManager().modelPool().createResource('model');
@@ -54,6 +55,8 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     this.pSkyMap = this.pDisplayManager.texturePool().createResource("sky box texture");
     this.pSkyMap.loadResource("/akra-engine-general/media/textures/sky_box1-1.dds");
 
+    this.pSpriteTexture = this.pDisplayManager.texturePool().createResource("lion");
+    this.pSpriteTexture.loadResource("/akra-engine-general/media/textures/lion.png");
 
     this.pResourceManager.monitorInitResources(function (nLoaded, nTotal, pTarget) {
         console.log('loaded:', nLoaded / nTotal * 100, '%', pTarget.findResourceName());
@@ -88,6 +91,26 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     trace(this.pModel, '<<@@@@@@@@@@@@@@@@@');
     var pManager = this.shaderManager();
 
+    var pSprite = new a.Sprite(this);
+    pSprite.setGeometry(5,5);
+    pSprite.setData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
+    pSprite.visible = true;
+    pSprite.drawRoutine = spriteDraw;
+
+    var pMethod = this.pDisplayManager.renderMethodPool().createResource(".render_text3d");
+    pSprite.addRenderMethod(pMethod, ".render_text3d");
+    pSprite.switchRenderMethod(".render_text3d");
+
+    var pEffect = this.pDisplayManager.effectPool().createResource(".render_text3d");
+    pEffect.create();
+    pEffect.use("akra.system.base_sprite");
+    pEffect.use("akra.system.prepareForDeferredShading");
+
+    pMethod.effect = pEffect;
+
+    pSprite.create();
+    pSprite.attachToParent(this.getRootNode());
+    pSprite.addPosition(0,4.5,0);
 
     var pLightOmniShadow = this.pLightPoint = new a.LightPoint(this,true,true,2048/1);
     pLightOmniShadow.create();
@@ -231,4 +254,8 @@ else {
     if (!App.create('canvas') || !App.run()) {
         alert('something wrong....');
     }
+}
+
+function spriteDraw(pSnapshot){
+    pSnapshot.applyTextureBySemantic('SPRITE_TEXTURE',this._pEngine.pSpriteTexture);
 }
