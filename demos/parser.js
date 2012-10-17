@@ -138,7 +138,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     pLightProject.accessLocalMatrix().set(m4fLook.inverse());
     pLightProject.camera.setProjParams(Math.PI/5,1,0.01,1000);
 
-    pLightProject.isActive = true;
+    pLightProject.isActive = false;
 
     var pLightProjectShadow = new a.LightPoint(this,false,true,2048/1);
     pLightProjectShadow.create();

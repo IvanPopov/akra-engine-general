@@ -1,6 +1,7 @@
 provide akra.system;
 
-texture tex0 : TEXTURE0; 
+texture tex0 : TEXTURE0;
+texture skyBox : SKYBOX_TEXTURE;
 
 sampler sceneTexture : SAMPLER_TEXTURE0 = sampler_state
 {
@@ -21,11 +22,17 @@ sampler deferredTexture0 : SAMPLER_TEXTURE1 = sampler_state
 //texture tex2 : SKYBOX_TEXTURE;
 //texture tex2 : TEXTURE2;
 
-struct sky_fix {
-	samplerCUBE skyboxSampler : SAMPLER_SKYBOX;
-};;
+//struct sky_fix {
+//	samplerCUBE skyboxSampler : SAMPLER_SKYBOX;
+//};;
 
-sky_fix sky_container : SKY_FIX;
+samplerCUBE skyboxSampler : SAMPLER_SKYBOX = sampler_state
+{
+    Texture = <skyBox>;
+};
+
+
+//sky_fix sky_container : SKY_FIX;
 float2 screenTextureRatio : SCREEN_TEXTURE_RATIO;
 
 struct VS_IN{
@@ -79,7 +86,7 @@ float4 fs_skybox(VS_OUT IN) : COLOR{
         return tex2D(sceneTexture,textureCoords);
     }
     else{
-    	return texCUBE(sky_container.skyboxSampler,IN.texCoordsSkybox);
+    	return texCUBE(skyboxSampler,IN.texCoordsSkybox);
     }
 };	
 
