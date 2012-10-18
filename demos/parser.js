@@ -42,6 +42,7 @@ ShaderDemo.prototype.oneTimeSceneInit = function () {
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/terrain.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/generateTangent.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/sprite.afx', true);
+    pManager.loadEffectFile('http://akra/akra-engine-general/effects/text3d.afx', true);
 
 
     this.pModel = this.displayManager().modelPool().createResource('model');
@@ -91,26 +92,38 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     trace(this.pModel, '<<@@@@@@@@@@@@@@@@@');
     var pManager = this.shaderManager();
 
-    var pSprite = new a.Sprite(this);
-    pSprite.setGeometry(5,5);
-    pSprite.setData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
-    pSprite.visible = true;
-    pSprite.drawRoutine = spriteDraw;
+    // var pSprite = new a.Sprite(this);
+    // pSprite.setGeometry(5,5);
+    // pSprite.setData([VE_VEC2('TEXTURE_POSITION')],new Float32Array([0,0,0,1,1,0,1,1]));
+    // pSprite.visible = true;
+    // pSprite.drawRoutine = spriteDraw;
 
-    var pMethod = this.pDisplayManager.renderMethodPool().createResource(".render_text3d");
-    pSprite.addRenderMethod(pMethod, ".render_text3d");
-    pSprite.switchRenderMethod(".render_text3d");
+    // var pMethod = this.pDisplayManager.renderMethodPool().createResource(".render_text3d");
+    // pSprite.addRenderMethod(pMethod, ".render_text3d");
+    // pSprite.switchRenderMethod(".render_text3d");
 
-    var pEffect = this.pDisplayManager.effectPool().createResource(".render_text3d");
-    pEffect.create();
-    pEffect.use("akra.system.base_sprite");
-    pEffect.use("akra.system.prepareForDeferredShading");
+    // var pEffect = this.pDisplayManager.effectPool().createResource(".render_text3d");
+    // pEffect.create();
+    // pEffect.use("akra.system.base_sprite");
+    // pEffect.use("akra.system.prepareForDeferredShading");
+    // pMethod.effect = pEffect;
+    // 
+    // pSprite.create();
+    // pSprite.attachToParent(this.getRootNode());
+    // pSprite.addPosition(0,4.5,0);
 
-    pMethod.effect = pEffect;
+    var pFont = new a.Font3D(this,100,"Castellar",false,false);
+    var pText = new a.Text3D(this,pFont);
+    pText.setText('Text Text\n  Text  ');
+    pText.fontColor = Vec4(0.,0.,0.,1.);
+    pText.backgroundColor = Vec4(.0,1.0,0.0,0.);
 
-    pSprite.create();
-    pSprite.attachToParent(this.getRootNode());
-    pSprite.addPosition(0,4.5,0);
+    pText.fixedSize = true;
+    //pText.setDistanceMultiplier(0.1);
+    pText.visible = true;
+    pText.create();
+    pText.attachToParent(this.getRootNode());
+    pText.addPosition(Vec3(2.,3.,0.));
 
     var pLightOmniShadow = this.pLightPoint = new a.LightPoint(this,true,true,2048/1);
     pLightOmniShadow.create();

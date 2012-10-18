@@ -19,9 +19,9 @@ struct VS_OUT{
     float4 position : POSITION;
 };
 
-float4x4 view_mat : VIEW_MAT;
-float4x4 model_mat : MODEL_MAT;
-float4x4 proj_mat : PROJ_MAT;
+float4x4 view_mat : VIEW_MATRIX;
+float4x4 model_mat : MODEL_MATRIX;
+float4x4 proj_mat : PROJ_MATRIX;
 
 float nLineQuantity : LINE_QUANTITY; //в буквах
 float nLineLength : LINE_LENGTH; //в буквах
@@ -36,10 +36,6 @@ VS_OUT vs_text3d(VS_IN IN) {
     VS_OUT Out;
     float3 position_offset = IN.position_offset;
 
-    float4 pos = view_mat * model_mat * float4(0.,0.,0.,1.) + float4(position_offset,0.);
-    Out.position = proj_mat * pos;
-    return Out;
-
     Out.fCurrentParameters.x = (1. - (position_offset.y + 1.)/2.)*nLineQuantity;
     Out.fCurrentParameters.y = (position_offset.x + 1.)/2.*nLineLength;
     Out.fCurrentParameters.z = (position_offset.x + 1.)/2.*nPixelsSizes.x;
@@ -49,7 +45,7 @@ VS_OUT vs_text3d(VS_IN IN) {
     float3 realPositionOffset = position_offset;
     realPositionOffset.xy *= nPixelsSizes/v2fCanvasSizes;
 
-    float4 position = proj_mat * view_mat * model_mat * float4(position_offset, 1.);
+    float4 position = proj_mat * view_mat * model_mat * float4(0.,0.,0., 1.);
     float w = position.w;
     float4 screenRelativePosition = position/w;//center position in gl relative coordinates
     //if(position.w < 1.){
@@ -80,9 +76,19 @@ float4 v4fFontColor : FONT_COLOR;
 
 video_buffer text_data : TEXT_DATA;
 
-float4 fs_text3d(VS_OUT OUT) : COLOR {
-    return float4(0.,1.,0.,1.);
-    /*
+struct base_material{
+    float4 diffuse:DIFFUSE;
+    float4 ambient:AMBIENT;
+    float4 emissive:EMISSIVE;
+    float4 specular:SPECULAR;
+    float shininess:SHININESS;
+};;
+
+global base_material Fragment_material;
+
+void fs_text3d(VS_OUT OUT){
+    //return float4(0.,1.,0.,1.);
+    
     float3 fCurrentParameters = OUT.fCurrentParameters;
     float4 color;
 
@@ -112,7 +118,8 @@ float4 fs_text3d(VS_OUT OUT) : COLOR {
         if(v4fBackgroundColor.w == 0.){
             discard;
         }
-        return v4fBackgroundColor;
+        Fragment_material.emissive = v4fBackgroundColor;
+        return;
     }
 
     if(fCurrentPositionInLetter < firstLetterLength){
@@ -163,7 +170,9 @@ float4 fs_text3d(VS_OUT OUT) : COLOR {
 
     color = float4(v3fEffectiveColor/fEffectiveTransperency,fEffectiveTransperency);
     
-    return color;*/
+    Fragment_material.emissive = color;
+
+    //return color;
 }
 
 technique text3d{
