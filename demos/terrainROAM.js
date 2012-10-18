@@ -129,7 +129,7 @@ TarrainDemo.prototype.deleteDeviceObjects = function () {
 };
 
 TarrainDemo.prototype.setupLighting = function () {
-    var pLightOmniShadow = this.pLightPoint = new a.LightPoint(this, true, true, 2048 / 1);
+    var pLightOmniShadow = this.pLightPoint = new a.LightPoint(this, true, false, 2048 / 1);
     pLightOmniShadow.create();
     pLightOmniShadow.attachToParent(this.getRootNode());
     pLightOmniShadow.name = "omni_shadow";
@@ -140,7 +140,7 @@ TarrainDemo.prototype.setupLighting = function () {
     var m4fLook = Mat4.lookAt(Vec3(3, 5, 4), Vec3(0., 1., 0.), Vec3(0, 1, 0), Mat4());
 
     pLightOmniShadow.accessLocalMatrix().set(m4fLook.inverse());
-    pLightOmniShadow.isActive = false;
+    pLightOmniShadow.isActive = true;
 
     var pLightOmni = new a.LightPoint(this);
     pLightOmni.create();

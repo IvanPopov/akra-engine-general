@@ -131,7 +131,7 @@ ShaderDemo.prototype.initDeviceObjects = function () {
     var m4fLook = Mat4.lookAt(Vec3(3,5,4),Vec3(0.,1.,0.),Vec3(0,1,0),Mat4());
 
     pLightOmniShadow.accessLocalMatrix().set(m4fLook.inverse());
-    pLightOmniShadow.isActive = false;
+    pLightOmniShadow.isActive = true;
 
     var pLightOmni = new a.LightPoint(this);
     pLightOmni.create();

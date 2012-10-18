@@ -4,7 +4,7 @@
     <title>Cube / Akra Engine</title>
 </head>
 <body>
-<!-- <script type='text/javascript' src="webgl-debug.js"></script> -->
+<script type='text/javascript' src="webgl-debug.js"></script>
 <?php 
     $ready = false;
     

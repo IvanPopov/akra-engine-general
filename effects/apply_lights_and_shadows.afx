@@ -193,7 +193,10 @@ float4 calculateLight(pixel_data pixelData, light_data lightData){
 
     float4 color = float4(0.);
     //add ambient
-    color += pixelData.ambient * lightData.ambient * attenuation;
+//    if(lightData.attenuation.x == 0.1){
+//        color += float4(0.,1.,0.,1.);
+//    }
+    color += pixelData.ambient * lightData.ambient * attenuation;//float4(float3(attenuation/40.), 1.);//pixelData.ambient * lightData.ambient * attenuation;
     //add diffuse
     //if(pixelData.diffuse.xyz != float3(0.)){
 //        color += float4(0.5,0.,0.,0.);
