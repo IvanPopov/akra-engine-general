@@ -95,16 +95,25 @@ bool textureTerrainIsLoaded3;
 bool textureTerrainIsLoaded4;
 bool textureTerrainIsLoaded5;
 
+float2 textureCoord0;
+float2 textureCoord1;
+float2 textureCoord2;
+float2 textureCoord3;
+float2 textureCoord4;
+float2 textureCoord5;
+
+
 float2 cameraCoordTerrain : CAMERA_COORD;
 
+
 void fs_terrain(VS_OUT IN){
-//    float4x4 normal_mat = IN.normal_mat;
+
 
     float4 color;
     float2 new_texcoord;
     float3 normal;
 
-    new_texcoord = (IN.texcoord-cameraCoordTerrain)*32.+float2(0.5);
+    new_texcoord = (IN.texcoord-textureCoord5)*32.;
 
     if(textureTerrainIsLoaded5 &&(new_texcoord.x>=0. && new_texcoord.x<1. && new_texcoord.y>=0. && new_texcoord.y<1.0))
     {
@@ -112,28 +121,28 @@ void fs_terrain(VS_OUT IN){
     }
     else
     {
-        new_texcoord =(IN.texcoord-cameraCoordTerrain)*16. + float2(0.5);
+        new_texcoord =(IN.texcoord-textureCoord4)*16.;
         if(textureTerrainIsLoaded4 && (new_texcoord.x>=0. && new_texcoord.x<1.&&new_texcoord.y>=0. && new_texcoord.y<1.0))
         {
             color = tex2D(textureTerrain4, new_texcoord);
         }
         else
         {
-            new_texcoord = (IN.texcoord-cameraCoordTerrain)*8. + float2(0.5);
+            new_texcoord = (IN.texcoord-textureCoord3)*8.;
             if(textureTerrainIsLoaded3 && (new_texcoord.x>=0. && new_texcoord.x<1. && new_texcoord.y>=0. && new_texcoord.y<1.0))
             {
                 color = tex2D(textureTerrain3, new_texcoord);
             }
             else
             {
-                new_texcoord = (IN.texcoord-cameraCoordTerrain)*4. + float2(0.5);
+                new_texcoord = (IN.texcoord-textureCoord2)*4.;
                 if(textureTerrainIsLoaded2 && (new_texcoord.x>=0. && new_texcoord.x<1. && new_texcoord.y>=0. && new_texcoord.y<1.0))
                 {
                     color = tex2D(textureTerrain2, new_texcoord);
                 }
                 else
                 {
-                    new_texcoord = (IN.texcoord-cameraCoordTerrain)*2. + float2(0.5);
+                    new_texcoord = (IN.texcoord-textureCoord1)*2.;
                     if(textureTerrainIsLoaded1 && (new_texcoord.x>=0. && new_texcoord.x<1. && new_texcoord.y>=0. && new_texcoord.y<1.0))
                     {
                         color = tex2D(textureTerrain1, new_texcoord);
@@ -148,10 +157,9 @@ void fs_terrain(VS_OUT IN){
     }
 
     normal = tex2D(ptNormal, IN.texcoord).rgb;
-
-    normal = (view_mat * model_mat * float4(normal, 0.)).xyz;
     normal.xy -= 0.5;
     normal = normalize(normal);
+    normal = (view_mat * model_mat * float4(normal, 0.)).xyz;
 
     Normal = normal;
 

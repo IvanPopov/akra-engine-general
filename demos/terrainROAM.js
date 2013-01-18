@@ -4,10 +4,10 @@ function TarrainDemo() {
 	A_CLASS;
 
 
-	//���������
+	//Ландшафт
 	this.pTerrainSystem = null;
 
-	//������������ ����� ��� ���������
+	//Картын для ландшафта
 	this.pTerrainMap = [];
 };
 
@@ -17,19 +17,20 @@ TarrainDemo.prototype.oneTimeSceneInit = function () {
 	'use strict';
 
 	this.notifyOneTimeSceneInit();
-	this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0, 500.0));
+	this.setupWorldOcTree(new a.Rect3d(-500.0, 500.0, -500.0, 500.0, 0, 300.0));
 	this.showStats(true);
 	
 	this.initShaders();
 
-    this.pSkyMap = this.pDisplayManager.texturePool().createResource("sky box texture");
-    this.pSkyMap.loadResource("/akra-engine-general/media/textures/sky_box1-1.dds");
+    //this.pSkyMap = this.pDisplayManager.texturePool().createResource("sky box texture");
+   //this.pSkyMap.loadResource("/akra-engine-general/media/textures/sky_box1-1.dds");
 
-	// �������� ������� ����������� ���������
-	this.pTerrainMap["height"] = this.pDisplayManager.imagePool().createResource("terrain1_heightmap.dds");
-	this.pTerrainMap["height"].loadResource("/akra-engine-general/media/textures/terrain1_heightmap.dds");
-	this.pTerrainMap["normal"] = this.pDisplayManager.imagePool().createResource("terrain1_normal.jpeg");
-	this.pTerrainMap["normal"].loadResource("/akra-engine-general/media/textures/terrain1_normal.jpeg");
+	//Загрузка основеыз карт
+	this.pTerrainMap["height"] = this.pDisplayManager.imagePool().createResource("main_terrain_height_map.dds");
+	//this.pTerrainMap["height"].loadResource("/akra-engine-general/media/textures/terrain1_heightmap_16L.dds");
+	this.pTerrainMap["height"].loadResource("/akra-engine-general/media/textures/main_terrain_height_map.dds");
+	this.pTerrainMap["normal"] = this.pDisplayManager.imagePool().createResource("main_terrain_normal_map.dds");
+	this.pTerrainMap["normal"].loadResource("/akra-engine-general/media/textures/main_terrain_normal_map.dds");
 
 	return true;
 };
@@ -53,7 +54,9 @@ TarrainDemo.prototype.initShaders = function () {
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/fxaa.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/skybox.afx', true);
     pManager.loadEffectFile('http://akra/akra-engine-general/effects/terrain.afx', true);
-	
+
+	pManager.loadEffectFile('http://akra/akra-engine-general/effects/terrain_sweep.afx', true);
+
 };
 
 TarrainDemo.prototype.restoreDeviceObjects = function () {
@@ -90,18 +93,18 @@ TarrainDemo.prototype.initDeviceObjects = function () {
 	//this.pDrawPlaneProg = a.loadProgram(this, '../effects/plane.glsl');
 	//this.pDrawTerrainProgram = a.loadProgram(this, '../effects/terrainROAM.glsl');
 
-
 	this.pTerrainSystem = new a.TerrainROAM(this);
-	// ��������� ��������� ����� �����
+	//this.pTerrainSystem = new a.TerrainROAM(this);
+	// Создание карты высот
 	//this.pHeightImage = this.pDisplayManager.imagePool().createResource("height map");
 	//this.pHeightImage.create(128, 128, 0x1908,0);
 
-	console.log("������� ����� �����");
+	console.log("Генерация Шума перлина");
 	//this.pHeightImage.generatePerlinNoise(0.01, 5, 0.6);
 	//this.pHeightImage.generatePerlinNoise(0.01, 5, 0.6);
-	console.log("��� ������� �� ����� ����� ������������");
+	console.log("Генерация шума пелина завершена");
 
-	//C������� ��������� �� ����� �����
+	//создание ????
     var pTerrainNode = new a.SceneNode(this);
     pTerrainNode.create();
     pTerrainNode.attachToParent(this.getRootNode());
@@ -110,8 +113,8 @@ TarrainDemo.prototype.initDeviceObjects = function () {
 
 
 	this.pTerrainSystem.create(this.getRootNode(), this.pTerrainMap, this.getWorldExtents(),5,4,4,
-		"terrain1");
-	console.log("Terrain �� ����� ����� �������");
+		"main_terrain");
+	console.log("Terrain создан");
 
 	var pCamera = this.getActiveCamera();
 	pCamera.addRelPosition(0, -750, 1000);

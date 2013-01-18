@@ -1,0 +1,149 @@
+provide akra.system;
+
+include "http://akra/akra-engine-general/effects/floatSpecialFunctions.afx";
+
+texture tex0 : HEIGHT_MAP;
+
+sampler height_sampler = sampler_state{
+	Texture = <tex0>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+};
+
+struct VS_IN{
+	float2 screenPosition : POSITION;
+};;
+
+struct VS_OUT{
+	float4 position : POSITION;
+	float2 texturePosition : TEXTURE_POSITION;
+};;
+
+VS_OUT vs_sweep(VS_IN IN){
+	VS_OUT Out;
+
+	Out.position = float4(IN.screenPosition,0.,1.);
+	Out.texturePosition = (IN.screenPosition + 1.)/2.;
+
+	return Out;
+};
+
+float2 start_UV : START_UV;
+int2 cellCount : CELL_COUNT;
+
+float2 invTextureSizes : INV_TEXTURE_SIZES;
+float3 mapScale : TERRAIN_SCALE;
+int isX : IS_X;
+
+
+
+float4 fs_sweep(VS_OUT IN) : COLOR {
+    const int iAverageParameter=4;
+
+	float2 texturePosition = IN.texturePosition;
+
+	float2 cellStep = 1./ float2(cellCount);
+
+	float2 relativeCenter = floor(texturePosition/cellStep)*cellStep +
+	start_UV/ float2(cellCount);
+
+    float totalLength=0.0;
+	float2 direction= texturePosition - relativeCenter;
+
+    int iAverNew=int(float(iAverageParameter)*length(direction)/length(invTextureSizes*4.*float2(cellCount))) + 1;
+
+	//float4 decompose2 = floatToFloat4(float(iAverNew));
+    //return float4(decompose2.w,decompose2.z,decompose2.y,decompose2.x);
+    int nCount=0;
+	for(int y=-iAverageParameter;y<iAverageParameter+1;y++)
+	{
+	    if(y<-iAverNew)
+	    {
+            continue;
+        }
+        else if(y>iAverNew)
+        {
+            break;
+        }
+
+        for(int x=-iAverageParameter;x<iAverageParameter+1;x++)
+        {
+            if(x<-iAverNew)
+            {
+                continue;
+            }
+            else if(x>iAverNew)
+            {
+                break;
+            }
+
+            totalLength+=calc_length( height_sampler, invTextureSizes, mapScale,  relativeCenter, direction + (float2(0.5,0.5)+float2(x,y))*invTextureSizes/2.);
+            nCount++;
+       }
+
+	}
+    //float4 decompose2 = floatToFloat4(float(nCount));
+    //return float4(decompose2.w,decompose2.z,decompose2.y,decompose2.x);
+
+	totalLength/=float(nCount);
+
+    if(isX==1)
+    {
+        totalLength*=direction.x/length(direction);
+    }
+    else
+    {
+        totalLength*=direction.y/length(direction);
+    }
+
+	float4 decompose = floatToFloat4(totalLength);
+
+	return float4(decompose.w,decompose.z,decompose.y,decompose.x);
+}
+
+
+float calc_length(sampler height_sampler, float2 invTextureSizes, float3 mapScale, float2 startPoint, float2 direction)
+{
+    float2 pointNumber = abs(floor(direction/invTextureSizes.xy));
+    float maxLoopIndex = max(pointNumber.x,pointNumber.y);
+
+    if (maxLoopIndex==0.)
+    {
+        return 0.;
+    }
+
+    float2 textureStep = direction/maxLoopIndex;
+
+    float2 currentTexturePosition = startPoint;
+    float height, heightOld;
+    float totalLength = 0.;
+
+
+    heightOld = tex2D(height_sampler,currentTexturePosition).x;
+
+    for(int i=0;i>-1;i++){
+        if(float(i) >= maxLoopIndex){
+            break;
+        }
+
+        currentTexturePosition += textureStep;
+
+        height = tex2D(height_sampler,currentTexturePosition).x;
+
+        totalLength += length(float3(textureStep,height - heightOld)*mapScale);
+
+        heightOld = height;
+    }
+
+    return totalLength;
+}
+
+
+
+
+technique terrain_sweep{
+    pass p0{
+        VertexShader = compile vs_sweep();
+        PixelShader = compile fs_sweep();
+    }
+}

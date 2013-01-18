@@ -34,58 +34,18 @@
 
     #wrapper {
         margin: 0 5;
-        width: 1600px;
+        width: 1700px;
     }
 </style>
 <div id='wrapper'>
 
 
+    <div style="float: left">
+    <canvas id="canvas" width=1024 height=768 style="float: left"></canvas>
+    </div>
 
-    <canvas id="canvas" width=1280 height=960 style="float: left"></canvas>
-    <!--
+    <div style="float: left">
     <canvas id="canvasLOD" width=600 height=600 style="float: left"></canvas>
-    -->
-
-    <div>
-    <div style="float: left">
-        <canvas id="canvas0" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas1" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas2" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas3" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas4" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas5" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas6" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-    </div>
-
-    <div style="float: left">
-        <canvas id="canvas0_0" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas0_1" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas0_2" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas0_3" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas0_4" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas0_5" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas0_6" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-    </div>
-
-    <div style="float: left">
-        <canvas id="canvas1_0" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas1_1" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas1_2" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas1_3" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas1_4" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas1_5" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-        <canvas id="canvas1_6" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
-     </div>
-
-    <div style="float: left">
-        <canvas id="canvas2_0" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
-        <canvas id="canvas2_1" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
-        <canvas id="canvas2_2" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
-        <canvas id="canvas2_3" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
-        <canvas id="canvas2_4" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
-        <canvas id="canvas2_5" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
-        <canvas id="canvas2_6" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
-    </div>
     </div>
 
     <div style="float: left">
@@ -96,11 +56,59 @@
         <div id="setinfo4">4!!!!!</div>
         <div id="setinfo5">5!!!!!</div>
     </div>
+      <!--
+      <canvas id="canvasSWIP" width=2048 height=2048 style="float: left"></canvas>
+      -->
 
-	
-	<!--<video id="video" width="640" height="360" controls autoplay loop="true">
-		<source src="http://akra/akra-engine-general/media/video/VfE.webm" type="video/webm" />
-	</video>-->
+
+      <div>
+      <div style="float: left">
+          <canvas id="canvas0" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas1" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas2" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas3" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas4" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas5" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas6" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+      </div>
+
+      <div style="float: left">
+          <canvas id="canvas0_0" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas0_1" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas0_2" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas0_3" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas0_4" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas0_5" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas0_6" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+      </div>
+
+      <div style="float: left">
+          <canvas id="canvas1_0" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas1_1" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas1_2" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas1_3" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas1_4" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas1_5" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+          <canvas id="canvas1_6" width=128 height=128 style="display: block; zoom: 1; border:2px solid white"></canvas>
+       </div>
+
+      <div style="float: left">
+          <canvas id="canvas2_0" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
+          <canvas id="canvas2_1" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
+          <canvas id="canvas2_2" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
+          <canvas id="canvas2_3" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
+          <canvas id="canvas2_4" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
+          <canvas id="canvas2_5" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
+          <canvas id="canvas2_6" width=64 height=64 style="display: block; zoom: 2; border:1px solid white"></canvas>
+      </div>
+      </div>
+
+
+
+
+      <!--<video id="video" width="640" height="360" controls autoplay loop="true">
+          <source src="http://akra/akra-engine-general/media/video/VfE.webm" type="video/webm" />
+      </video>-->
 </div>
 <script type='text/javascript' src="http://127.0.0.1:8000/?q=<?php echo $query; ?>;"></script>
 
