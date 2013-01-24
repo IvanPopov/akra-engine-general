@@ -26,9 +26,9 @@ TarrainDemo.prototype.oneTimeSceneInit = function () {
    //this.pSkyMap.loadResource("/akra-engine-general/media/textures/sky_box1-1.dds");
 
 	//Загрузка основеыз карт
-	this.pTerrainMap["height"] = this.pDisplayManager.imagePool().createResource("main_terrain_height_map.dds");
+	this.pTerrainMap["height"] = this.pDisplayManager.imagePool().createResource("main_height_map_513.dds");
 	//this.pTerrainMap["height"].loadResource("/akra-engine-general/media/textures/terrain1_heightmap_16L.dds");
-	this.pTerrainMap["height"].loadResource("/akra-engine-general/media/textures/main_terrain_height_map.dds");
+	this.pTerrainMap["height"].loadResource("/akra-engine-general/media/textures/main_height_map_513.dds");
 	this.pTerrainMap["normal"] = this.pDisplayManager.imagePool().createResource("main_terrain_normal_map.dds");
 	this.pTerrainMap["normal"].loadResource("/akra-engine-general/media/textures/main_terrain_normal_map.dds");
 
@@ -112,7 +112,7 @@ TarrainDemo.prototype.initDeviceObjects = function () {
     pTerrainNode.update();
 
 
-	this.pTerrainSystem.create(this.getRootNode(), this.pTerrainMap, this.getWorldExtents(),5,4,4,
+	this.pTerrainSystem.create(this.getRootNode(), this.pTerrainMap, this.getWorldExtents(),4,5,5,
 		"main_terrain");
 	console.log("Terrain создан");
 

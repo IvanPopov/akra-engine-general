@@ -48,6 +48,20 @@
     <canvas id="canvasLOD" width=600 height=600 style="float: left"></canvas>
     </div>
 
+
+    <!--<div style="float: left">
+        <canvas id="variance0" width=300 height=300 style="float: left"></canvas>
+    </div>
+    <div style="float: left">
+        <canvas id="variance1" width=300 height=300 style="float: left"></canvas>
+    </div>
+    <div style="float: left">
+        <canvas id="variance2" width=300 height=300 style="float: left"></canvas>
+    </div>
+    <div style="float: left">
+        <canvas id="variance3" width=300 height=300 style="float: left"></canvas>
+    </div>-->
+
     <div style="float: left">
         <div id="setinfo0">0!!!!!</div>
         <div id="setinfo1">1!!!!!</div>
